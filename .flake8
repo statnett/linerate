@@ -1,0 +1,8 @@
+[flake8]
+max-line-length = 100
+ignore = E266, W503, E203, B008
+exclude = pip_cache, pipenv_cache, .venv, .tox, __pycache__, .hypothesis
+# F, B - pyflakes and flake8-bugbear
+# B901 - return with value inside generator function.
+select = E,F,B,B901,W
+max-complexity = 15

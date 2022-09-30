@@ -1,0 +1,10 @@
+include:
+  - project: 'pipelines/python-build'
+    ref: v1beta3
+    file: 'python-package.yml'
+
+variables:
+  PKG_NAME: "linerate"
+  PROJECT_NAME: "linerate"
+  PYTHON_VERSIONS: "/(3.8)/"
+  PYTHON_PUBLISH_VERSION: "3.8"
