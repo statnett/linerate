@@ -2,7 +2,7 @@ from typing import Dict
 
 from . import equations, solver
 from .types import Span, Weather
-from .units import Ampere, Celsius, Date, WattPerMeter, JoulePerKilogramPerKelvin, OhmPerMeter
+from .units import Ampere, Celsius, Date, JoulePerKilogramPerKelvin, OhmPerMeter, WattPerMeter
 
 __all__ = ["Cigre601"]
 
@@ -35,11 +35,15 @@ class Cigre601:
             max_relative_increase=max_increase,
         )
 
-    def compute_joule_heating(self, conductor_temperature: Celsius, current: Ampere) -> WattPerMeter:
+    def compute_joule_heating(
+        self, conductor_temperature: Celsius, current: Ampere
+    ) -> WattPerMeter:
         resistance = self.compute_resistance(conductor_temperature, current)
         return equations.joule_heating.compute_joule_heating(current, resistance)
 
-    def compute_solar_heating(self, conductor_temperature: Celsius, current: Ampere) -> WattPerMeter:
+    def compute_solar_heating(
+        self, conductor_temperature: Celsius, current: Ampere
+    ) -> WattPerMeter:
         alpha_s = self.span.conductor.solar_absorptivity
         F = self.span.ground_albedo
         phi = self.span.latitude
@@ -63,7 +67,9 @@ class Cigre601:
             D,
         )
 
-    def compute_convective_cooling(self, conductor_temperature: Celsius, current: Ampere) -> WattPerMeter:
+    def compute_convective_cooling(
+        self, conductor_temperature: Celsius, current: Ampere
+    ) -> WattPerMeter:
         D = self.span.conductor.conductor_diameter
         d = self.span.conductor.outer_layer_strand_diameter
         y = self.span.conductor_altitude
@@ -113,7 +119,9 @@ class Cigre601:
             thermal_conductivity_of_air=lambda_f,
         )
 
-    def compute_radiative_cooling(self, conductor_temperature: Celsius, current: Ampere) -> WattPerMeter:
+    def compute_radiative_cooling(
+        self, conductor_temperature: Celsius, current: Ampere
+    ) -> WattPerMeter:
         return equations.radiative_cooling.compute_radiative_cooling(
             surface_temperature=conductor_temperature,
             ambient_temperature=self.weather.air_temperature,
@@ -177,7 +185,9 @@ class Cigre601:
             conductor_diameter=self.span.conductor.conductor_diameter,
         )
 
-    def compute_info(self, conductor_temperature: Celsius, current: Ampere) -> Dict[str, WattPerMeter]:
+    def compute_info(
+        self, conductor_temperature: Celsius, current: Ampere
+    ) -> Dict[str, WattPerMeter]:
         return {
             "convective_cooling": self.compute_convective_cooling(conductor_temperature, current),
             "radiative_cooling": self.compute_radiative_cooling(conductor_temperature, current),
