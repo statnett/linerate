@@ -36,7 +36,7 @@ class Conductor:
     linear_resistance_coefficient_20c: PerCelsius
     quadratic_resistance_coefficient_20c: PerSquareCelsius
 
-    aluminium_surface_area: SquareMeter
+    aluminium_cross_section_area: SquareMeter
     constant_magnetic_effect: Unitless
     current_density_proportional_magnetic_effect: SquareMeterPerAmpere
     max_magnetic_core_relative_resistance_increase: Unitless

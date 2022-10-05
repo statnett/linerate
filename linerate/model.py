@@ -21,7 +21,7 @@ class Cigre601:
             self.span.conductor.quadratic_resistance_coefficient_20c,
         )
 
-        A = self.span.conductor.aluminium_surface_area
+        A = self.span.conductor.aluminium_cross_section_area
         b = self.span.conductor.constant_magnetic_effect
         m = self.span.conductor.current_density_proportional_magnetic_effect
         max_increase = self.span.conductor.max_magnetic_core_relative_resistance_increase
@@ -29,7 +29,7 @@ class Cigre601:
         return equations.joule_heating.correct_resistance_acsr_magnetic_core_loss(
             ac_resistance=resistance,
             current=current,
-            aluminium_surface_area=A,
+            aluminium_cross_section_area=A,
             constant_magnetic_effect=b,
             current_density_proportional_magnetic_effect=m,
             max_relative_increase=max_increase,
@@ -124,7 +124,7 @@ class Cigre601:
     ) -> WattPerMeter:
         return equations.radiative_cooling.compute_radiative_cooling(
             surface_temperature=conductor_temperature,
-            ambient_temperature=self.weather.air_temperature,
+            air_temperature=self.weather.air_temperature,
             conductor_diameter=self.span.conductor.conductor_diameter,
             conductor_emissivity=self.span.conductor.emissivity,
         )

@@ -48,14 +48,14 @@ def test_radiative_cooling_scales_power_four_with_surface_temperature(surface_te
     )
 
 
-@hypothesis.given(ambient_temperature=st.floats(allow_nan=False, min_value=-273.15, max_value=1e10))
-def test_radiative_cooling_scales_power_four_with_ambient_temperature(ambient_temperature):
+@hypothesis.given(air_temperature=st.floats(allow_nan=False, min_value=-273.15, max_value=1e10))
+def test_radiative_cooling_scales_power_four_with_air_temperature(air_temperature):
     # Set parameters so 2 pi sigma epsilon = 1
     D = 1 / np.pi
     sigma = stefan_boltzmann_constant
     epsilon = 1 / sigma
     T_s = -273.15
-    T_a = ambient_temperature
+    T_a = air_temperature
 
     assert radiative_cooling.compute_radiative_cooling(T_s, T_a, D, epsilon) == approx(
         -((T_a + 273.15) ** 4)
@@ -63,7 +63,7 @@ def test_radiative_cooling_scales_power_four_with_ambient_temperature(ambient_te
 
 
 @pytest.mark.parametrize(
-    "conductor_diameter, conductor_emissivity, surface_temperature, ambient_temperature, cooling",
+    "conductor_diameter, conductor_emissivity, surface_temperature, air_temperature, cooling",
     [
         (1 / np.pi, 1 / stefan_boltzmann_constant, -273.15, -273.15, 0),
         (1 / np.pi, 1 / stefan_boltzmann_constant, -272.15, -273.15, 1),
@@ -75,11 +75,11 @@ def test_radiative_cooling_scales_power_four_with_ambient_temperature(ambient_te
     ],
 )
 def test_radiative_cooling_with_example(
-    conductor_diameter, conductor_emissivity, surface_temperature, ambient_temperature, cooling
+    conductor_diameter, conductor_emissivity, surface_temperature, air_temperature, cooling
 ):
     D = conductor_diameter
     epsilon = conductor_emissivity
     T_s = surface_temperature
-    T_a = ambient_temperature
+    T_a = air_temperature
 
     assert radiative_cooling.compute_radiative_cooling(T_s, T_a, D, epsilon) == approx(cooling)

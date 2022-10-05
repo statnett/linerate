@@ -18,7 +18,7 @@ def test_vectorization():
         resistance_at_20c=get_zeros(2, 15),
         linear_resistance_coefficient_20c=get_zeros(3, 15),
         quadratic_resistance_coefficient_20c=get_zeros(4, 15),
-        aluminium_surface_area=1 + get_zeros(5, 15),
+        aluminium_cross_section_area=1 + get_zeros(5, 15),
         constant_magnetic_effect=get_zeros(6, 15),
         current_density_proportional_magnetic_effect=get_zeros(7, 15) + 1,
         max_magnetic_core_relative_resistance_increase=get_zeros(8, 15),
