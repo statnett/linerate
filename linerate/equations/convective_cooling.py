@@ -224,7 +224,7 @@ def compute_grashof_number(
     Parameters
     ----------
     conductor_diameter:
-        :math:`D_1~\left[\text{m}\right]`. Outer diameter of the conductor.
+        :math:`D~\left[\text{m}\right]`. Outer diameter of the conductor.
     surface_temperature:
         :math:`T_s~\left[^\circ\text{C}\right]`. The conductor surface temperature.
     air_temperature:
