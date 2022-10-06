@@ -431,7 +431,7 @@ def compute_perpendicular_flow_nusseltnumber(
 
 
 def correct_wind_direction_effect_on_nusselt_number(
-    perpendicular_wind_nusselt_number: Unitless,
+    perpendicular_flow_nusselt_number: Unitless,
     angle_of_attack: Radian,
     conductor_roughness: Unitless,
 ) -> Unitless:
@@ -444,7 +444,7 @@ def correct_wind_direction_effect_on_nusselt_number(
 
     Parameters
     ----------
-    perpendicular_wind_nusselt_number:
+    perpendicular_flow_nusselt_number:
         :math:`\text{Nu}_{90}`. The perpendicular flow Nusselt number.
     angle_of_attack:
         :math:`\delta~\left[\text{radian}\right]`. The wind angle-of-attack.
@@ -457,7 +457,7 @@ def correct_wind_direction_effect_on_nusselt_number(
         :math:`\text{Nu}_\delta`. The Nusselt number for the given wind angle-of-attack.
     """
     delta = angle_of_attack
-    Nu_90 = perpendicular_wind_nusselt_number
+    Nu_90 = perpendicular_flow_nusselt_number
     Rs = conductor_roughness
 
     sin_delta = np.sin(delta)

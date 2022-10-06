@@ -491,16 +491,16 @@ def test_perpendicular_flow_nusselt_number_uses_correct_exponential(
 
 
 @hypothesis.given(
-    perpendicular_wind_nusselt_number=st.floats(
+    perpendicular_flow_nusselt_number=st.floats(
         min_value=1e-10, allow_infinity=False, allow_nan=False
     ),
     angle_of_attack=st.floats(allow_infinity=False, min_value=0, max_value=90),
 )
 def test_stranded_angle_of_attack_correction_has_correct_form(
-    perpendicular_wind_nusselt_number,
+    perpendicular_flow_nusselt_number,
     angle_of_attack,
 ):
-    Nu_90 = perpendicular_wind_nusselt_number
+    Nu_90 = perpendicular_flow_nusselt_number
     delta = np.radians(angle_of_attack)
     Nu_delta = convective_cooling.correct_wind_direction_effect_on_nusselt_number(
         Nu_90, delta, conductor_roughness=1
@@ -513,18 +513,18 @@ def test_stranded_angle_of_attack_correction_has_correct_form(
 
 
 @hypothesis.given(
-    perpendicular_wind_nusselt_number=st.floats(
+    perpendicular_flow_nusselt_number=st.floats(
         min_value=1e-10, allow_infinity=False, allow_nan=False
     ),
     angle_of_attack=st.floats(allow_infinity=False, min_value=0, max_value=90),
 )
 @pytest.mark.parametrize("conductor_roughness", [0, np.nan])
 def test_smooth_angle_of_attack_correction_has_correct_form(
-    perpendicular_wind_nusselt_number,
+    perpendicular_flow_nusselt_number,
     angle_of_attack,
     conductor_roughness,
 ):
-    Nu_90 = perpendicular_wind_nusselt_number
+    Nu_90 = perpendicular_flow_nusselt_number
     delta = np.radians(angle_of_attack)
     Rs = conductor_roughness
 
@@ -538,7 +538,7 @@ def test_smooth_angle_of_attack_correction_has_correct_form(
 
 
 @pytest.mark.parametrize(
-    "perpendicular_wind_nusselt_number, angle_of_attack, conductor_roughness, corrected_nusselt_number",  # noqa
+    "perpendicular_flow_nusselt_number, angle_of_attack, conductor_roughness, corrected_nusselt_number",  # noqa
     [
         (0, np.pi / 6, 0, 0),
         (0, np.pi / 6, np.nan, 0),
@@ -555,12 +555,12 @@ def test_smooth_angle_of_attack_correction_has_correct_form(
     ],
 )
 def test_angle_of_attack_correction_with_examples(
-    perpendicular_wind_nusselt_number,
+    perpendicular_flow_nusselt_number,
     angle_of_attack,
     conductor_roughness,
     corrected_nusselt_number,
 ):
-    Nu_90 = perpendicular_wind_nusselt_number
+    Nu_90 = perpendicular_flow_nusselt_number
     delta = angle_of_attack
     Nu_delta = corrected_nusselt_number
     Rs = conductor_roughness
