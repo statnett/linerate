@@ -191,7 +191,7 @@ def compute_joule_heating(current: Ampere, resistance: OhmPerMeter) -> WattPerMe
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`P_j~\left[\text{W}~\text{m}^{-1}\right]`. The joule heating of the conductor
+        :math:`P_J~\left[\text{W}~\text{m}^{-1}\right]`. The Joule heating of the conductor
     """
     I = current  # noqa
     R = resistance
