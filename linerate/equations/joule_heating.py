@@ -6,8 +6,6 @@ from ..units import (
     Ampere,
     Celsius,
     OhmPerMeter,
-    PerCelsius,
-    PerSquareCelsius,
     SquareMeter,
     SquareMeterPerAmpere,
     Unitless,
@@ -15,90 +13,43 @@ from ..units import (
 )
 
 
-def compute_linear_resistance_parameters(
-    temperature_1: Celsius,
-    resistance_1: OhmPerMeter,
-    temperature_2: Celsius,
-    resistance_2: OhmPerMeter,
-) -> Tuple[OhmPerMeter, PerCelsius]:
-    r"""Convert from resistance at two known temperatures to the linear resistance parameters.
-
-    Parameters
-    ----------
-    temperature_1:
-        :math:`T_1~\left[^\circ\text{C}\right]`. The first known temperature
-    resistance_1:
-        :math:`R_1~\left[^\Omega_1\right]`. The first known resistance
-    temperature_2:
-        :math:`T_2~\left[^\circ\text{C}\right]`. The second known temperature
-    resistance_2:
-        :math:`R_2~\left[^\Omega_1\right]`. The second known resistance
-
-    Returns
-    -------
-    Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`\rho_{20}~\left[\Omega~\text{m}^{-1}\right]`. The resistance at
-        :math:`20^\circ \text{C}`.
-    Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`\alpha_{20}~\left[\left(^\circ\text{C}\right)^{-1}\right]`.
-    """
-    T1, T2 = temperature_1, temperature_2
-    R1, R2 = resistance_1, resistance_2
-
-    if np.all(R1 == R2):
-        return np.ones_like(R1) * R1, np.zeros_like(R1)
-
-    temp = (T1 - 20) * R2 - (T2 - 20) * R1  # CelsiusOhmPerMeter
-    rho_20 = np.where(R1 == R2, np.ones_like(R1) * R1, temp / (T1 - T2))
-    alpha_20 = np.where(R1 == R2, np.zeros_like(R1), (R1 - R2) / temp)
-    return rho_20, alpha_20
-
-
 def compute_resistance(
     conductor_temperature: Celsius,
-    resistance_at_20c: OhmPerMeter,
-    linear_resistance_coefficient_20c: PerCelsius,
-    quadratic_resistance_coefficient_20c: PerSquareCelsius,
+    temperature1: Celsius,
+    temperature2: Celsius,
+    resistance_at_temperature1: OhmPerMeter,
+    resistance_at_temperature2: OhmPerMeter,
 ) -> OhmPerMeter:
     r"""Compute the (possibly AC-)resistance of the conductor at a given temperature.
     
-    Equation (5) on page 15 of :cite:p:`cigre601` states that the conductor resistance, :math:`R`
-    is given by
-
-    .. math::
-
-        R = \rho_{20} \left(
-            1 +
-            \alpha_{20}\left(T - 20^\circ \text{C}\right) +
-            \zeta_{20}\left(T - 20^\circ \text{C}\right)^2
-        \right),
-    
-    where :math:`T` is the conductor temperature and :math:`\rho_{20}, \alpha_{20}` and
-    :math:`\zeta_{20}` are parameters for the given conductor.
+    The resistance is linearly interpolated/extrapolated based on the two temperature-resistance
+    measurement pairs provided as arguments.
     
     Parameters
     ----------
     conductor_temperature:
         :math:`T~\left[^\circ\text{C}\right]`. The average conductor temperature.
-    resistance_at_20c:
-        :math:`\rho_{20}~\left[\Omega~\text{m}^{-1}\right]`. The resistance at
-        :math:`20^\circ \text{C}`.
-    linear_resistance_coefficient_20c:
-        :math:`\alpha_{20}~\left[\left(^\circ\text{C}\right)^{-1}\right]`.
-    quadratic_resistance_coefficient_20c:
-        :math:`\zeta_{20}~\left[\left(^\circ\text{C}\right)^{-2}\right]`.
-
+    temperature1:
+        :math:`T_1~\left[^\circ\text{C}\right]`. The first temperature measurement.
+    temperature2:
+        :math:`T_2~\left[^\circ\text{C}\right]`. The second temperature measurement.
+    resistance_at_temperature1:
+        :math:`R_1~\left[\Omega~\text{m}^{-1}\right]`. The resistance at temperature :math:`T=T_1`.
+    resistance_at_temperature2:
+        :math:`R_2~\left[\Omega~\text{m}^{-1}\right]`. The resistance at temperature :math:`T=T_2`.
+    
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
         :math:`R~\left[\Omega\right]`. The resistance at the given temperature.
     """
     T_av = conductor_temperature
-    rho_20 = resistance_at_20c
-    alpha_20 = linear_resistance_coefficient_20c
-    zeta_20 = quadratic_resistance_coefficient_20c
+    T_1, T_2 = temperature1, temperature2
+    R_1, R_2 = resistance_at_temperature1, resistance_at_temperature2
 
-    return rho_20 * (1 + alpha_20 * (T_av - 20) + zeta_20 * (T_av - 20) ** 2)
+    a = (R_2 - R_1) / (T_2 - T_1)
+    b = R_1 - a*T_1
+    return a*T_av + b
 
 
 def correct_resistance_acsr_magnetic_core_loss(
@@ -118,12 +69,15 @@ def correct_resistance_acsr_magnetic_core_loss(
     According to :cite:p:`ieee.acsr.taskforce`, we can assume a linear relationship between the
     current density and the relative increase in resistance due to the steel core of three-layer
     ACSR. However, the task force also says that we can assume that the increase saturates at
-    6%. For ACSR with an even number of layers, the effect is negligible since we get cancelling
+    6%. In :cite:p:`cigre345`, it is stated that the maximum increase for three-layer ACSR is 5%.
+    
+    For ACSR with an even number of layers, the effect is negligible since we get cancelling
     magnetic fields, and for mono-layer ACSR, the effect behaves differently. Still, some software
     providers use the same correction scheme for mono-layer ACSR, but with a higher saturation
-    point (e.g. 20%).
+    point (typically 20%, since that is the maximum resistance increase in mono-layer ACSR
+    :cite:p:`cigre345`).
 
-    This leads to the following correction scheme
+    The linear but saturating increase in resistance leads to the following correction scheme
 
     .. math::
 
@@ -144,11 +98,11 @@ def correct_resistance_acsr_magnetic_core_loss(
     current:
         :math:`I~\left[\text{A}\right]`. The current going through the conductor.
     aluminium_cross_section_area:
-        :math:`A~\left[\text{m}^2\right]`. The cross sectional area of the aluminium strands in
-        the conductor.
+        :math:`A_{\text{Al}}~\left[\text{m}^2\right]`. The cross sectional area of the aluminium
+        strands in the conductor.
     constant_magnetic_effect:
         :math:`b`. The constant magnetic effect, most likely equal to 1. If ``None``, then no
-        no correction is used (useful for non-ACSR cables).
+        correction is used (useful for non-ACSR cables).
     current_density_proportional_magnetic_effect:
         :math:`m`. The current density proportional magnetic effect. If ``None``, then it is
         assumed equal to 0.

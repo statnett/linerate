@@ -11,8 +11,6 @@ import numpy.typing as npt
 FloatOrFloatArray = Union[float, np.float64, npt.NDArray[np.float64]]
 
 OhmPerMeter = Annotated[FloatOrFloatArray, "Ω/m"]
-PerCelsius = Annotated[FloatOrFloatArray, "1/°C"]
-PerSquareCelsius = Annotated[FloatOrFloatArray, "1/°C²"]
 Ampere = Annotated[FloatOrFloatArray, "A"]
 Radian = Annotated[FloatOrFloatArray, "rad"]
 Degrees = Annotated[FloatOrFloatArray, "°"]

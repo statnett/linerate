@@ -16,9 +16,10 @@ class Cigre601:
     def compute_resistance(self, conductor_temperature: Celsius, current: Ampere) -> OhmPerMeter:
         resistance = equations.joule_heating.compute_resistance(
             conductor_temperature,
-            self.span.conductor.resistance_at_20c,
-            self.span.conductor.linear_resistance_coefficient_20c,
-            self.span.conductor.quadratic_resistance_coefficient_20c,
+            temperature1=self.span.conductor.temperature1,
+            temperature2=self.span.conductor.temperature2,
+            resistance_at_temperature1=self.span.conductor.resistance_at_temperature1,
+            resistance_at_temperature2=self.span.conductor.resistance_at_temperature2,
         )
 
         A = self.span.conductor.aluminium_cross_section_area

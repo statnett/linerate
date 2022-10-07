@@ -7,19 +7,16 @@ import linerate
 
 @pytest.fixture
 def drake_conductor_a():
-    resistance_params = linerate.equations.joule_heating.compute_linear_resistance_parameters(
-        25, 7.283e-5, 75, 8.688e-5
-    )
-
     return linerate.Conductor(
         core_diameter=10.4e-3,
         conductor_diameter=28.1e-3,
         outer_layer_strand_diameter=4.4e-3,
         emissivity=0.8,
         solar_absorptivity=0.8,
-        resistance_at_20c=resistance_params[0],
-        linear_resistance_coefficient_20c=resistance_params[1],
-        quadratic_resistance_coefficient_20c=0,
+        temperature1=25,
+        temperature2=75,
+        resistance_at_temperature2=8.688e-5,
+        resistance_at_temperature1=7.283e-5,
         aluminium_cross_section_area=float("nan"),
         constant_magnetic_effect=1,
         current_density_proportional_magnetic_effect=0,
@@ -80,19 +77,16 @@ def test_example_a_ampacity(example_model_a):
 
 @pytest.fixture
 def drake_conductor_b():
-    resistance_params = linerate.equations.joule_heating.compute_linear_resistance_parameters(
-        25, 7.283e-5, 75, 8.688e-5
-    )
-
     return linerate.Conductor(
         core_diameter=10.4e-3,
         conductor_diameter=28.1e-3,
         outer_layer_strand_diameter=2.2e-3,
         emissivity=0.9,
         solar_absorptivity=0.9,
-        resistance_at_20c=resistance_params[0],
-        linear_resistance_coefficient_20c=resistance_params[1],
-        quadratic_resistance_coefficient_20c=0,
+        temperature1=25,
+        temperature2=75,
+        resistance_at_temperature2=8.688e-5,
+        resistance_at_temperature1=7.283e-5,
         aluminium_cross_section_area=float("nan"),
         constant_magnetic_effect=1,
         current_density_proportional_magnetic_effect=0,
