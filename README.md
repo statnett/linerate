@@ -25,21 +25,9 @@ in the `equations` module, as we have taken care to ensure that the argument nam
 Below, we see an example of how to compute the conductor temperature based on *Example B* on page 79-81 in CIGRE TB 601. 
 
 ```python
-
 import numpy as np
 import linerate
-from linerate.equations.joule_heating import compute_linear_resistance_parameters
 
-
-# The CIGRE 601 model allows for a quadratic relationship between the current
-# and the example used linearly interpolated values. This utility converts between
-# these two forms
-resistance_params = compute_linear_resistance_parameters(
-    temperature_1=25,
-    resistance_1=7.283e-5,
-    temperature_2=75,
-    resistance_2=8.688e-5
-)
 
 conductor = linerate.Conductor(
     core_diameter=10.4e-3,
@@ -47,10 +35,11 @@ conductor = linerate.Conductor(
     outer_layer_strand_diameter=2.2e-3,
     emissivity=0.9,
     solar_absorptivity=0.9,
-    resistance_at_20c=resistance_params[0],
-    linear_resistance_coefficient_20c=resistance_params[1],
-    quadratic_resistance_coefficient_20c=0,
-    aluminium_surface_area=float("nan"),  # No core magnetisation loss
+    temperature1=25,
+    temperature2=75,
+    resistance_at_temperature1=7.283e-5,
+    resistance_at_temperature2=8.688e-5,
+    aluminium_cross_section_area=float("nan"),  # No core magnetisation loss
     constant_magnetic_effect=1,
     current_density_proportional_magnetic_effect=0,
     max_magnetic_core_relative_resistance_increase=1,
