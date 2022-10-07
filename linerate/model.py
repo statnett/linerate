@@ -257,7 +257,7 @@ class ThermalModel(ABC):
 
 class Cigre601(ThermalModel):
     def __init__(self, span: Span, weather: Weather, time: Date):
-        super().__init__(self.span, self.weather)
+        super().__init__(span, weather)
         self.time = time
 
     @_copy_docstring(ThermalModel.compute_resistance)
