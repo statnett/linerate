@@ -38,8 +38,9 @@ def compute_temperature_gradient(
         :math:`P_T = I^2 R~\left[\text{W}~\text{m}^{-1}\right]`. The Joule heating of the
         conductor (see p. 81 of :cite:p:`cigre601`).
     conductor_thermal_conductivity:
-        :math:`\lambda \left[\text{W}~\text{m}^{-1}~\text{K}^{-1}\right]`. The conductor
-        thermal conductivity is between 0.5 and 7 W/(m k). Recommended values are
+        :math:`\lambda \left[\text{W}~\text{m}^{-1}~\text{K}^{-1}\right]`. The effective
+        conductor thermal conductivity. It is usually between :math:`0.5` and
+        :math:`7~W~m^{-1}~K^{-1}`. Recommended values are 
         :math:`0.7~\text{W}~\text{m}^{-1}~\text{K}^{-1}` for conductors with no tension on the
         aluminium strands and :math:`1.5~\text{W}~\text{m}^{-1}~\text{K}^{-1}` for conductors
         with aluminium strands under a tension of at least 40 N :cite:p:`cigre601`.
@@ -540,9 +541,9 @@ def correct_natural_nusselt_number_inclination(
     horizontal_natural_nusselt_number:
         :math:`\text{Nu}_0`. The natural convection nusselt number assuming horizontal conductor.
     conductor_inclination:
-        :math:`\delta~\left[\text{radian}\right]`. The inclination angle of the conductor. The
+        :math:`\beta~\left[\text{radian}\right]`. The inclination angle of the conductor. The
         inclination can be computed as
-        :math:`\delta = \text{arctan2}\left(\left|y_1 - y_0\right|, L\right)`, where :math:`y_0`
+        :math:`\beta = \text{arctan2}\left(\left|y_1 - y_0\right|, L\right)`, where :math:`y_0`
         and :math:`y_1` are the altitude of the span endpoints (towers) and :math:`L` is the
         length of the span .
     conductor_roughness:
@@ -551,7 +552,7 @@ def correct_natural_nusselt_number_inclination(
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`\text{Nu}_\delta`. The natural convection nusselt number where the conductor
+        :math:`\text{Nu}_\beta`. The natural convection nusselt number where the conductor
         inclination is taken into account.
     """
     beta = np.degrees(conductor_inclination)

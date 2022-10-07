@@ -303,7 +303,7 @@ def compute_solar_heating(
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`P_s~\left[\text{W}~\text{m}^{-1}\right]`. The solar heating of the conductor
+        :math:`P_S~\left[\text{W}~\text{m}^{-1}\right]`. The solar heating of the conductor
     """
     alpha_s = absorptivity
     I_T = global_radiation_intensity
