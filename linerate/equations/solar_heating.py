@@ -1,9 +1,8 @@
 from typing import Tuple
-from warnings import warn
 
 import numpy as np
 from numpy import cos, pi, radians, sin
-from pysolar.solar import (  # TODO: pysolar uses GPL, maybe library with less restrictive lisence
+from pysolar.solar import (
     get_altitude_fast,
     get_azimuth_fast,
 )
