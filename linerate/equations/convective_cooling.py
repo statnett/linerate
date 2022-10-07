@@ -153,7 +153,8 @@ def compute_kinematic_viscosity_of_air(
     Parameters
     ----------
     dynamic_viscosity_of_air:
-        :math:`\mu_f~\left[\text{kg}~\text{m}^{-1}~\text{s}^{-1}\right]`. The dynamic viscosity of air.
+        :math:`\mu_f~\left[\text{kg}~\text{m}^{-1}~\text{s}^{-1}\right]`. The dynamic viscosity of
+        air.
     air_density:
         :math:`\gamma~\left[\text{kg}~\text{m}^{-3}\right]`. The mass density of air.
 

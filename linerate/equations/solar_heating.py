@@ -33,7 +33,7 @@ def compute_solar_time_of_day(longitude: Degrees, utc_time_in_hours: Unitless) -
 
 
 def compute_declination(day_of_year: Unitless) -> Radian:
-    """Compute the earth declination
+    r"""Compute the earth declination
 
     From an unnumbered equation on page 19 of :cite:p:`cigre601`.
 

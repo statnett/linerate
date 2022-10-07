@@ -2,7 +2,7 @@
 These thermal model classes provide an easy-to-use interface to compute the thermal rating.
 They store conductor and span metadata as well as the weather parameters, compute all the
 heating and cooling effects and use those to estimate the thermal rating and conductor
-temperature. All numerical heavy-lifting is handled by the ``linerate.equations`` and the 
+temperature. All numerical heavy-lifting is handled by the ``linerate.equations`` and the
 ``linerate.solver`` modules.
 """
 from abc import ABC, abstractmethod
@@ -228,11 +228,11 @@ class ThermalModel(ABC):
         current:
             :math:`I_\text{max}~\left[\text{A}\right]`. The current flowing through the conductor.
         min_temperature:
-            :math:`T_\text{min}~\left[^\circ\text{C}\right]`. Lower bound for the numerical scheme for
-            computing the temperature
+            :math:`T_\text{min}~\left[^\circ\text{C}\right]`. Lower bound for the numerical scheme
+            for computing the temperature
         max_temperature:
-            :math:`T_\text{max}~\left[^\circ\text{C}\right]`. Upper bound for the numerical scheme for
-            computing the temperature
+            :math:`T_\text{max}~\left[^\circ\text{C}\right]`. Upper bound for the numerical scheme
+            for computing the temperature
         tolerance:
             :math:`\Delta T~\left[^\circ\text{C}\right]`. The numerical accuracy of the
             temperature. The bisection iterations will stop once the numerical temperature
