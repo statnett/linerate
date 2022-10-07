@@ -26,8 +26,8 @@ def test_resistance_has_correct_interpolant(
     T1, T2 = temperatures
     a = slope
     b = intercept
-    R1 = a*T1 + b
-    R2 = a*T2 + b
+    R1 = a * T1 + b
+    R2 = a * T2 + b
 
     R = joule_heating.compute_resistance(T_c, T1, T2, R1, R2)
     lagrange_poly = lagrange(T_c, R)

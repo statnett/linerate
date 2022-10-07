@@ -23,25 +23,25 @@ __all__ = ["Conductor", "Weather", "Tower", "Span"]
 
 @dataclass
 class Conductor:
-    """Container for conductor parameters.
-    """
+    """Container for conductor parameters."""
+
     #: :math:`D_1~\left[\text{m}\right]`. Diameter of the steel core of the conductor.
     core_diameter: Meter
 
     #: :math:`D~\left[\text{m}\right]`. Outer diameter of the conductor.
     conductor_diameter: Meter
-    
+
     #: :math:`d~\left[\text{m}\right]`. The diameter of the strands in the outer layer of
     #: the conductor.
     outer_layer_strand_diameter: Meter
 
     #: :math:`\epsilon_s`. The emmisivity of the conductor.
     emissivity: Unitless
-    
+
     #: :math:`\alpha_s`. Material constant. According to :cite:p:`cigre601`, it starts at
     #: approximately 0.2 for new cables and reaches a constant value of approximately 0.9
     #: after about one year.
-    solar_absorptivity: Unitless  
+    solar_absorptivity: Unitless
 
     #: :math:`T_1~\left[^\circ C\right]`. The first temperature with known resistance
     temperature1: Celsius
@@ -67,7 +67,7 @@ class Conductor:
 
     #: :math:`\lambda \left[\text{W}~\text{m}^{-1}~\text{K}^{-1}\right]`. The effective
     #: conductor thermal conductivity. It is usually between :math:`0.5` and
-    #: :math:`7~W~m^{-1}~K^{-1}`. Recommended values are 
+    #: :math:`7~W~m^{-1}~K^{-1}`. Recommended values are
     #: :math:`0.7~\text{W}~\text{m}^{-1}~\text{K}^{-1}` for conductors with no tension on the
     #: aluminium strands and :math:`1.5~\text{W}~\text{m}^{-1}~\text{K}^{-1}` for conductors
     #: with aluminium strands under a tension of at least 40 N :cite:p:`cigre601`.
@@ -76,8 +76,8 @@ class Conductor:
 
 @dataclass
 class Tower:
-    """Container for a tower (span end-point).
-    """
+    """Container for a tower (span end-point)."""
+
     #: :math:`\phi~\left[^\circ\right]`. The tower's longitude (east of the prime meridian).
     longitude: Degrees
     #: The tower's latitude (north-facing).
@@ -96,6 +96,7 @@ class Span:
     :py:func:`linerate.equations.solar_heating.compute_global_radiation_intensity` for a table of
     albedo values for different ground types.
     """
+
     #: Container for the conductor metadata
     conductor: Conductor
     #: Container for the metadata of the first tower of the span
@@ -111,20 +112,18 @@ class Span:
 
     @cached_property
     def latitude(self) -> Degrees:
-        r""":math:`\phi~\left[^\circ\right]`. The latitude of the span midpoint.
-        """
+        r""":math:`\phi~\left[^\circ\right]`. The latitude of the span midpoint."""
         return 0.5 * (self.start_tower.latitude + self.end_tower.latitude)
 
     @cached_property
     def longitude(self) -> Degrees:
-        r""":math:`\left[^\circ\right]`. The longitude of the span midpoint.
-        """
+        r""":math:`\left[^\circ\right]`. The longitude of the span midpoint."""
         return 0.5 * (self.start_tower.longitude + self.end_tower.longitude)
 
     @cached_property
     def inclination(self) -> Radian:
         r""":math:`\beta~\left[\text{radian}\right]`. The inclination.
-        
+
         The inclination is computed from the difference in span altitude and the span length.
         """
         delta_y = np.abs(self.end_tower.altitude - self.start_tower.altitude)
@@ -132,8 +131,7 @@ class Span:
 
     @cached_property
     def conductor_azimuth(self) -> Radian:
-        r""":math:`\gamma_c~\left[\text{radian}\right]`. Angle (east of north) the span is facing
-        """
+        r""":math:`\gamma_c~\left[\text{radian}\right]`. Angle (east of north) the span is facing"""
         return np.radians(  # type: ignore
             pygeodesy.formy.bearing(
                 lat1=self.start_tower.latitude,
@@ -146,7 +144,7 @@ class Span:
     @cached_property
     def span_length(self) -> Meter:
         r""":math:`\left[\text{km}\right]`. The span length.
-        
+
         The span length is computed with the haversine formula (assuming spherical earth).
         """
         return pygeodesy.formy.haversine(  # type: ignore
@@ -159,7 +157,7 @@ class Span:
     @cached_property
     def conductor_altitude(self) -> Meter:
         r""":math:`y~\left[\text{m}\right]`. The span altitude.
-        
+
         The altitude is computes as the average of the tower altitudes.
         """
         return 0.5 * (self.start_tower.altitude + self.end_tower.altitude)
@@ -173,6 +171,6 @@ class Weather:
     wind_direction: Radian
     #: :math:`v~\left[\text{m}~\text{s}^{-1}\right]`. Wind velocity
     wind_speed: MeterPerSecond
-    #: :math:`N_s`. The clearness ratio (or clearness number in 
+    #: :math:`N_s`. The clearness ratio (or clearness number in
     #: :cite:p:`sharma1965interrelationships,cigre207`).
     clearness_ratio: Unitless = 1

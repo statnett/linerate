@@ -13,7 +13,7 @@ def compute_radiative_cooling(
     r"""Compute the radiative cooling due to black body radiation.
 
     Equation (27) on page 30 of :cite:p:`cigre601`.
-    
+
     Parameters
     ----------
     surface_temperature:

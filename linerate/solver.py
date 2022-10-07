@@ -16,7 +16,7 @@ def bisect(
     invalid_value: Optional[float] = None,
 ) -> FloatOrFloatArray:
     r"""Compute the roots of a function using a vectorized bisection method.
-    
+
     Parameters
     ----------
     f:
@@ -101,7 +101,7 @@ def compute_conductor_temperature(
         temperature. The bisection iterations will stop once the numerical temperature
         uncertainty is below :math:`\Delta T`. The bisection method will run for
         :math:`\left\lceil\frac{T_\text{min} - T_\text{min}}{\Delta T}\right\rceil` iterations.
-    
+
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -120,7 +120,7 @@ def compute_conductor_ampacity(
     tolerance: float = 1,  # Ampere
 ) -> Ampere:
     r"""Use the bisection method to compute the steady-state thermal rating (ampacity).
-    
+
     Parameters
     ----------
     heat_balance:

@@ -29,7 +29,7 @@ def compute_temperature_gradient(
     conductor_diameter: Meter,
 ) -> Celsius:
     r"""Compute the difference between the core and surface temperature.
-    
+
     Equation (15) & (16) on page 22 of :cite:p:`cigre601`.
 
     Parameters
@@ -40,7 +40,7 @@ def compute_temperature_gradient(
     conductor_thermal_conductivity:
         :math:`\lambda \left[\text{W}~\text{m}^{-1}~\text{K}^{-1}\right]`. The effective
         conductor thermal conductivity. It is usually between :math:`0.5` and
-        :math:`7~W~m^{-1}~K^{-1}`. Recommended values are 
+        :math:`7~W~m^{-1}~K^{-1}`. Recommended values are
         :math:`0.7~\text{W}~\text{m}^{-1}~\text{K}^{-1}` for conductors with no tension on the
         aluminium strands and :math:`1.5~\text{W}~\text{m}^{-1}~\text{K}^{-1}` for conductors
         with aluminium strands under a tension of at least 40 N :cite:p:`cigre601`.
@@ -48,7 +48,7 @@ def compute_temperature_gradient(
         :math:`D_1~\left[\text{m}\right]`. Diameter of the steel core of the conductor.
     conductor_diameter:
         :math:`D~\left[\text{m}\right]`. Outer diameter of the conductor.
-    
+
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -73,7 +73,7 @@ def compute_temperature_gradient(
 
 def compute_thermal_conductivity_of_air(film_temperature: Celsius) -> WattPerMeterPerKelvin:
     r"""Approximation of the thermal conductivity of air up to :math:`300 ^\circ\text{C}`.
-    
+
     Equation (18) on page 24 of :cite:p:`cigre601`.
 
     Compared with table values from textbook, which showed a good approximation.
@@ -84,7 +84,7 @@ def compute_thermal_conductivity_of_air(film_temperature: Celsius) -> WattPerMet
         :math:`T_f = 0.5 (T_s + T_a)~\left[^\circ\text{C}\right]`. The temperature of the
         thin air-film surrounding the conductor. Equal to the average of the ambient air
         temperature and the conductor sufrace temperature.
-    
+
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -99,9 +99,9 @@ def compute_air_density(
     film_temperature: Celsius, height_above_sea_level: Meter
 ) -> KilogramPerCubeMeter:
     r"""Approximation of the density of air at a given temperature and altitude.
-    
+
     Equation (20) on page 25 of :cite:p:`cigre601`.
-    
+
     Parameters
     ----------
     film_temperature:
@@ -110,7 +110,7 @@ def compute_air_density(
         temperature and the conductor sufrace temperature.
     height_above_sea_level:
         :math:`y~\left[\text{m}\right]`. The conductor's altitude.
-    
+
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -123,16 +123,16 @@ def compute_air_density(
 
 def compute_dynamic_viscosity_of_air(film_temperature: Celsius) -> KilogramPerMeterPerSecond:
     r"""Approximation of the dynamic viscosity of air at a given temperature.
-    
+
     Equation (19) on page 25 of :cite:p:`cigre601`.
-    
+
     Parameters
     ----------
     film_temperature:
         :math:`T_f = 0.5 (T_s + T_a)~\left[^\circ\text{C}\right]`. The temperature of the
         thin air-film surrounding the conductor. Equal to the average of the ambient air
         temperature and the conductor sufrace temperature.
-    
+
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -147,16 +147,16 @@ def compute_kinematic_viscosity_of_air(
     dynamic_viscosity_of_air: KilogramPerMeterPerSecond, air_density: KilogramPerCubeMeter
 ) -> SquareMeterPerSecond:
     r"""Compute the kinematic viscosity of air.
-    
+
     Definition in text on page 25 of :cite:p:`cigre601`.
-    
+
     Parameters
     ----------
     dynamic_viscosity_of_air:
         :math:`\mu_f~\left[\text{kg}~\text{m}^{-1}~\text{s}^{-1}\right]`. The dynamic viscosity of air.
     air_density:
         :math:`\gamma~\left[\text{kg}~\text{m}^{-3}\right]`. The mass density of air.
-    
+
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -175,7 +175,7 @@ def compute_reynolds_number(
     kinematic_viscosity_of_air: SquareMeterPerSecond,
 ) -> Unitless:
     r"""Compute the Reynolds number using the conductor diameter as characteristic length scale.
-    
+
     Defined in the text on page 25 of :cite:p:`cigre601`.
 
     The Reynolds number is a dimensionless quantity that can be used to assess if a stream is
@@ -184,7 +184,7 @@ def compute_reynolds_number(
     .. math::
 
         \text{Re} = \frac{v L}{\nu},
-    
+
     where :math:`v` is the flow velocity, :math:`L` is a *characteristic length* (in our case,
     the conductor diameter) and :math:`\nu` is the kinematic viscosity.
 
@@ -216,12 +216,12 @@ def compute_grashof_number(
     coefficient_of_gravity: MeterPerSquareSecond = 9.807,
 ) -> Unitless:
     r"""Compute the Grashof number.
-    
+
     Defined in the nomenclature on page 7 of :cite:p:`cigre601`.
-    
+
     The Grashof number is a dimensionless quantity that can be used to assess the degree of free
     and forced convective heat transfer.
-    
+
     Parameters
     ----------
     conductor_diameter:
@@ -257,9 +257,9 @@ def compute_prandtl_number(
     specific_heat_capacity_of_air: JoulePerKilogramPerKelvin,
 ) -> Unitless:
     r"""Compute the Prandtl number.
-    
+
     Defined in the nomenclature on page 8 of :cite:p:`cigre601`.
-    
+
     The Prandtl number measures the ratio between viscosity and thermal diffusivity for a fluid.
 
     Parameters
@@ -291,7 +291,7 @@ def compute_conductor_roughness(
     outer_layer_strand_diameter: Meter,
 ) -> Unitless:
     r"""Compute the surface roughness of the conductor.
-    
+
     Defined in the text on page 25 of :cite:p:`cigre601`.
 
     Parameters
@@ -394,7 +394,7 @@ def compute_perpendicular_flow_nusseltnumber(
     conductor_roughness: Meter,
 ) -> Unitless:
     r"""Compute the Nusselt number for perpendicular flow.
-    
+
     Equation (21) and Table 4 on pages 25-26 of :cite:p:`cigre601`.
 
     The perpendicular flow nusselt number is denoted as :math:`\text{Nu}_{90}` in :cite:p:`cigre601`
@@ -408,7 +408,7 @@ def compute_perpendicular_flow_nusseltnumber(
         :math:`\text{Re}`. The Reynolds number.
     conductor_roughness:
         :math:`\text{Rs}`. The roughness number
-    
+
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -437,7 +437,7 @@ def correct_wind_direction_effect_on_nusselt_number(
     conductor_roughness: Unitless,
 ) -> Unitless:
     r"""Correct the Nusselt number for the wind's angle-of-attack.
-    
+
     Equation (21) and Table 4 on pages 25-26 of :cite:p:`cigre601`.
 
     The perpendicular flow nusselt number is denoted as :math:`\text{Nu}_\delta` in
@@ -501,7 +501,7 @@ def compute_horizontal_natural_nusselt_number(
     prandtl_number: Unitless,
 ) -> Unitless:
     r"""The Nusselt number for natural (passive) convection on a horizontal conductor.
-    
+
     Equation (23) and Table 5 on pages 27-28 of :cite:p:`cigre601`.
 
     The natural convection Nusselt number is denoted by both :math:`\text{Nu}_\text{nat}`
@@ -510,11 +510,11 @@ def compute_horizontal_natural_nusselt_number(
 
     Parameters
     ----------
-    grashof_number: 
+    grashof_number:
         :math:`\text{Gr}`. The Grashof number.
     prandtl_number:
         :math:`\text{Pr}`. The Prandtl number.
-    
+
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -533,9 +533,9 @@ def correct_natural_nusselt_number_inclination(
     conductor_roughness: Unitless,
 ) -> Unitless:
     r"""Correct the natural Nusselt number for the effect of the span inclination.
-    
+
     Equation (24) on page 28 of :cite:p:`cigre601`.
-    
+
     Parameters
     ----------
     horizontal_natural_nusselt_number:
@@ -548,7 +548,7 @@ def correct_natural_nusselt_number_inclination(
         length of the span .
     conductor_roughness:
         :math:`Rs`. The roughness number.
-    
+
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -580,9 +580,9 @@ def compute_nusselt_number(
     natural_nusselt_number: Unitless,
 ) -> Unitless:
     r"""Compute the nusselt number.
-    
+
     Described in the text on p. 28 of :cite:p:`cigre601`.
-    
+
     Parameters
     ----------
     forced_convection_nusselt_number:
@@ -590,7 +590,7 @@ def compute_nusselt_number(
     natural_nusselt_number:
         :math:`\text{Nu}_\delta`. The natural convection nusselt number where the conductor
         inclination is taken into account.
-    
+
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -610,9 +610,9 @@ def compute_convective_cooling(
     thermal_conductivity_of_air: WattPerMeterPerKelvin,
 ) -> WattPerMeter:
     r"""Compute the convective cooling of the conductor.
-    
+
     Equation (17) on page 24 of :cite:p:`cigre601`.
-    
+
     Parameters
     ----------
     surface_temperature:

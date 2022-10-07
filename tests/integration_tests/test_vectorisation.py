@@ -16,7 +16,7 @@ def test_vectorization():
         emissivity=get_zeros(0, 16),
         solar_absorptivity=get_zeros(1, 16),
         temperature1=get_zeros(2, 16),
-        temperature2=get_zeros(3, 16)+1,
+        temperature2=get_zeros(3, 16) + 1,
         resistance_at_temperature1=get_zeros(4, 16),
         resistance_at_temperature2=get_zeros(5, 16),
         aluminium_cross_section_area=1 + get_zeros(6, 16),

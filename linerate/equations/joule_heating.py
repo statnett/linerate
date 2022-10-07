@@ -21,10 +21,10 @@ def compute_resistance(
     resistance_at_temperature2: OhmPerMeter,
 ) -> OhmPerMeter:
     r"""Compute the (possibly AC-)resistance of the conductor at a given temperature.
-    
+
     The resistance is linearly interpolated/extrapolated based on the two temperature-resistance
     measurement pairs provided as arguments.
-    
+
     Parameters
     ----------
     conductor_temperature:
@@ -37,7 +37,7 @@ def compute_resistance(
         :math:`R_1~\left[\Omega~\text{m}^{-1}\right]`. The resistance at temperature :math:`T=T_1`.
     resistance_at_temperature2:
         :math:`R_2~\left[\Omega~\text{m}^{-1}\right]`. The resistance at temperature :math:`T=T_2`.
-    
+
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -48,8 +48,8 @@ def compute_resistance(
     R_1, R_2 = resistance_at_temperature1, resistance_at_temperature2
 
     a = (R_2 - R_1) / (T_2 - T_1)
-    b = R_1 - a*T_1
-    return a*T_av + b
+    b = R_1 - a * T_1
+    return a * T_av + b
 
 
 def correct_resistance_acsr_magnetic_core_loss(
@@ -61,7 +61,7 @@ def correct_resistance_acsr_magnetic_core_loss(
     max_relative_increase: Unitless,
 ) -> OhmPerMeter:
     r"""Correct for extra resistance in ACSR conductors due to magnetic effects in the steel core.
-    
+
     Aluminium-conductor steel-reinforced (ACSR) conductors have an additional resistance due to
     magnetic effects in the steel core. Particularly conductors with an odd number of layers with
     aluminium wires.
@@ -70,7 +70,7 @@ def correct_resistance_acsr_magnetic_core_loss(
     current density and the relative increase in resistance due to the steel core of three-layer
     ACSR. However, the task force also says that we can assume that the increase saturates at
     6%. In :cite:p:`cigre345`, it is stated that the maximum increase for three-layer ACSR is 5%.
-    
+
     For ACSR with an even number of layers, the effect is negligible since we get cancelling
     magnetic fields, and for mono-layer ACSR, the effect behaves differently. Still, some software
     providers use the same correction scheme for mono-layer ACSR, but with a higher saturation
@@ -82,7 +82,7 @@ def correct_resistance_acsr_magnetic_core_loss(
     .. math::
 
         R_\text{corrected} = R \min(c_\text{max}, b + mJ),
-    
+
     where :math:`R_\text{corrected}` is the corrected AC resistance for ACSR conductors,
     :math:`R` is the uncorrected value for the AC resistance at the given temperature,
     :math:`c_\text{max}` is the maximum relative increase (typically 6% or :math:`1.06`` for
@@ -108,7 +108,7 @@ def correct_resistance_acsr_magnetic_core_loss(
         assumed equal to 0.
     max_relative_increase:
         :math:`c_\text{max}`. Saturation point of the relative increase in conductor resistance.
-    
+
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -141,7 +141,7 @@ def compute_joule_heating(current: Ampere, resistance: OhmPerMeter) -> WattPerMe
     Resistance:
         :math:`R~\left[\Omega\right]`. The (possibly AC-)resistance of the conductor, correcting
         for all possible magnetisation effects.
-    
+
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]

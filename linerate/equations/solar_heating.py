@@ -2,10 +2,7 @@ from typing import Tuple
 
 import numpy as np
 from numpy import cos, pi, radians, sin
-from pysolar.solar import (
-    get_altitude_fast,
-    get_azimuth_fast,
-)
+from pysolar.solar import get_altitude_fast, get_azimuth_fast
 
 from ..units import Date, Degrees, Meter, Radian, Unitless, WattPerMeter, WattPerSquareMeter
 from .math import switch_cos_sin
@@ -26,7 +23,7 @@ def compute_solar_time_of_day(longitude: Degrees, utc_time_in_hours: Unitless) -
         :math:`\lambda~\left[^\circ\right]`. The east-facing latitude.
     utc_time_in_hours:
         :math:`Time`. The time of day in hours.
-    
+
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -37,14 +34,14 @@ def compute_solar_time_of_day(longitude: Degrees, utc_time_in_hours: Unitless) -
 
 def compute_declination(day_of_year: Unitless) -> Radian:
     """Compute the earth declination
-    
+
     From an unnumbered equation on page 19 of :cite:p:`cigre601`.
-    
+
     Parameters
     ----------
     day_of_year:
         :math:`N^*`. The day number of the year. January 1st = 1, February 1st = 32, etc.
-    
+
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -105,14 +102,14 @@ def compute_direct_solar_radiation(
     height_above_sea_level: Meter,
 ) -> WattPerSquareMeter:
     r"""Compute the direct solar radiation.
-    
+
     Equation (10-11) on page 19 of :cite:p:`cigre601`. Equation (10) states that the direct solar
     radiation on a surface normal to the solar beam at sea level, :math:`I_{B(0)}`, is given by
 
     .. math::
 
         N_s \frac{1280 \sin(H_s)}{\sin(H_s) + 0.314},
-    
+
     where :math:`N_s` is the clearness ratio which is used to adjust the amount of radiation
     compared to what goes through a standard Indian atmosphere, and :math:`H_s` is the solar
     altitude.
@@ -121,7 +118,7 @@ def compute_direct_solar_radiation(
     therefore have parameters estimated for an Indian atmosphere, it gives comparable results to
     the solar radiation model in the IEEE standard :cite:p:`ieee738`. It is therefore reasonable to
     assume that the parameters work in other climates as well.
-    
+
     Parameters
     ----------
     sin_solar_altitude:
@@ -131,30 +128,30 @@ def compute_direct_solar_radiation(
         :cite:p:`sharma1965interrelationships,cigre207`).
     height_above_sea_level:
         :math:`y~\left[\text{m}\right]`. The conductor's altitude.
-    
+
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
         :math:`I_B~\left[\text{W}~\text{m}^{-2}\right]`. The direct solar radiation.
-    
+
     Notes
     -----
-    The 1280 originates and 0.314 in the above equation originates from 
+    The 1280 originates and 0.314 in the above equation originates from
     :cite:p:`sharma1965interrelationships`, which is cited in :cite:p:`morgan1982thermal` (which is
     listed as the reference in :cite:p:`cigre601`). In :cite:p:`sharma1965interrelationships` the
     empirical relationship
 
     .. math::
 
-        I_{B(0)} = \frac{1.842 \sin(H_s)}{\sin(H_s) + 0.3135}~\text{Ly}~\text{min}^{-1} 
-    
+        I_{B(0)} = \frac{1.842 \sin(H_s)}{\sin(H_s) + 0.3135}~\text{Ly}~\text{min}^{-1}
+
     is introduced, and by converting from Langley per minute to :math:`\text{W}~\text{m}^{-2}`, we
     obtain
 
     .. math::
 
         I_{B(0)} = N_s \frac{1284.488 \sin(H_s)}{\sin(H_s) + 0.3135}~\text{W}~\text{m}^{-2},
-    
+
     which is equal to the equation we use (with three significant digits).
     """
     sin_H_s = sin_solar_altitude
@@ -177,9 +174,9 @@ def compute_diffuse_sky_radiation(
     sin_solar_altitude: Unitless,
 ) -> WattPerSquareMeter:
     r"""Compute the diffuse radiation (light scattered in the atmosphere).
-    
+
     Equation (13) on page 20 of :cite:p:`cigre601`.
-    
+
     This equation differ from :cite:p:`cigre207`, however the difference is small, and the
     diffuse radiation is a small contributor to the overall solar radiation, so the total
     discrepancy between the models is small.
@@ -190,7 +187,7 @@ def compute_diffuse_sky_radiation(
         :math:`I_B~\left[\text{W}~\text{m}^{-2}\right]`. The direct solar radiation.
     sin_solar_altitude:
         :math:`\sin\left(H_s\right)`. The sine of the solar altitude.
-    
+
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -215,10 +212,10 @@ def compute_global_radiation_intensity(
 
     .. math::
 
-        I_T = 
+        I_T =
             I_B \left(\sin(\eta) + 0.5 F \pi \sin(H_s)\right) +
             I_d \left(1 + 0.5 F \pi\right),
-    
+
     where :math:`\eta` is the incidence angle of the sun on the line, :math:`H_s` is the solar
     altitude and :math:`F` is the ground albedo (amount of radiation diffusely reflected from the
     ground). The factor :math:`0.5 \pi` is due the assumption that the ground reflects light
@@ -238,17 +235,17 @@ def compute_global_radiation_intensity(
         :math:`\sin\left(\eta\right)`. The sine of the angle of the sun on the line.
     sin_solar_altitude:
         :math:`\sin\left(H_s\right)`. The sine of the solar altitude.
-    
+
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
         :math:`I_T~\left[\text{W}~\text{m}^{-2}\right]`. The global radiation intensity.
-    
+
     Note
     ----
     The following values are given for the albedo in :cite:p:`cigre601`:
 
-    .. list-table:: 
+    .. list-table::
         :widths: 50 50
         :header-rows: 1
 
@@ -285,7 +282,7 @@ def compute_solar_heating(
     conductor_diameter: Meter,
 ) -> WattPerMeter:
     r"""Compute the solar heating experienced by the conductor.
-    
+
     Equation (8) on page 18 of :cite:p:`cigre601`.
 
     Parameters

@@ -19,11 +19,13 @@ def _copy_docstring(target_function):
     def inner(func):
         func.__doc__ = target_function.__doc__
         return func
+
     return inner
 
+
 class ThermalModel(ABC):
-    """Abstract class for a minimal conductor thermal model.
-    """
+    """Abstract class for a minimal conductor thermal model."""
+
     @abstractmethod
     def __init__(self, span: Span, weather: Weather):
         self.span = span
@@ -39,7 +41,7 @@ class ThermalModel(ABC):
             :math:`T_\text{av}~\left[^\circ\text{C}\right]`. The average conductor temperature.
         current:
             :math:`I~\left[\text{A}\right]`. The current.
-        
+
         Returns
         -------
         Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -59,7 +61,7 @@ class ThermalModel(ABC):
             :math:`T_\text{av}~\left[^\circ\text{C}\right]`. The average conductor temperature.
         current:
             :math:`I~\left[\text{A}\right]`. The current.
-        
+
         Returns
         -------
         Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -79,7 +81,7 @@ class ThermalModel(ABC):
             :math:`T_\text{av}~\left[^\circ\text{C}\right]`. The average conductor temperature.
         current:
             :math:`I~\left[\text{A}\right]`. The current.
-        
+
         Returns
         -------
         Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -99,7 +101,7 @@ class ThermalModel(ABC):
             :math:`T_\text{av}~\left[^\circ\text{C}\right]`. The average conductor temperature.
         current:
             :math:`I~\left[\text{A}\right]`. The current.
-        
+
         Returns
         -------
         Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -119,7 +121,7 @@ class ThermalModel(ABC):
             :math:`T_\text{av}~\left[^\circ\text{C}\right]`. The average conductor temperature.
         current:
             :math:`I~\left[\text{A}\right]`. The current.
-        
+
         Returns
         -------
         Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -136,7 +138,7 @@ class ThermalModel(ABC):
             :math:`T_\text{av}~\left[^\circ\text{C}\right]`. The average conductor temperature.
         current:
             :math:`I~\left[\text{A}\right]`. The current.
-            
+
         Returns
         -------
         Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -152,14 +154,14 @@ class ThermalModel(ABC):
         self, conductor_temperature: Celsius, current: Ampere
     ) -> Dict[str, WattPerMeter]:
         r"""Create a dictionary with the different heating and cooling effects.
-        
+
         Parameters
         ----------
         conductor_temperature:
             :math:`T_\text{av}~\left[^\circ\text{C}\right]`. The average conductor temperature.
         current:
             :math:`I~\left[\text{A}\right]`. The current.
-        
+
         Returns
         -------
         Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -196,7 +198,7 @@ class ThermalModel(ABC):
             bisection iterations will stop once the numerical ampacity uncertainty is below
             :math:`\Delta I`. The bisection method will run for
             :math:`\left\lceil\frac{I_\text{min} - I_\text{min}}{\Delta I}\right\rceil` iterations.
-        
+
         Returns
         -------
         Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -236,7 +238,7 @@ class ThermalModel(ABC):
             temperature. The bisection iterations will stop once the numerical temperature
             uncertainty is below :math:`\Delta T`. The bisection method will run for
             :math:`\left\lceil\frac{T_\text{min} - T_\text{min}}{\Delta T}\right\rceil` iterations.
-        
+
         Returns
         -------
         Union[float, float64, ndarray[Any, dtype[float64]]]
@@ -380,7 +382,6 @@ class Cigre601(ThermalModel):
             conductor_emissivity=self.span.conductor.emissivity,
         )
 
-
     def compute_temperature_gradient(
         self, conductor_temperature: Celsius, current: Ampere
     ) -> Celsius:
@@ -392,7 +393,7 @@ class Cigre601(ThermalModel):
             :math:`T_\text{av}~\left[^\circ\text{C}\right]`. The average conductor temperature.
         current:
             :math:`I~\left[\text{A}\right]`. The current.
-        
+
         Returns
         -------
         Union[float, float64, ndarray[Any, dtype[float64]]]
