@@ -3,7 +3,7 @@ from typing import Union
 try:
     from typing import Annotated
 except ImportError:  # Python version <3.9
-    from ._compat_utils import Annotated
+    from ._compat_utils import Annotated  # type: ignore
 
 import numpy as np
 import numpy.typing as npt
