@@ -52,7 +52,7 @@ def compute_temperature_gradient(
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`T_s - T_s~\left[^\circ\text{C}\right]`. The difference between the core and
+        :math:`T_c - T_s~\left[^\circ\text{C}\right]`. The difference between the core and
         surface temperature.
     """
     lambda_ = conductor_thermal_conductivity

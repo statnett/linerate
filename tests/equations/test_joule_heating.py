@@ -8,52 +8,35 @@ import linerate.equations.joule_heating as joule_heating
 
 
 @hypothesis.given(
-    temperature_lower=st.floats(min_value=-273, max_value=400, allow_nan=False),
-    temperature_difference=st.floats(min_value=1, max_value=400, allow_nan=False),
-    resistances=st.tuples(
-        st.floats(min_value=0, max_value=1e3, allow_nan=False),
-        st.floats(min_value=0, max_value=1e3, allow_nan=False),
-    ),
-)
-def test_compute_linear_resistance_parameters_gives_correct_resistance_at_interpolated_temperatures(  # noqa
-    temperature_lower, temperature_difference, resistances
-):
-    T_0 = temperature_lower
-    T_1 = T_0 + temperature_difference
-    R_0, R_1 = resistances
-
-    rho_20, alpha_20 = joule_heating.compute_linear_resistance_parameters(T_0, R_0, T_1, R_1)
-    R_0_est = joule_heating.compute_resistance(T_0, rho_20, alpha_20, 0)
-    R_1_est = joule_heating.compute_resistance(T_1, rho_20, alpha_20, 0)
-
-    assert R_0_est == approx(R_0, abs=1e-10, rel=1e-8)
-    assert R_1_est == approx(R_1, abs=1e-10, rel=1e-8)
-
-
-@hypothesis.given(
     conductor_temperature=st.floats(min_value=-273, max_value=400, allow_nan=False),
-    resistance_at_20c=st.floats(min_value=1e-5, max_value=1e3, allow_nan=False),
-    linear_resistance_coefficient_20c=st.floats(min_value=1e-5, max_value=1e3, allow_nan=False),
-    quadratic_resistance_coefficient_20c=st.floats(min_value=1e-5, max_value=1e3, allow_nan=False),
+    slope=st.floats(min_value=0, max_value=1e3, allow_nan=False),
+    intercept=st.floats(min_value=0, max_value=1e3, allow_nan=False),
+    temperatures=st.tuples(
+        st.floats(min_value=-273, max_value=300, allow_nan=False),
+        st.floats(min_value=-273, max_value=300, allow_nan=False),
+    ).filter(lambda tup: abs(tup[0] - tup[1]) > 0.1),
 )
 def test_resistance_has_correct_interpolant(
     conductor_temperature,
-    resistance_at_20c,
-    linear_resistance_coefficient_20c,
-    quadratic_resistance_coefficient_20c,
+    slope,
+    intercept,
+    temperatures,
 ):
-    T_c = 5 * np.arange(3) + conductor_temperature
-    rho_20 = resistance_at_20c
-    alpha_20 = linear_resistance_coefficient_20c
-    zeta_20 = quadratic_resistance_coefficient_20c
-    R = joule_heating.compute_resistance(T_c, rho_20, alpha_20, zeta_20)
+    T_c = 5 * np.arange(2) + conductor_temperature
+    T1, T2 = temperatures
+    a = slope
+    b = intercept
+    R1 = a*T1 + b
+    R2 = a*T2 + b
+
+    R = joule_heating.compute_resistance(T_c, T1, T2, R1, R2)
     lagrange_poly = lagrange(T_c, R)
 
-    a = rho_20 * zeta_20
-    b = rho_20 * (alpha_20 - 2 * zeta_20 * 20)
-    c = rho_20 * (1 - alpha_20 * 20 + zeta_20 * 20**2)
-
-    np.testing.assert_allclose(lagrange_poly.coef, [a, b, c], rtol=1e-5, atol=1e-10)
+    if len(lagrange_poly.coef) == 1:
+        assert lagrange_poly.coef[0] == approx(b)
+        assert a == approx(0)
+    else:
+        np.testing.assert_allclose(lagrange_poly.coef, [a, b], rtol=1e-5, atol=1e-8)
 
 
 @hypothesis.given(current=st.floats(min_value=0, max_value=1e10, allow_nan=False))
