@@ -215,7 +215,7 @@ class ThermalModel(ABC):
         min_ampacity:
             :math:`I_\text{min}~\left[\text{A}\right]`. Lower bound for the numerical scheme for
             computing the ampacity
-        max_ampcity:
+        max_ampacity:
             :math:`I_\text{min}~\left[\text{A}\right]`. Upper bound for the numerical scheme for
             computing the ampacity
         tolerance:
