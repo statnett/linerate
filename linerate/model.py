@@ -25,6 +25,11 @@ class ThermalModel(ABC):
     """Abstract class for a minimal conductor thermal model.
     """
     @abstractmethod
+    def __init__(self, span: Span, weather: Weather):
+        self.span = span
+        self.weather = weather
+
+    @abstractmethod
     def compute_resistance(self, conductor_temperature: Celsius, current: Ampere) -> OhmPerMeter:
         r"""Compute the conductor resistance, :math:`R~\left[\Omega~\text{m}^{-1}\right]`.
 
@@ -41,7 +46,6 @@ class ThermalModel(ABC):
             :math:`R~\left[\Omega\right]`. The resistance at the given temperature and current.
         """
         raise NotImplementedError
-        
 
     @abstractmethod
     def compute_joule_heating(
@@ -103,7 +107,6 @@ class ThermalModel(ABC):
         """
         raise NotImplementedError
 
-
     @abstractmethod
     def compute_radiative_cooling(
         self, conductor_temperature: Celsius, current: Ampere
@@ -144,36 +147,6 @@ class ThermalModel(ABC):
         P_c = self.compute_convective_cooling(conductor_temperature, current)
         P_r = self.compute_radiative_cooling(conductor_temperature, current)
         return P_j + P_s - P_c - P_r
-
-
-    def compute_temperature_gradient(
-        self, conductor_temperature: Celsius, current: Ampere
-    ) -> Celsius:
-        r"""Estimate the difference between the core temperature and the surface temperature.
-
-        Parameters
-        ----------
-        conductor_temperature:
-            :math:`T_\text{av}~\left[^\circ\text{C}\right]`. The average conductor temperature.
-        current:
-            :math:`I~\left[\text{A}\right]`. The current.
-        
-        Returns
-        -------
-        Union[float, float64, ndarray[Any, dtype[float64]]]
-            :math:`T_c - T_s~\left[^\circ \text{C}\right]`. The difference between the core and the
-            surface temperature of the conductor.
-        """
-        n = self.span.num_conductors
-        T_c = conductor_temperature
-        I = current / n  # noqa
-        R = self.compute_resistance(conductor_temperature=T_c, current=I)
-        return equations.convective_cooling.compute_temperature_gradient(
-            total_heat_gain=I * R,
-            conductor_thermal_conductivity=self.span.conductor.thermal_conductivity,  # type: ignore  # noqa
-            core_diameter=self.span.conductor.core_diameter,
-            conductor_diameter=self.span.conductor.conductor_diameter,
-        )
 
     def compute_info(
         self, conductor_temperature: Celsius, current: Ampere
@@ -282,8 +255,7 @@ class ThermalModel(ABC):
 
 class Cigre601(ThermalModel):
     def __init__(self, span: Span, weather: Weather, time: Date):
-        self.span = span
-        self.weather = weather
+        super().__init__(self.span, self.weather)
         self.time = time
 
     @_copy_docstring(ThermalModel.compute_resistance)
@@ -406,4 +378,34 @@ class Cigre601(ThermalModel):
             air_temperature=self.weather.air_temperature,
             conductor_diameter=self.span.conductor.conductor_diameter,
             conductor_emissivity=self.span.conductor.emissivity,
+        )
+
+
+    def compute_temperature_gradient(
+        self, conductor_temperature: Celsius, current: Ampere
+    ) -> Celsius:
+        r"""Estimate the difference between the core temperature and the surface temperature.
+
+        Parameters
+        ----------
+        conductor_temperature:
+            :math:`T_\text{av}~\left[^\circ\text{C}\right]`. The average conductor temperature.
+        current:
+            :math:`I~\left[\text{A}\right]`. The current.
+        
+        Returns
+        -------
+        Union[float, float64, ndarray[Any, dtype[float64]]]
+            :math:`T_c - T_s~\left[^\circ \text{C}\right]`. The difference between the core and the
+            surface temperature of the conductor.
+        """
+        n = self.span.num_conductors
+        T_c = conductor_temperature
+        I = current / n  # noqa
+        R = self.compute_resistance(conductor_temperature=T_c, current=I)
+        return equations.convective_cooling.compute_temperature_gradient(
+            total_heat_gain=I * R,
+            conductor_thermal_conductivity=self.span.conductor.thermal_conductivity,  # type: ignore  # noqa
+            core_diameter=self.span.conductor.core_diameter,
+            conductor_diameter=self.span.conductor.conductor_diameter,
         )
