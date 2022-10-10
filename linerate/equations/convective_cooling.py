@@ -484,8 +484,9 @@ def correct_wind_direction_effect_on_nusselt_number(
 
 
 _nu_0_coefficients = interp1d(
-    [1e-1, 1e2, 1e4, 1e7, 1e12],
+    [0, 1e-1, 1e2, 1e4, 1e7, 1e12],
     [
+        [0.000, 0.000],
         [1.020, 0.148],
         [0.850, 0.188],
         [0.480, 0.250],
@@ -508,6 +509,9 @@ def compute_horizontal_natural_nusselt_number(
     The natural convection Nusselt number is denoted by both :math:`\text{Nu}_\text{nat}`
     and :math:`\text{Nu}_0` (due to the conductor declination being :math:`0^\circ`)
     in :cite:p:`cigre601`.
+
+    The coefficient table is modified slightly so coefficients with
+    :math:`\text{Gr}\text{Pr} < 0.1` leads to :math:`\text{Nu} = 0`.
 
     Parameters
     ----------
