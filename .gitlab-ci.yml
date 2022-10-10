@@ -8,3 +8,5 @@ variables:
   PROJECT_NAME: "linerate"
   PYTHON_VERSIONS: "/(3.8)/"
   PYTHON_PUBLISH_VERSION: "3.8"
+  BUILD_DOCS: "true"
+
