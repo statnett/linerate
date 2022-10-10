@@ -34,6 +34,10 @@ sphinx = "^5.2.3"
 sphinx-rtd-theme = "^1.0.0"
 numpydoc = "^1.4.0"
 sphinxcontrib-bibtex = "^2.5.0"
+sphinx-gallery = "^0.11.1"
+pillow = "^9.2.0"
+matplotlib = "^3.6.0"
+pydata-sphinx-theme = "^0.11.0"
 
 [tool.poetry-dynamic-versioning]
 enable = true
