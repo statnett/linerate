@@ -134,8 +134,8 @@ def compute_direct_solar_radiation(
     Union[float, float64, ndarray[Any, dtype[float64]]]
         :math:`I_B~\left[\text{W}~\text{m}^{-2}\right]`. The direct solar radiation.
 
-    Notes
-    -----
+    Note
+    ----
     The 1280 originates and 0.314 in the above equation originates from
     :cite:p:`sharma1965interrelationships`, which is cited in :cite:p:`morgan1982thermal` (which is
     listed as the reference in :cite:p:`cigre601`). In :cite:p:`sharma1965interrelationships` the
