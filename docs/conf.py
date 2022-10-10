@@ -42,11 +42,10 @@ html_theme = "pydata_sphinx_theme"
 html_static_path = ["_static"]
 
 html_css_files = [
-    'css/custom.css',
+    "css/custom.css",
 ]
 
 
-html_theme_options = {
-}
+html_theme_options = {}
 
-bibtex_default_style = 'unsrt'
+bibtex_default_style = "unsrt"

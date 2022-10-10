@@ -6,14 +6,14 @@ and the steady state conductor temperature with the conductor, span and weather 
 in Example B on page 79-81 of :cite:p:`cigre601`.
 """
 
+import matplotlib.pyplot as plt
+
 ###############################################################################
 # Imports and utilities
 # ^^^^^^^^^^^^^^^^^^^^^
 import numpy as np
-import matplotlib.pyplot as plt
 
 import linerate
-
 
 ###############################################################################
 # Define conductor type
@@ -86,11 +86,11 @@ conductor_temperature = model.compute_conductor_temperature(current_load, tolera
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 fig, axes = plt.subplots(1, 2, figsize=(8, 2.5), tight_layout=True)
-axes[0].plot(max_conductor_temperature, conductor_rating, 'k')
+axes[0].plot(max_conductor_temperature, conductor_rating, "k")
 axes[0].set_xlabel(r"Max conductor temperature $[^\circ \mathrm{C}]$")
 axes[0].set_ylabel(r"Ampacity rating $[\mathrm{A}]$")
 
-axes[1].plot(current_load, conductor_temperature, 'k')
+axes[1].plot(current_load, conductor_temperature, "k")
 axes[1].set_xlabel(r"Current $[\mathrm{A}]$")
 axes[1].set_ylabel(r"Conductor temperature $[^\circ \mathrm{C}]$")
 

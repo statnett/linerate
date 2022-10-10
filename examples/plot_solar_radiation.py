@@ -7,12 +7,13 @@ difference between the solar azimuth and the span azimuth (or bearing),
 $\left|\gamma_c - \gamma_s\right|$, and the albedo, $F$.
 """
 
+import matplotlib.cm as cm
+import matplotlib.pyplot as plt
+
 ###############################################################################
 # Imports and utilities
 # ^^^^^^^^^^^^^^^^^^^^^
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 
 import linerate
 
@@ -20,8 +21,8 @@ import linerate
 # Simulation parameters
 # ^^^^^^^^^^^^^^^^^^^^^
 
-solar_altitude = np.linspace(0, np.pi/2)[:, np.newaxis]
-azimuth_difference = np.linspace(0, np.pi/2, 10)[np.newaxis, :]
+solar_altitude = np.linspace(0, np.pi / 2)[:, np.newaxis]
+azimuth_difference = np.linspace(0, np.pi / 2, 10)[np.newaxis, :]
 albedo = 0.2
 height_above_sea_level = 0
 
@@ -81,11 +82,11 @@ for ax in axes:
     ax.set_xticks([0, 30, 60, 90])
 
     # Setup y-axes to be shared
-    ax.set_ylim(0, I_T_F.max()*1.05)
+    ax.set_ylim(0, I_T_F.max() * 1.05)
     ax.set_yticks([0, 500, 1000, 1360])  # Include tick for solar constant
     ax.set_yticklabels([0, 500, 1000, "$G_{SC}$"])
     ax.axhline(1360, color="k", linestyle="--")  # Add dashed line for solar constant
-    
+
 
 # Removed shared ticks
 axes[1].tick_params(labelleft=False)
@@ -95,8 +96,8 @@ axes[3].tick_params(labelleft=False)
 # Setup labels
 axes[0].set_ylabel(r"$I_B~[\mathrm{W}~\mathrm{m}^{-1}]$", labelpad=-1)
 axes[1].set_ylabel(r"$I_d~[\mathrm{W}~\mathrm{m}^{-1}]$")
-axes[2].set_ylabel("$F=0$\n$I_T~[\mathrm{W}~\mathrm{m}^{-1}]$")
-axes[3].set_ylabel(f"$F={albedo}$\n$I_T~[\mathrm{{W}}~\mathrm{{m}}^{{-1}}]$")
+axes[2].set_ylabel("$F=0$\n$I_T~[\mathrm{W}~\mathrm{m}^{-1}]$")  # noqa
+axes[3].set_ylabel(f"$F={albedo}$\n$I_T~[\mathrm{{W}}~\mathrm{{m}}^{{-1}}]$")  # noqa
 
 # Colorbar
 cbar_ax.imshow(azimuth_difference.T, aspect="auto", cmap="cividis")
