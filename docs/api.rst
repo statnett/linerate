@@ -20,7 +20,8 @@ therefore, to keep track of which functions to call, in which order and what inp
 
 .. toctree::
    :caption: Modules
-   :maxdepth: 1
+   :maxdepth: 2
+   :titlesonly:
 
    api/model
    api/types
