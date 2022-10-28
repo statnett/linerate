@@ -85,7 +85,7 @@ def correct_resistance_acsr_magnetic_core_loss(
 
     where :math:`R_\text{corrected}` is the corrected AC resistance for ACSR conductors,
     :math:`R` is the uncorrected value for the AC resistance at the given temperature,
-    :math:`c_\text{max}` is the maximum relative increase (typically 6% or :math:`1.06`` for
+    :math:`c_\text{max}` is the maximum relative increase (e.g. 6% or :math:`1.06`` for
     three-layer ACSR conductors), :math:`J` is the current density (current divided by the
     aluminium cross-section area, :math:`I/A`) and :math:`b` and :math:`m` are the constant and
     current-density proprtional magnetic effects, respectively (for example obtained from linear
