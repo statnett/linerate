@@ -1,4 +1,5 @@
 .hypothesis
+auto_examples/
 
 *.py[cod]
 __pycache__
