@@ -15,11 +15,11 @@ from .units import Ampere, Celsius, Date, JoulePerKilogramPerKelvin, OhmPerMeter
 __all__ = ["ThermalModel", "Cigre601"]
 
 
-def _copy_docstring(target_function):
-    def inner(func):
-        func.__doc__ = target_function.__doc__
-        return func
+def _copy_method_docstring(parent_class):
 
+    def inner(func):
+        func.__doc__ = getattr(parent_class, func.__name__).__doc__
+        return func
     return inner
 
 
@@ -53,7 +53,7 @@ class ThermalModel(ABC):
     def compute_joule_heating(
         self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
-        r"""Compute the Joule heating, :math:`P_j~\left[\text{W}~\text{m}^{-1}\right]`.
+        r"""Compute the Joule heating, :math:`P_J~\left[\text{W}~\text{m}^{-1}\right]`.
 
         Parameters
         ----------
@@ -73,7 +73,7 @@ class ThermalModel(ABC):
     def compute_solar_heating(
         self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
-        r"""Compute the Joule heating, :math:`P_j~\left[\text{W}~\text{m}^{-1}\right]`.
+        r"""Compute the solar heating, :math:`P_S~\left[\text{W}~\text{m}^{-1}\right]`.
 
         Parameters
         ----------
@@ -93,7 +93,7 @@ class ThermalModel(ABC):
     def compute_convective_cooling(
         self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
-        r"""Compute the convective cooling, :math:`P_j~\left[\text{W}~\text{m}^{-1}\right]`.
+        r"""Compute the convective cooling, :math:`P_c~\left[\text{W}~\text{m}^{-1}\right]`.
 
         Parameters
         ----------
@@ -113,7 +113,7 @@ class ThermalModel(ABC):
     def compute_radiative_cooling(
         self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
-        r"""Compute the radiative cooling, :math:`P_j~\left[\text{W}~\text{m}^{-1}\right]`.
+        r"""Compute the radiative cooling, :math:`P_r~\left[\text{W}~\text{m}^{-1}\right]`.
 
         Parameters
         ----------
@@ -164,7 +164,7 @@ class ThermalModel(ABC):
 
         Returns
         -------
-        Union[float, float64, ndarray[Any, dtype[float64]]]
+        Dict[str, WattPerMeter]
             A dictionary with the magnitude of the different heating and cooling effects.
         """
         return {
@@ -260,7 +260,7 @@ class Cigre601(ThermalModel):
         super().__init__(span, weather)
         self.time = time
 
-    @_copy_docstring(ThermalModel.compute_resistance)
+    @_copy_method_docstring(ThermalModel)
     def compute_resistance(self, conductor_temperature: Celsius, current: Ampere) -> OhmPerMeter:
         resistance = equations.joule_heating.compute_resistance(
             conductor_temperature,
@@ -284,14 +284,14 @@ class Cigre601(ThermalModel):
             max_relative_increase=max_increase,
         )
 
-    @_copy_docstring(ThermalModel.compute_resistance)
+    @_copy_method_docstring(ThermalModel)
     def compute_joule_heating(
         self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
         resistance = self.compute_resistance(conductor_temperature, current)
         return equations.joule_heating.compute_joule_heating(current, resistance)
 
-    @_copy_docstring(ThermalModel.compute_resistance)
+    @_copy_method_docstring(ThermalModel)
     def compute_solar_heating(
         self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
@@ -318,7 +318,7 @@ class Cigre601(ThermalModel):
             D,
         )
 
-    @_copy_docstring(ThermalModel.compute_resistance)
+    @_copy_method_docstring(ThermalModel)
     def compute_convective_cooling(
         self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
@@ -371,7 +371,7 @@ class Cigre601(ThermalModel):
             thermal_conductivity_of_air=lambda_f,
         )
 
-    @_copy_docstring(ThermalModel.compute_resistance)
+    @_copy_method_docstring(ThermalModel)
     def compute_radiative_cooling(
         self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
