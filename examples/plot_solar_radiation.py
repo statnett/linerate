@@ -2,17 +2,17 @@ r"""
 Exploration of heating from solar radiation
 -------------------------------------------
 
-In this example, we see how the solar radiation varies with the solar altitude angle, $H_s$, the
-difference between the solar azimuth and the span azimuth (or bearing),
-$\left|\gamma_c - \gamma_s\right|$, and the albedo, $F$.
+In this example, we see how the solar radiation varies with the solar altitude angle, :math:`H_s`,
+the difference between the solar azimuth and the span azimuth (or bearing),
+:math:`\left|\gamma_c - \gamma_s\right|`, and the albedo, :math:`F`.
 """
-
-import matplotlib.cm as cm
-import matplotlib.pyplot as plt
 
 ###############################################################################
 # Imports and utilities
 # ^^^^^^^^^^^^^^^^^^^^^
+
+import matplotlib.cm as cm
+import matplotlib.pyplot as plt
 import numpy as np
 
 import linerate

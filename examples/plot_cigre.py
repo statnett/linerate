@@ -6,11 +6,11 @@ and the steady state conductor temperature with the conductor, span and weather 
 in Example B on page 79-81 of :cite:p:`cigre601`.
 """
 
-import matplotlib.pyplot as plt
-
 ###############################################################################
 # Imports and utilities
 # ^^^^^^^^^^^^^^^^^^^^^
+
+import matplotlib.pyplot as plt
 import numpy as np
 
 import linerate
@@ -68,15 +68,14 @@ weather = linerate.Weather(
 # ^^^^^^^^^^^^^^^^^^^^^
 
 time_of_measurement = np.datetime64("2016-10-03 14:00")
-max_conductor_temperature = np.linspace(0, 1_00, 101)
-current_load = np.linspace(0, 1_000, 101)
-
 model = linerate.Cigre601(span, weather, time_of_measurement)
-
 
 ###############################################################################
 # Compute line rating and temperature
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+max_conductor_temperature = np.linspace(0, 100, 101)
+current_load = np.linspace(0, 1_000, 101)
 
 conductor_rating = model.compute_steady_state_ampacity(max_conductor_temperature)
 conductor_temperature = model.compute_conductor_temperature(current_load, tolerance=0.01)
