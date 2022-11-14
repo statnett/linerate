@@ -30,14 +30,17 @@ pytest = ">= 6"  # needs pyproject.toml support
 pytest-cov = "*"
 pytest-integration = "*"
 pytest-randomly = "*"
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
 sphinx = "^5.2.3"
-sphinx-rtd-theme = "^1.0.0"
-numpydoc = "^1.4.0"
 sphinxcontrib-bibtex = "^2.5.0"
 sphinx-gallery = "^0.11.1"
+pydata-sphinx-theme = "^0.11.0"
 pillow = "^9.2.0"
 matplotlib = "^3.6.0"
-pydata-sphinx-theme = "^0.11.0"
 
 [tool.poetry-dynamic-versioning]
 enable = true
