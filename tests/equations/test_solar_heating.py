@@ -9,7 +9,7 @@ import linerate.equations.solar_heating as solar_heating
 @hypothesis.given(
     solar_altitude=st.floats(),
     clearness_ratio=st.floats(
-        allow_nan=False, min_value=0, max_value=10
+        allow_nan=False, min_value=0, max_value=3
     ),  # Recommended values between 0 and 1.4
     height_above_sea_level=st.floats(
         allow_nan=False, min_value=0, max_value=10_000
