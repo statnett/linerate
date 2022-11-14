@@ -70,7 +70,7 @@ def test_direct_solar_radiation_scales_correctly_with_sin_solar_altitude(solar_a
     sin_H_s = np.sin(solar_altitude)
     I_B = solar_heating.compute_direct_solar_radiation(sin_H_s, N_s, y)
 
-    if I_B > 0:
+    if sin_H_s > 0:
         assert I_B / 1280 == approx(sin_H_s / (sin_H_s + 0.314))
     else:
         assert I_B == 0

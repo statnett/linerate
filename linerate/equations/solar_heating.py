@@ -166,7 +166,7 @@ def compute_direct_solar_radiation(
     scaled_y = 1.4e-4 * y
     I_B = I_B_0 * (1 - scaled_y) + 1367 * scaled_y
 
-    return np.where(I_B >= 0, I_B, 0 * I_B)  # To keep NaN values
+    return np.where(sin_H_s >= 0, I_B, 0 * I_B)
 
 
 def compute_diffuse_sky_radiation(
