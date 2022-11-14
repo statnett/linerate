@@ -16,10 +16,10 @@ __all__ = ["ThermalModel", "Cigre601"]
 
 
 def _copy_method_docstring(parent_class):
-
     def inner(func):
         func.__doc__ = getattr(parent_class, func.__name__).__doc__
         return func
+
     return inner
 
 
