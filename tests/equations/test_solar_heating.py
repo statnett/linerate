@@ -92,6 +92,24 @@ def test_direct_solar_radiation_with_example():
 
 
 @hypothesis.given(
+    solar_altitude=st.floats(),
+    direct_solar_radiation=st.floats(
+        allow_nan=False, min_value=0, max_value=5000
+    ),  # Cannot be greater than 5000 (approximately 4x solar constant)
+)
+def test_diffuse_sky_radiation_radiation_nonnegative(solar_altitude, direct_solar_radiation):
+    I_B = direct_solar_radiation
+    sin_H_s = np.sin(solar_altitude)
+
+    I_d = solar_heating.compute_diffuse_sky_radiation(I_B, sin_H_s)
+
+    if any(np.isnan([I_B, sin_H_s])):
+        assert np.isnan(I_d)
+    else:
+        assert I_d >= 0
+
+
+@hypothesis.given(
     solar_altitude=st.floats(allow_nan=False, allow_infinity=False),
 )
 def test_diffuse_sky_radiation_scales_linearly_with_sin_solar_altitude(solar_altitude):
@@ -99,7 +117,10 @@ def test_diffuse_sky_radiation_scales_linearly_with_sin_solar_altitude(solar_alt
     I_B = 0
     I_d = solar_heating.compute_diffuse_sky_radiation(I_B, sin_H_s)
 
-    assert I_d == approx(430.5 * sin_H_s, rel=1e-8)
+    if sin_H_s > 0:
+        assert I_d == approx(430.5 * sin_H_s, rel=1e-8)
+    else:
+        assert I_d == 0
 
 
 @hypothesis.given(
@@ -110,7 +131,10 @@ def test_diffuse_sky_radiation_scales_affinely_with_direct_solar_radiation(direc
     I_B = direct_solar_radiation
     I_d = solar_heating.compute_diffuse_sky_radiation(I_B, sin_H_s)
 
-    assert (I_d - 430.5) == approx(-0.3288 * I_B, rel=1e-8)
+    if I_d > 0:
+        assert (I_d - 430.5) == approx(-0.3288 * I_B, rel=1e-8)
+    else:
+        assert 430.5 - 0.3288 * I_B < 0
 
 
 def test_diffuse_sky_radiation_with_example():

@@ -195,7 +195,7 @@ def compute_diffuse_sky_radiation(
     """
     sin_H_s = sin_solar_altitude
     I_B = direct_solar_radiation
-    return (430.5 - 0.3288 * I_B) * sin_H_s
+    return np.maximum(0, (430.5 - 0.3288 * I_B)) * np.maximum(0, sin_H_s)
 
 
 def compute_global_radiation_intensity(
