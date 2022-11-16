@@ -1,7 +1,7 @@
 from textwrap import dedent
 
 import numpy as np
-from scipy.interpolate import interp1d
+from numba import vectorize
 
 from ..units import (
     Celsius,
@@ -332,62 +332,56 @@ def compute_conductor_roughness(
 ## Nusselt number calculation
 #############################
 
-_smooth_conductor_nu90_coefficients = interp1d(
-    np.array([0, 35.0, 5_000.0, 50_000.0, 200_000.0]),
-    np.array(
-        [
-            [0, 0],
-            [0.583, 0.471],
-            [0.148, 0.633],
-            [0.0208, 0.814],
-            [0.0208, 0.814],
-        ]
-    ),
-    kind="previous",
-    axis=0,
-)
 
-_smooth_stranded_conductor_nu90_coefficients = interp1d(
-    np.array(
-        [
-            0,
-            100.0,
-            2_650.0,
-            50_000.0,
-        ]
-    ),
-    np.array(
-        [
-            [0, 0],
-            [0.641, 0.471],
-            [0.178, 0.633],
-            [0.178, 0.633],
-        ]
-    ),
-    kind="previous",
-    axis=0,
-)
+def _check_perpendicular_flow_nusseltnumber_out_of_bounds(reynolds_number, conductor_roughness):
+    Re = reynolds_number
+    Rs = conductor_roughness
+    if np.any(Re < 0):
+        raise ValueError("Reynolds number cannot be negative.")
 
-_rough_stranded_conductor_nu90_coefficients = interp1d(
-    np.array(
-        [
-            0,
-            100.0,
-            2_650.0,
-            50_000.0,
-        ]
-    ),
-    np.array(
-        [
-            [0, 0],
-            [0.641, 0.471],
-            [0.048, 0.800],
-            [0.048, 0.800],
-        ]
-    ),
-    kind="previous",
-    axis=0,
-)
+    smooth_mask = np.logical_or(Rs == 0, np.isnan(Rs))
+    smooth_out_of_bounds = Re > 200_000
+    rough_out_of_bounds = np.logical_and(np.logical_not(smooth_mask), Re > 50_000)
+    out_of_bounds = np.logical_or(smooth_out_of_bounds, rough_out_of_bounds)
+
+    if np.any(out_of_bounds):
+        raise ValueError("Reynolds number is out of bounds")
+
+
+@vectorize(nopython=True)
+def _compute_perpendicular_flow_nusseltnumber(
+    reynolds_number: Unitless,
+    conductor_roughness: Meter,
+) -> Unitless:
+    # TODO: Look at references for this table
+    Re = reynolds_number
+    Rs = conductor_roughness
+
+    if Rs == 0 or np.isnan(Rs):
+        if Re < 35:
+            B, n = 0, 0
+        elif Re < 5000:
+            B, n = 0.583, 0.471
+        elif Re < 50_000:
+            B, n = 0.148, 0.633
+        else:
+            B, n = 0.0208, 0.814
+    elif Rs <= 0.05:
+        if Re < 100:
+            B, n = 0, 0
+        elif Re < 2650:
+            B, n = 0.641, 0.471
+        else:
+            B, n = 0.178, 0.633
+    else:
+        if Re < 100:
+            B, n = 0, 0
+        elif Re < 2650:
+            B, n = 0.641, 0.471
+        else:
+            B, n = 0.048, 0.800
+
+    return B * Re**n  # type: ignore
 
 
 def compute_perpendicular_flow_nusseltnumber(
@@ -415,21 +409,37 @@ def compute_perpendicular_flow_nusseltnumber(
     Union[float, float64, ndarray[Any, dtype[float64]]]
         :math:`\text{Nu}_{90}`. The perpendicular flow Nusselt number.
     """
-    # TODO: Look at references for this table
-    # TODO: Possibly use numba vectorize instead
-    Re = reynolds_number
+    _check_perpendicular_flow_nusseltnumber_out_of_bounds(reynolds_number, conductor_roughness)
+    return _compute_perpendicular_flow_nusseltnumber(
+        reynolds_number,
+        conductor_roughness,
+    )
+
+
+@vectorize(nopython=True)
+def _correct_wind_direction_effect_on_nusselt_number(
+    perpendicular_flow_nusselt_number: Unitless,
+    angle_of_attack: Radian,
+    conductor_roughness: Unitless,
+) -> Unitless:
+    delta = angle_of_attack
+    Nu_90 = perpendicular_flow_nusselt_number
     Rs = conductor_roughness
 
-    if Rs == 0 or np.isnan(Rs):
-        nu_90_coeffs = _smooth_conductor_nu90_coefficients(Re)
-    elif Rs <= 0.05:
-        nu_90_coeffs = _smooth_stranded_conductor_nu90_coefficients(Re)
-    else:
-        nu_90_coeffs = _rough_stranded_conductor_nu90_coefficients(Re)
+    sin_delta = np.sin(delta)
 
-    B = nu_90_coeffs[..., 0]
-    n = nu_90_coeffs[..., 1]
-    return B * Re**n  # type: ignore
+    if Rs == 0 or np.isnan(Rs):
+        sin_delta_sq = sin_delta**2
+        cos_delta_sq = 1 - sin_delta_sq
+
+        correction_factor = (sin_delta_sq + cos_delta_sq * 0.0169) ** 0.225
+    else:
+        if delta <= np.radians(24):
+            correction_factor = 0.42 + 0.68 * (sin_delta**1.08)
+        else:
+            correction_factor = 0.42 + 0.58 * (sin_delta**0.90)
+
+    return correction_factor * Nu_90
 
 
 def correct_wind_direction_effect_on_nusselt_number(
@@ -458,44 +468,44 @@ def correct_wind_direction_effect_on_nusselt_number(
     Union[float, float64, ndarray[Any, dtype[float64]]]
         :math:`\text{Nu}_\delta`. The Nusselt number for the given wind angle-of-attack.
     """
-    delta = angle_of_attack
-    Nu_90 = perpendicular_flow_nusselt_number
-    Rs = conductor_roughness
-
-    sin_delta = np.sin(delta)
-
-    if Rs == 0 or np.isnan(Rs):
-        sin_delta_sq = sin_delta**2
-        cos_delta_sq = 1 - sin_delta_sq
-
-        correction_factor = (sin_delta_sq + cos_delta_sq * 0.0169) ** 0.225
-    else:
-        correction_factor = np.where(
-            delta <= np.radians(24),
-            0.42 + 0.68 * (sin_delta**1.08),
-            0.42 + 0.58 * (sin_delta**0.90),
-        )
-
-    return correction_factor * Nu_90
+    return _correct_wind_direction_effect_on_nusselt_number(
+        perpendicular_flow_nusselt_number,
+        angle_of_attack,
+        conductor_roughness,
+    )
 
 
 ## Natural convection computations (no wind):
 #############################################
 
 
-_nu_0_coefficients = interp1d(
-    [0, 1e-1, 1e2, 1e4, 1e7, 1e12],
-    [
-        [0.000, 0.000],
-        [1.020, 0.148],
-        [0.850, 0.188],
-        [0.480, 0.250],
-        [0.125, 0.333],
-        [0.125, 0.333],
-    ],
-    kind="previous",
-    axis=0,
-)  # TODO: Possibly use sympy or numba vectorize instead
+def _check_horizontal_natural_nusselt_number(
+    grashof_number: Unitless, prandtl_number: Unitless
+) -> None:
+    GrPr = grashof_number * prandtl_number
+    if np.any(GrPr < 0):
+        raise ValueError("GrPr cannot be negative.")
+    elif np.any(GrPr > 1e12):
+        raise ValueError("GrPr out of bounds: Must be < 10^12.")
+
+
+@vectorize(nopython=True)
+def _compute_horizontal_natural_nusselt_number(
+    grashof_number: Unitless,
+    prandtl_number: Unitless,
+) -> Unitless:
+    GrPr = grashof_number * prandtl_number
+
+    if GrPr < 1e-1:
+        return 0
+    elif GrPr < 1e2:
+        return 1.020 * GrPr**0.148
+    elif GrPr < 1e4:
+        return 0.850 * GrPr**0.188
+    elif GrPr < 1e7:
+        return 0.480 * GrPr**0.250
+    else:
+        return 0.125 * GrPr**0.333
 
 
 def compute_horizontal_natural_nusselt_number(
@@ -525,11 +535,44 @@ def compute_horizontal_natural_nusselt_number(
     Union[float, float64, ndarray[Any, dtype[float64]]]
         :math:`\text{Nu}_0`. The natural convection nusselt number assuming horizontal conductor.
     """
-    GrPr = grashof_number * prandtl_number
-    nu_0_coefficients = _nu_0_coefficients(GrPr)
-    A = nu_0_coefficients[..., 0]
-    m = nu_0_coefficients[..., 1]
-    return A * (GrPr**m)  # type: ignore
+    _check_horizontal_natural_nusselt_number(grashof_number, prandtl_number)
+    return _compute_horizontal_natural_nusselt_number(
+        grashof_number,
+        prandtl_number,
+    )
+
+
+def _check_conductor_inclination(
+    conductor_inclination: Radian,
+    conductor_roughness: Unitless,
+) -> None:
+    beta = np.degrees(conductor_inclination)
+    Rs = conductor_roughness
+
+    smooth_mask = np.logical_or(Rs == 0, np.isnan(Rs))
+    smooth_out_of_bounds = np.logical_and(smooth_mask, beta > 60)
+    rough_out_of_bounds = np.logical_and(np.logical_not(smooth_mask), beta > 80)
+    out_of_bounds = np.logical_or(smooth_out_of_bounds, rough_out_of_bounds)
+    if np.any(out_of_bounds):
+        raise ValueError(
+            "Inclination must be < 60° for smooth conductors and 80° for stranded conductors"
+        )
+
+
+@vectorize(nopython=True)
+def _correct_natural_nusselt_number_inclination(
+    horizontal_natural_nusselt_number: Unitless,
+    conductor_inclination: Radian,
+    conductor_roughness: Unitless,
+) -> Unitless:
+    beta = np.degrees(conductor_inclination)
+    Nu_nat = horizontal_natural_nusselt_number
+    Rs = conductor_roughness
+
+    if Rs == 0 or np.isnan(Rs):
+        return Nu_nat * (1 - 1.58e-4 * beta**1.5)
+    else:
+        return Nu_nat * (1 - 1.76e-6 * beta**2.5)
 
 
 def correct_natural_nusselt_number_inclination(
@@ -560,24 +603,12 @@ def correct_natural_nusselt_number_inclination(
         :math:`\text{Nu}_\beta`. The natural convection nusselt number where the conductor
         inclination is taken into account.
     """
-    beta = np.degrees(conductor_inclination)
-    Nu_nat = horizontal_natural_nusselt_number
-    Rs = conductor_roughness
-
-    if Rs == 0 or np.isnan(Rs):
-        if np.any(beta > 60):
-            raise ValueError(
-                f"Inclination must be less than 60° for smooth conductors (it is {beta})"
-            )
-
-        return Nu_nat * (1 - 1.58e-4 * beta**1.5)
-    else:
-        if np.any(beta > 80):
-            raise ValueError(
-                f"Inclination must be less than 80° for smooth conductors (it is {beta})"
-            )
-
-        return Nu_nat * (1 - 1.76e-6 * beta**2.5)
+    _check_conductor_inclination(conductor_inclination, conductor_roughness)
+    return _correct_natural_nusselt_number_inclination(
+        horizontal_natural_nusselt_number,
+        conductor_inclination,
+        conductor_roughness,
+    )
 
 
 def compute_nusselt_number(

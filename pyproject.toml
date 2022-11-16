@@ -16,6 +16,7 @@ numpy = "*"
 scipy = "*"
 pygeodesy = "*"
 pysolar = "*"
+numba = "^0.56.4"
 
 [tool.poetry.dev-dependencies]
 black = "*"

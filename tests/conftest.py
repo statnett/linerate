@@ -1,4 +1,9 @@
+from datetime import timedelta
+
+import hypothesis
 import pytest
+
+hypothesis.settings.register_profile("default", deadline=timedelta(seconds=2))
 
 
 @pytest.fixture
