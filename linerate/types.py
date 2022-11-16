@@ -21,7 +21,7 @@ from .units import (
 __all__ = ["Conductor", "Weather", "Tower", "Span"]
 
 
-@dataclass
+@dataclass(frozen=True)
 class Conductor:
     """Container for conductor parameters."""
 
@@ -74,7 +74,7 @@ class Conductor:
     thermal_conductivity: Optional[WattPerMeterPerKelvin] = None
 
 
-@dataclass
+@dataclass(frozen=True)
 class Tower:
     """Container for a tower (span end-point)."""
 
@@ -86,7 +86,7 @@ class Tower:
     altitude: Meter
 
 
-@dataclass
+@dataclass(frozen=True)
 class Span:
     """Container for a span.
 
@@ -163,7 +163,7 @@ class Span:
         return 0.5 * (self.start_tower.altitude + self.end_tower.altitude)
 
 
-@dataclass
+@dataclass()
 class Weather:
     #: :math:`T_a~\left[^\circ C\right]`. The ambient air temperature.
     air_temperature: Celsius
