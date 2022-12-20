@@ -132,8 +132,9 @@ class Span:
     @cached_property
     def conductor_azimuth(self) -> Radian:
         r""":math:`\gamma_c~\left[\text{radian}\right]`. Angle (east of north) the span is facing"""
+        bearing = np.vectorize(pygeodesy.formy.bearing)
         return np.radians(  # type: ignore
-            pygeodesy.formy.bearing(
+            bearing(
                 lat1=self.start_tower.latitude,
                 lon1=self.start_tower.longitude,
                 lat2=self.end_tower.latitude,
@@ -147,7 +148,8 @@ class Span:
 
         The span length is computed with the haversine formula (assuming spherical earth).
         """
-        return pygeodesy.formy.haversine(  # type: ignore
+        haversine = np.vectorize(pygeodesy.formy.haversine)
+        return haversine(  # type: ignore
             lat1=self.start_tower.latitude,
             lon1=self.start_tower.longitude,
             lat2=self.end_tower.latitude,
