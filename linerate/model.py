@@ -8,7 +8,8 @@ temperature. All numerical heavy-lifting is handled by the ``linerate.equations`
 from abc import ABC, abstractmethod
 from typing import Dict
 
-from . import equations, solver
+from . import solver
+from .equations import cigre601, math
 from .types import Span, Weather
 from .units import Ampere, Celsius, Date, JoulePerKilogramPerKelvin, OhmPerMeter, WattPerMeter
 
@@ -262,7 +263,7 @@ class Cigre601(ThermalModel):
 
     @_copy_method_docstring(ThermalModel)
     def compute_resistance(self, conductor_temperature: Celsius, current: Ampere) -> OhmPerMeter:
-        resistance = equations.joule_heating.compute_resistance(
+        resistance = cigre601.joule_heating.compute_resistance(
             conductor_temperature,
             temperature1=self.span.conductor.temperature1,
             temperature2=self.span.conductor.temperature2,
@@ -275,7 +276,7 @@ class Cigre601(ThermalModel):
         m = self.span.conductor.current_density_proportional_magnetic_effect
         max_increase = self.span.conductor.max_magnetic_core_relative_resistance_increase
 
-        return equations.joule_heating.correct_resistance_acsr_magnetic_core_loss(
+        return cigre601.joule_heating.correct_resistance_acsr_magnetic_core_loss(
             ac_resistance=resistance,
             current=current,
             aluminium_cross_section_area=A,
@@ -289,7 +290,7 @@ class Cigre601(ThermalModel):
         self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
         resistance = self.compute_resistance(conductor_temperature, current)
-        return equations.joule_heating.compute_joule_heating(current, resistance)
+        return cigre601.joule_heating.compute_joule_heating(current, resistance)
 
     @_copy_method_docstring(ThermalModel)
     def compute_solar_heating(
@@ -303,16 +304,16 @@ class Cigre601(ThermalModel):
         N_s = self.weather.clearness_ratio
         D = self.span.conductor.conductor_diameter
 
-        sin_H_s, sin_eta = equations.solar_heating.compute_sin_solar_angles(
+        sin_H_s, sin_eta = cigre601.solar_heating.compute_sin_solar_angles(
             phi, self.span.longitude, self.time, gamma_c
         )
 
-        I_B = equations.solar_heating.compute_direct_solar_radiation(sin_H_s, N_s, y)
-        I_d = equations.solar_heating.compute_diffuse_sky_radiation(I_B, sin_H_s)
-        I_T = equations.solar_heating.compute_global_radiation_intensity(
+        I_B = cigre601.solar_heating.compute_direct_solar_radiation(sin_H_s, N_s, y)
+        I_d = cigre601.solar_heating.compute_diffuse_sky_radiation(I_B, sin_H_s)
+        I_T = cigre601.solar_heating.compute_global_radiation_intensity(
             I_B, I_d, F, sin_eta, sin_H_s
         )
-        return equations.solar_heating.compute_solar_heating(
+        return cigre601.solar_heating.compute_solar_heating(
             alpha_s,
             I_T,
             D,
@@ -332,39 +333,39 @@ class Cigre601(ThermalModel):
         T_f = 0.5 * (T_c + T_a)
 
         # Compute physical quantities
-        lambda_f = equations.convective_cooling.compute_thermal_conductivity_of_air(T_f)
-        mu_f = equations.convective_cooling.compute_dynamic_viscosity_of_air(T_f)
-        gamma_f = equations.convective_cooling.compute_air_density(T_f, y)
-        nu_f = equations.convective_cooling.compute_kinematic_viscosity_of_air(mu_f, gamma_f)
+        lambda_f = cigre601.convective_cooling.compute_thermal_conductivity_of_air(T_f)
+        mu_f = cigre601.convective_cooling.compute_dynamic_viscosity_of_air(T_f)
+        gamma_f = cigre601.convective_cooling.compute_air_density(T_f, y)
+        nu_f = cigre601.convective_cooling.compute_kinematic_viscosity_of_air(mu_f, gamma_f)
         c_f: JoulePerKilogramPerKelvin = 1005
-        delta = equations.math.compute_angle_of_attack(
+        delta = math.compute_angle_of_attack(
             self.weather.wind_direction, self.span.conductor_azimuth
         )
 
         # Compute unitless quantities
-        Re = equations.convective_cooling.compute_reynolds_number(V, D, nu_f)
-        Gr = equations.convective_cooling.compute_grashof_number(D, T_c, T_a, nu_f)
-        Pr = equations.convective_cooling.compute_prandtl_number(lambda_f, mu_f, c_f)
-        Rs = equations.convective_cooling.compute_conductor_roughness(D, d)
+        Re = cigre601.convective_cooling.compute_reynolds_number(V, D, nu_f)
+        Gr = cigre601.convective_cooling.compute_grashof_number(D, T_c, T_a, nu_f)
+        Pr = cigre601.convective_cooling.compute_prandtl_number(lambda_f, mu_f, c_f)
+        Rs = cigre601.convective_cooling.compute_conductor_roughness(D, d)
 
         # Compute nusselt numbers
-        Nu_90 = equations.convective_cooling.compute_perpendicular_flow_nusseltnumber(
+        Nu_90 = cigre601.convective_cooling.compute_perpendicular_flow_nusseltnumber(
             reynolds_number=Re, conductor_roughness=Rs
         )
-        Nu_delta = equations.convective_cooling.correct_wind_direction_effect_on_nusselt_number(
+        Nu_delta = cigre601.convective_cooling.correct_wind_direction_effect_on_nusselt_number(
             Nu_90, delta, Rs
         )
 
-        Nu_0 = equations.convective_cooling.compute_horizontal_natural_nusselt_number(Gr, Pr)
-        Nu_beta = equations.convective_cooling.correct_natural_nusselt_number_inclination(
+        Nu_0 = cigre601.convective_cooling.compute_horizontal_natural_nusselt_number(Gr, Pr)
+        Nu_beta = cigre601.convective_cooling.correct_natural_nusselt_number_inclination(
             Nu_0, beta, Rs
         )
 
-        Nu = equations.convective_cooling.compute_nusselt_number(
+        Nu = cigre601.convective_cooling.compute_nusselt_number(
             forced_convection_nusselt_number=Nu_delta, natural_nusselt_number=Nu_beta
         )
 
-        return equations.convective_cooling.compute_convective_cooling(
+        return cigre601.convective_cooling.compute_convective_cooling(
             surface_temperature=conductor_temperature,
             air_temperature=self.weather.air_temperature,
             nusselt_number=Nu,
@@ -375,7 +376,7 @@ class Cigre601(ThermalModel):
     def compute_radiative_cooling(
         self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
-        return equations.radiative_cooling.compute_radiative_cooling(
+        return cigre601.radiative_cooling.compute_radiative_cooling(
             surface_temperature=conductor_temperature,
             air_temperature=self.weather.air_temperature,
             conductor_diameter=self.span.conductor.conductor_diameter,
@@ -404,7 +405,7 @@ class Cigre601(ThermalModel):
         T_c = conductor_temperature
         I = current / n  # noqa
         R = self.compute_resistance(conductor_temperature=T_c, current=I)
-        return equations.convective_cooling.compute_temperature_gradient(
+        return cigre601.convective_cooling.compute_temperature_gradient(
             total_heat_gain=I * R,
             conductor_thermal_conductivity=self.span.conductor.thermal_conductivity,  # type: ignore  # noqa
             core_diameter=self.span.conductor.core_diameter,

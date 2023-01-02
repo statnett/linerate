@@ -3,7 +3,7 @@ import hypothesis.strategies as st
 import numpy as np
 from pytest import approx
 
-import linerate.equations.solar_heating as solar_heating
+import linerate.equations.cigre601.solar_heating as solar_heating
 
 
 @hypothesis.given(

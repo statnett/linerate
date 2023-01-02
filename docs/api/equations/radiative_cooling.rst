@@ -1,5 +1,5 @@
 Radiative cooling
 -----------------
 
-.. automodule:: linerate.equations.radiative_cooling
+.. automodule:: linerate.equations.cigre601.radiative_cooling
     :members:

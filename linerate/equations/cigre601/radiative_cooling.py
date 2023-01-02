@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.constants import Stefan_Boltzmann as stefan_boltzmann_constant
 
-from ..units import Celsius, Meter, Unitless, WattPerMeter
+from ...units import Celsius, Meter, Unitless, WattPerMeter
 
 
 def compute_radiative_cooling(

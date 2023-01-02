@@ -1,5 +1,5 @@
 Convective cooling
 ------------------
 
-.. automodule:: linerate.equations.convective_cooling
+.. automodule:: linerate.equations.cigre601.convective_cooling
     :members:

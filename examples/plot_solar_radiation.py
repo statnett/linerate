@@ -15,7 +15,7 @@ import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
 
-import linerate
+from linerate.equations import cigre601
 
 ###############################################################################
 # Simulation parameters
@@ -38,14 +38,14 @@ sin_eta = np.sqrt(1 - cos_eta**2)
 # Compute the solar radiation components
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-I_B = linerate.equations.solar_heating.compute_direct_solar_radiation(
+I_B = cigre601.solar_heating.compute_direct_solar_radiation(
     sin_H_s, clearness_ratio=1, height_above_sea_level=height_above_sea_level
 )
-I_d = linerate.equations.solar_heating.compute_diffuse_sky_radiation(I_B, sin_H_s)
-I_T_F0 = linerate.equations.solar_heating.compute_global_radiation_intensity(
+I_d = cigre601.solar_heating.compute_diffuse_sky_radiation(I_B, sin_H_s)
+I_T_F0 = cigre601.solar_heating.compute_global_radiation_intensity(
     I_B, I_d, albedo=0.0, sin_angle_of_sun_on_line=sin_eta, sin_solar_altitude=sin_H_s
 )
-I_T_F = linerate.equations.solar_heating.compute_global_radiation_intensity(
+I_T_F = cigre601.solar_heating.compute_global_radiation_intensity(
     I_B, I_d, albedo=albedo, sin_angle_of_sun_on_line=sin_eta, sin_solar_altitude=sin_H_s
 )
 

@@ -3,7 +3,7 @@ from textwrap import dedent
 import numpy as np
 from numba import vectorize
 
-from ..units import (
+from ...units import (
     Celsius,
     JoulePerKilogramPerKelvin,
     KilogramPerCubeMeter,

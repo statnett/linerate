@@ -5,6 +5,11 @@ The ``equations`` module
 
 .. automodule:: linerate.equations
 
+Cigre 601
+^^^^^^^^^
+
+.. automodule:: linerate.equations.cigre601
+
 .. toctree::
     :maxdepth: 1
 
@@ -12,3 +17,12 @@ The ``equations`` module
     joule_heating
     radiative_cooling
     solar_heating
+
+
+Other functionality
+^^^^^^^^^^^^^^^^^^^
+
+.. toctree::
+    :maxdepth: 1
+
+    math

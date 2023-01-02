@@ -4,8 +4,8 @@ import numpy as np
 from numpy import cos, pi, radians, sin
 from pysolar.solar import get_altitude_fast, get_azimuth_fast
 
-from ..units import Date, Degrees, Meter, Radian, Unitless, WattPerMeter, WattPerSquareMeter
-from .math import switch_cos_sin
+from ...units import Date, Degrees, Meter, Radian, Unitless, WattPerMeter, WattPerSquareMeter
+from ..math import switch_cos_sin
 
 
 def compute_solar_time_of_day(longitude: Degrees, utc_time_in_hours: Unitless) -> Radian:

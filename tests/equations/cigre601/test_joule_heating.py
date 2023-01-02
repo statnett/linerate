@@ -4,7 +4,7 @@ import numpy as np
 from pytest import approx
 from scipy.interpolate import lagrange
 
-import linerate.equations.joule_heating as joule_heating
+import linerate.equations.cigre601.joule_heating as joule_heating
 
 
 @hypothesis.given(

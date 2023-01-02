@@ -2,7 +2,7 @@ from typing import Union
 
 import numpy as np
 
-from ..units import (
+from ...units import (
     Ampere,
     Celsius,
     OhmPerMeter,

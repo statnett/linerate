@@ -1,8 +1,8 @@
 """
-This submodule contains implementations of equations listed in :cite:p:`cigre601`. Each function is
-implemented as a pure function corresponding to one or more equations. The left hand side is always
-returned and the parameters of the right hand side is required as function arguments. Each function
-is implemented with vectorization over all numerical parameters (except the diameter parameters).
+This submodule contains implementations of mathematical equations. Each function is implemented as
+a pure function corresponding to one or more equations. The left hand side of the equations are
+returned and the parameters of the right hand side are required as function arguments. Each
+function is implemented with vectorization over all numerical parameters.
 """
 
-from . import convective_cooling, joule_heating, math, radiative_cooling, solar_heating  # noqa
+from . import cigre601, math  # noqa

@@ -5,7 +5,7 @@ import pytest
 from pytest import approx
 from scipy.interpolate import lagrange
 
-import linerate.equations.convective_cooling as convective_cooling
+import linerate.equations.cigre601.convective_cooling as convective_cooling
 
 # Tests for physical quantities
 ###############################

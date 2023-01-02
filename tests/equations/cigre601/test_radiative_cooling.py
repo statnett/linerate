@@ -5,7 +5,7 @@ import pytest
 from pytest import approx
 from scipy.constants import Stefan_Boltzmann as stefan_boltzmann_constant
 
-import linerate.equations.radiative_cooling as radiative_cooling
+import linerate.equations.cigre601.radiative_cooling as radiative_cooling
 
 
 @hypothesis.given(conductor_emissivity=st.floats(allow_nan=False))
