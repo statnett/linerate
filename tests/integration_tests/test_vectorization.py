@@ -5,7 +5,6 @@ import numpy as np
 import linerate
 
 
-@hypothesis.settings(deadline=None)
 @hypothesis.given(
     vectorization_indices=st.sets(st.integers(min_value=1, max_value=24), max_size=10)
 )
