@@ -2,11 +2,3 @@
     display: block;
     overflow: hidden;
 }
-
-dl.py {
-    padding-top: 4em;
-}
-
-dl.py:first-of-type{
-    padding-top: 0em;
-}
