@@ -1,3 +1,4 @@
+import warnings
 from textwrap import dedent
 
 import numpy as np
@@ -345,7 +346,7 @@ def _check_perpendicular_flow_nusseltnumber_out_of_bounds(reynolds_number, condu
     out_of_bounds = np.logical_or(smooth_out_of_bounds, rough_out_of_bounds)
 
     if np.any(out_of_bounds):
-        raise ValueError("Reynolds number is out of bounds")
+        warnings.warn("Reynolds number is out of bounds")
 
 
 @vectorize(nopython=True)
