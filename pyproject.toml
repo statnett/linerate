@@ -1,0 +1,100 @@
+[tool.poetry]
+name = "linerate"
+version = "0.0.0"
+description = "Library for computing line ampacity ratings for overhead lines"
+authors = ["Statnett Datascience <Datascience.Drift@Statnett.no>", "Yngve Mardal Moe <yngve.m.moe@gmail.com>"]
+repository = "https://github.com/statnett/linerate.git"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<4.0"
+numpy = "*"
+scipy = "*"
+numba = ">=0.56.4"
+pygeodesy = "*"
+typing-extensions = { version = ">=4.0.0", python = "<3.9" }
+
+[tool.poetry.dev-dependencies]
+black = "22.10.0"
+coverage = { version = "*", extras = ['toml'] }
+flake8 = "6.0.0"
+flake8-bugbear = "23.2.13"
+hypothesis = ">= 6.56.2"
+isort = "5.12.0"
+pre-commit = "*"
+pytest = "7.2.1"
+pytest-cov = "4.0.0"
+pytest-randomly = "3.12.0"
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+sphinx = "^5.2.3"
+sphinxcontrib-bibtex = "^2.5.0"
+sphinx-gallery = "^0.11.1"
+pydata-sphinx-theme = "^0.11.0"
+pillow = "^9.2.0"
+matplotlib = "^3.6.0"
+
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+style = "semver"
+pattern = "^(?P<base>\\d+\\.\\d+\\.\\d+)(-?((?P<stage>[a-zA-Z]+)\\.?(?P<revision>\\d+)?))?$"
+
+[tool.isort]
+profile = "black"
+line_length = 100
+known_first_party = []
+
+[tool.black]
+line-length = 100
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | profiling
+)/
+'''
+
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_lines = [
+              "pragma: no cover",
+              "raise AssertionError",
+              "raise NotImplementedError",
+              "if verbose:",
+              "if 0:",
+              "if False:",
+              ]
+skip_covered = true
+show_missing = true
+precision = 2
+
+[tool.coverage.run]
+branch = true
+source = ["linerate"]
+
+[tool.pytest.ini_options]
+log_file = "pytest.log"
+log_level = "DEBUG"
+log_file_format = "%(asctime)s - %(name)s - %(levelname)s: %(message)s"
+norecursedirs = "_build tmp*  __pycache__ src prof wheel_files"
+markers = [
+  "integration: Mark test as an integration test",
+]
+filterwarnings = [
+  "ignore:PyArray_GetNumericOps.*",
+  "ignore:PyArray_SetNumericOps.*",
+]
+
+[build-system]
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+build-backend = "poetry.core.masonry.api"
