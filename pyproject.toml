@@ -6,7 +6,7 @@ authors = ["Statnett Datascience <Datascience.Drift@Statnett.no>", "Yngve Mardal
 repository = "https://github.com/statnett/linerate.git"
 
 [tool.poetry.dependencies]
-python = ">=3.8,<4.0"
+python = ">=3.8.1,<4.0"
 numpy = "*"
 scipy = "*"
 numba = ">=0.56.4"
