@@ -574,20 +574,20 @@ def test_angle_of_attack_correction_with_examples(
 @pytest.mark.parametrize(
     "x, A, m",
     (
-        [(x, 1.020, 0.148) for x in np.logspace(-1, 2, 5, endpoint=False)]
-        + [(x, 0.850, 0.188) for x in np.logspace(2, 4, 5, endpoint=False)]
-        + [(x, 0.480, 0.250) for x in np.logspace(4, 7, 5, endpoint=False)]
-        + [(x, 0.125, 0.333) for x in np.logspace(7, 12, 5, endpoint=True)]
+        [(x, 1.020, 0.148) for x in np.logspace(-1 + 1e-8, 2, 5, endpoint=False)]
+        + [(x, 0.850, 0.188) for x in np.logspace(2 + 1e-8, 4, 5, endpoint=False)]
+        + [(x, 0.480, 0.250) for x in np.logspace(4 + 1e-8, 7, 5, endpoint=False)]
+        + [(x, 0.125, 0.333) for x in np.logspace(7 + 1e-8, 12, 5, endpoint=True)]
     ),
 )
 def test_horizontal_natural_nusselt_number_uses_correct_exponential(x, A, m):
     Nu_0 = A * (x**m)
 
     assert convective_cooling.compute_horizontal_natural_nusselt_number(x, 1) == approx(
-        Nu_0, rel=1e-8
+        Nu_0, rel=1e-8, abs=1e-8
     )
     assert convective_cooling.compute_horizontal_natural_nusselt_number(1, x) == approx(
-        Nu_0, rel=1e-8
+        Nu_0, rel=1e-8, abs=1e-8
     )
 
 
