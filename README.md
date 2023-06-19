@@ -5,7 +5,7 @@ Currently, the package only contains equations from CIGRE TB 601.
 
 ## Installation
 
-```
+```raw
 pip install linerate
 ```
 
@@ -20,9 +20,9 @@ This library is split into four main parts:
 
 A typical user of this software package will only use the `types` and `model` module,
 and the `model` module will then use functions from `equations` and `solver` to estimate the conductor temperature and ampacity. However, to understand the parameters, it may be useful to look at the functions
-in the `equations` module, as we have taken care to ensure that the argument names stay consistent. 
+in the `equations` module, as we have taken care to ensure that the argument names stay consistent.
 
-Below, we see an example of how to compute the conductor temperature based on *Example B* on page 79-81 in CIGRE TB 601. 
+Below, we see an example of how to compute the conductor temperature based on *Example B* on page 79-81 in CIGRE TB 601.
 
 ```python
 import numpy as np
@@ -77,6 +77,7 @@ print(f"The conductor has a temperature of {conductor_temperature:.0f} °C when 
 ```
 
 ## Transient state solver
+
 There is currently no transient solver or short time thermal rating solver, but that is on the roadmap.
 
 ## Development
@@ -84,7 +85,7 @@ There is currently no transient solver or short time thermal rating solver, but 
 Dependencies for the project are managed with poetry.
 To install all dependencies run:
 
-```
+```raw
 poetry install
 ```
 
