@@ -4,7 +4,7 @@ API
 LineRate is designed to be easy to use, while still making the models flexible. To accomplish this,
 we have created the ``linerate.model``-module, which defines the abstract ``ThermalModel`` class --
 a common interface for thermal rating models, which can compute the heat balance, the thermal
-rating and the steady-state conductor temperature. 
+rating and the steady-state conductor temperature.
 
 A ``ThermalModel`` needs to contain all information about the conductor, span and weather. To make
 this easy, we have the ``linerate.types``-module, which defines several dataclasses that can keep

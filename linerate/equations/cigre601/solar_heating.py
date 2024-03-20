@@ -68,7 +68,7 @@ def compute_direct_solar_radiation(
 
     I_B_0 = N_s * 1280 * sin_H_s / (sin_H_s + 0.314)
     # Equation 19 says that
-    # I_B = I_B_0 * (1 + 1.4e-4 * y * (1367/I_B_0 - 1))
+    # I_B = I_B_0 * (1 + 1.4e-4 * y * (1367/I_B_0 - 1)) # noqa: E800
     # However, if I_B_0 = 0, this will divide by 0. To return NaN-values if and only
     # if the input is NaN, we therefore reformulate it
     scaled_y = 1.4e-4 * y
