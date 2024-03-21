@@ -246,9 +246,7 @@ def test_natural_convection_scales_with_air_density(air_density):
     T_s = 10
     T_a = 9
 
-    assert convective_cooling.compute_natural_convection(rho_f, D_0, T_s, T_a) == approx(
-        rho_f**0.5
-    )
+    assert convective_cooling.compute_natural_convection(rho_f, D_0, T_s, T_a) == approx(rho_f**0.5)
 
 
 @hypothesis.given(diameter_of_conductor=st.floats(min_value=1e-5, max_value=1e5, allow_nan=False))
@@ -258,9 +256,7 @@ def test_natural_convection_scales_with_diameter_of_conductor(diameter_of_conduc
     T_s = 10
     T_a = 9
 
-    assert convective_cooling.compute_natural_convection(rho_f, D_0, T_s, T_a) == approx(
-        D_0**0.75
-    )
+    assert convective_cooling.compute_natural_convection(rho_f, D_0, T_s, T_a) == approx(D_0**0.75)
 
 
 @hypothesis.given(

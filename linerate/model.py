@@ -5,6 +5,7 @@ heating and cooling effects and use those to estimate the thermal rating and con
 temperature. All numerical heavy-lifting is handled by the ``linerate.equations`` and the
 ``linerate.solver`` modules.
 """
+
 from abc import ABC, abstractmethod
 from numbers import Real
 from typing import Dict

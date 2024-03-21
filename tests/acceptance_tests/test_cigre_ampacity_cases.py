@@ -1,4 +1,5 @@
 """Test cases from Annex E of CIGRE TB 601."""
+
 import numpy as np
 import pytest
 from pytest import approx
