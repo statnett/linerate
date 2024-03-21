@@ -17,7 +17,7 @@ typing-extensions = { version = ">=4.0.0", python = "<3.9" }
 [tool.poetry.dev-dependencies]
 black = "24.3.0"
 coverage = { version = "*", extras = ['toml'] }
-flake8 = "6.0.0"
+flake8 = "6.1.0"
 flake8-bugbear = "23.2.13"
 hypothesis = ">= 6.56.2"
 isort = "5.12.0"
