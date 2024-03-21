@@ -3,4 +3,5 @@
   "extends": [
     "local>statnett/renovate-config"
   ]
+  "semanticCommits": "enabled"
 }
