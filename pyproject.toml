@@ -18,7 +18,7 @@ typing-extensions = { version = ">=4.0.0", python = "<3.9" }
 black = "24.3.0"
 coverage = { version = "*", extras = ['toml'] }
 flake8 = "7.0.0"
-flake8-bugbear = "23.2.13"
+flake8-bugbear = "24.2.6"
 hypothesis = ">= 6.56.2"
 isort = "5.13.2"
 pre-commit = "*"
