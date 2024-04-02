@@ -1,4 +1,5 @@
 import pytest
+
 import linerate.solver as solver
 
 
