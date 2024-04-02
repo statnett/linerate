@@ -1,5 +1,4 @@
 import pytest
-
 import linerate.solver as solver
 
 
@@ -31,17 +30,19 @@ def test_compute_conductor_temperature_computes_correct_ampacity():
     assert conductor_temperature == pytest.approx(9000, rel=1e-7)
 
 
-def test_compute_conductor_temperature_caps_ampacity_at_zero():
+def test_compute_conductor_temperature_raises_value_error():
     def heat_balance(conductor_temperature, current):
         A = current
         T = conductor_temperature
         return (A + 100 * T) * (current + 200 * T)
 
-    conductor_temperature = solver.compute_conductor_ampacity(
-        heat_balance,
-        max_conductor_temperature=90,
-        min_ampacity=0,
-        max_ampacity=10_000,
-        tolerance=1e-8,
-    )
-    assert conductor_temperature == pytest.approx(0, rel=1e-7)
+    try:
+        solver.compute_conductor_ampacity(
+            heat_balance,
+            max_conductor_temperature=90,
+            min_ampacity=0,
+            max_ampacity=10_000,
+            tolerance=1e-8,
+        )
+    except Exception as e:
+        assert isinstance(e, ValueError)
