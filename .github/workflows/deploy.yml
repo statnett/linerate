@@ -30,7 +30,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: 3.8
       - name: install poetry
@@ -61,7 +61,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Install Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: 3.8
       - name: install poetry
