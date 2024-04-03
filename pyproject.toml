@@ -33,7 +33,7 @@ optional = true
 sphinx = "^5.2.3"
 sphinxcontrib-bibtex = "^2.5.0"
 sphinx-gallery = "^0.15.0"
-pydata-sphinx-theme = "^0.11.0"
+pydata-sphinx-theme = "^0.15.0"
 pillow = "^9.2.0"
 matplotlib = "^3.6.0"
 
