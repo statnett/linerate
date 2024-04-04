@@ -39,7 +39,7 @@ def bisect(
         there is a root :math:`x_i \in [\tilde{x}_i - 0.5 \Delta x, \tilde{x}_i + 0.5 \Delta x]`
         so :math:`f_i(x_i) = 0`.
     """
-    if not np.isfinite(xmin) or not np.isfinite(xmax):
+    if not np.all(np.isfinite(xmin)) or not np.all(np.isfinite(xmax)):
         raise ValueError("xmin and xmax must be finite.")
     interval = np.max(np.abs(xmax - xmin))
 

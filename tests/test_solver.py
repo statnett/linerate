@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 
 import linerate.solver as solver
@@ -42,5 +43,47 @@ def test_bisect_raises_value_error():
             heat_balance,
             xmin=0,
             xmax=10_000,
+            tolerance=1e-8,
+        )
+
+
+def test_bisect_handles_function_returning_array_happy_path():
+    def heat_balance(currents: np.array):
+        A = currents
+        T = 90
+        res = (A - 100 * T) * (currents + 100 * T)
+        return res
+
+    solution = solver.bisect(
+        heat_balance,
+        xmin=np.array([0, 0]),
+        xmax=np.array([10_000, 10_000]),
+        tolerance=1e-8,
+    )
+    np.testing.assert_array_almost_equal(solution, [9000, 9000], decimal=8)
+
+
+def test_bisect_raises_valueerror_when_same_sign_for_array_input():
+    def heat_balance(currents: np.array):
+        A = currents
+        T = 90
+        res = (A - 100 * T) * (currents + 100 * T)
+        return res
+
+    with pytest.raises(ValueError):
+        solver.bisect(
+            heat_balance,
+            xmin=np.array([0, 0]),
+            xmax=np.array([10_000, 8000]),
+            tolerance=1e-8,
+        )
+
+
+def test_bisect_raises_valueerror_when_infinite_in_array_input():
+    with pytest.raises(ValueError):
+        solver.bisect(
+            lambda x: x,
+            xmin=np.array([-np.inf, 0]),
+            xmax=np.array([10_000, 10_000]),
             tolerance=1e-8,
         )
