@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "linerate"
-version = "1.0.0"
+version = "1.0.1"
 description = "Library for computing line ampacity ratings for overhead lines"
 authors = ["Statnett Datascience <Datascience.Drift@Statnett.no>", "Yngve Mardal Moe <yngve.m.moe@gmail.com>"]
 repository = "https://github.com/statnett/linerate.git"
