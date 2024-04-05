@@ -32,7 +32,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: 3.12
       - name: install poetry
         run: |
           python -m pip install --upgrade pip wheel pipx
@@ -63,7 +63,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: 3.12
       - name: install poetry
         run: |
           python -m pip install --upgrade pip wheel pipx
