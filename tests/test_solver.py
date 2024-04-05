@@ -60,7 +60,7 @@ def test_bisect_handles_function_returning_array_happy_path():
         xmax=np.array([10_000, 10_000]),
         tolerance=1e-8,
     )
-    np.testing.assert_array_almost_equal(solution, [9000, 9000], decimal=8)
+    np.testing.assert_array_almost_equal(solution, [9_000, 9_000], decimal=8)
 
 
 def test_bisect_raises_valueerror_when_same_sign_for_array_input():
