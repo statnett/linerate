@@ -7,7 +7,7 @@ repository = "https://github.com/statnett/linerate.git"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.8.1,<4.0"
+python = ">=3.9,<4.0"
 numpy = "*"
 scipy = "*"
 numba = ">=0.56.4"
@@ -33,7 +33,7 @@ optional = true
 sphinx = "^7.0.0"
 sphinxcontrib-bibtex = "^2.5.0"
 sphinx-gallery = "^0.15.0"
-pydata-sphinx-theme = "^0.11.0"
+pydata-sphinx-theme = "^0.15.0"
 pillow = "^9.2.0"
 matplotlib = "^3.6.0"
 
