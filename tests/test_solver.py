@@ -74,7 +74,7 @@ def test_bisect_raises_valueerror_when_same_sign_for_array_input():
         solver.bisect(
             heat_balance,
             xmin=np.array([0, 0]),
-            xmax=np.array([10_000, 8000]),
+            xmax=np.array([10_000, 8_000]),
             tolerance=1e-8,
         )
 
