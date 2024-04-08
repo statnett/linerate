@@ -7,7 +7,7 @@ repository = "https://github.com/statnett/linerate.git"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<4.0"
+python = ">=3.9,<3.13"
 numpy = "*"
 scipy = "*"
 numba = ">=0.56.4"
