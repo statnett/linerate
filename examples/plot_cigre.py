@@ -74,7 +74,7 @@ model = linerate.Cigre601(span, weather, time_of_measurement)
 # Compute line rating and temperature
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-max_conductor_temperature = np.linspace(0, 100, 101)
+max_conductor_temperature = np.linspace(26, 100, 75)
 current_load = np.linspace(0, 1_000, 101)
 
 conductor_rating = model.compute_steady_state_ampacity(max_conductor_temperature)
