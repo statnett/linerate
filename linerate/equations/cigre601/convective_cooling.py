@@ -1,17 +1,13 @@
 import warnings
-from textwrap import dedent
 
 import numpy as np
 from numba import vectorize
 
 from ...units import (
     Celsius,
-    JoulePerKilogramPerKelvin,
     KilogramPerCubeMeter,
     KilogramPerMeterPerSecond,
     Meter,
-    MeterPerSecond,
-    MeterPerSquareSecond,
     Radian,
     SquareMeterPerSecond,
     Unitless,
@@ -19,15 +15,16 @@ from ...units import (
     WattPerMeterPerKelvin,
 )
 
+
 # Physical quantities
 #####################
 
 
 def compute_temperature_gradient(
-    total_heat_gain: WattPerMeter,
-    conductor_thermal_conductivity: WattPerMeterPerKelvin,
-    core_diameter: Meter,
-    conductor_diameter: Meter,
+        total_heat_gain: WattPerMeter,
+        conductor_thermal_conductivity: WattPerMeterPerKelvin,
+        core_diameter: Meter,
+        conductor_diameter: Meter,
 ) -> Celsius:
     r"""Compute the difference between the core and surface temperature.
 
@@ -67,8 +64,8 @@ def compute_temperature_gradient(
     if D_1 == 0:  # TODO: Maybe lower tolerance?
         return 0.5 * tmp
     else:
-        D_1_sq = D_1**2
-        delta_D_sq = D**2 - D_1_sq
+        D_1_sq = D_1 ** 2
+        delta_D_sq = D ** 2 - D_1_sq
         return tmp * (0.5 - (D_1_sq / delta_D_sq) * np.log(D / D_1))
 
 
@@ -93,11 +90,11 @@ def compute_thermal_conductivity_of_air(film_temperature: Celsius) -> WattPerMet
         conductivity of air at the given temperature.
     """
     T_f = film_temperature
-    return 2.368e-2 + 7.23e-5 * T_f - 2.763e-8 * (T_f**2)
+    return 2.368e-2 + 7.23e-5 * T_f - 2.763e-8 * (T_f ** 2)
 
 
 def compute_air_density(
-    film_temperature: Celsius, height_above_sea_level: Meter
+        film_temperature: Celsius, height_above_sea_level: Meter
 ) -> KilogramPerCubeMeter:
     r"""Approximation of the density of air at a given temperature and altitude.
 
@@ -119,7 +116,7 @@ def compute_air_density(
     """
     T_f = film_temperature
     y = height_above_sea_level
-    return (1.293 - 1.525e-4 * y + 6.379e-9 * (y**2)) / (1 + 0.00367 * T_f)
+    return (1.293 - 1.525e-4 * y + 6.379e-9 * (y ** 2)) / (1 + 0.00367 * T_f)
 
 
 def compute_dynamic_viscosity_of_air(film_temperature: Celsius) -> KilogramPerMeterPerSecond:
@@ -141,11 +138,11 @@ def compute_dynamic_viscosity_of_air(film_temperature: Celsius) -> KilogramPerMe
         of air.
     """
     T_f = film_temperature
-    return 17.239e-6 + 4.635e-8 * T_f - 2.03e-11 * (T_f**2)
+    return 17.239e-6 + 4.635e-8 * T_f - 2.03e-11 * (T_f ** 2)
 
 
 def compute_kinematic_viscosity_of_air(
-    dynamic_viscosity_of_air: KilogramPerMeterPerSecond, air_density: KilogramPerCubeMeter
+        dynamic_viscosity_of_air: KilogramPerMeterPerSecond, air_density: KilogramPerCubeMeter
 ) -> SquareMeterPerSecond:
     r"""Compute the kinematic viscosity of air.
 
@@ -165,169 +162,6 @@ def compute_kinematic_viscosity_of_air(
         :math:`\nu_f~\left[\text{m}^2~\text{s}^{-1}\right]`. The kinematic viscosity of air.
     """
     return dynamic_viscosity_of_air / air_density
-
-
-# Unitless quantities
-#####################
-
-
-def compute_reynolds_number(
-    wind_speed: MeterPerSecond,
-    conductor_diameter: Meter,
-    kinematic_viscosity_of_air: SquareMeterPerSecond,
-) -> Unitless:
-    r"""Compute the Reynolds number using the conductor diameter as characteristic length scale.
-
-    Defined in the text on page 25 of :cite:p:`cigre601`.
-
-    The Reynolds number is a dimensionless quantity that can be used to assess if a stream is
-    likely to be turbulent or not. It is given by
-
-    .. math::
-
-        \text{Re} = \frac{v L}{\nu},
-
-    where :math:`v` is the flow velocity, :math:`L` is a *characteristic length* (in our case,
-    the conductor diameter) and :math:`\nu` is the kinematic viscosity.
-
-    Parameters
-    ----------
-    wind_speed:
-        :math:`v~\left[\text{m}~\text{s}^{-1}\right]`. The wind speed.
-    conductor_diameter:
-        :math:`D~\left[\text{m}\right]`. Outer diameter of the conductor.
-    kinematic_viscosity_of_air:
-        :math:`\nu_f~\left[\text{m}^2~\text{s}^{-1}\right]`. The kinematic viscosity of air.
-
-    Returns
-    -------
-    Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`\text{Re}`. The Reynolds number.
-    """
-    v = wind_speed
-    D = conductor_diameter
-    nu_f = kinematic_viscosity_of_air
-    return v * D / nu_f
-
-
-def compute_grashof_number(
-    conductor_diameter: Meter,
-    surface_temperature: Celsius,
-    air_temperature: Celsius,
-    kinematic_viscosity_of_air: SquareMeterPerSecond,
-    coefficient_of_gravity: MeterPerSquareSecond = 9.807,
-) -> Unitless:
-    r"""Compute the Grashof number.
-
-    Defined in the nomenclature on page 7 of :cite:p:`cigre601`.
-
-    The Grashof number is a dimensionless quantity that can be used to assess the degree of free
-    and forced convective heat transfer.
-
-    Parameters
-    ----------
-    conductor_diameter:
-        :math:`D~\left[\text{m}\right]`. Outer diameter of the conductor.
-    surface_temperature:
-        :math:`T_s~\left[^\circ\text{C}\right]`. The conductor surface temperature.
-    air_temperature:
-        :math:`T_a~\left[^\circ\text{C}\right]`. The ambient air temperature.
-    kinematic_viscosity_of_air:
-        :math:`\nu_f~\left[\text{m}^2~\text{s}^{-1}\right]`. The kinematic viscosity of air.
-    coefficient_of_gravity:
-        :math:`g~\left[\text{m}~\text{s}^{-2}\right]`. The graviatational constant, optional
-        (default=9.807).
-
-    Returns
-    -------
-    Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`\text{Gr}`. The Grashof number.
-    """
-    T_s = surface_temperature
-    T_a = air_temperature
-    T_f = 0.5 * (T_s + T_a)
-    D = conductor_diameter
-    nu_f = kinematic_viscosity_of_air
-    g = coefficient_of_gravity
-
-    return (D**3) * np.abs((T_s - T_a)) * g / ((T_f + 273.15) * (nu_f**2))
-
-
-def compute_prandtl_number(
-    thermal_conductivity_of_air: WattPerMeterPerKelvin,
-    dynamic_viscosity_of_air: KilogramPerMeterPerSecond,
-    specific_heat_capacity_of_air: JoulePerKilogramPerKelvin,
-) -> Unitless:
-    r"""Compute the Prandtl number.
-
-    Defined in the nomenclature on page 8 of :cite:p:`cigre601`.
-
-    The Prandtl number measures the ratio between viscosity and thermal diffusivity for a fluid.
-
-    Parameters
-    ----------
-    thermal_conductivity_of_air:
-        :math:`\lambda_f~\left[\text{W}~\text{m}^{-1}~\text{K}^{-1}\right]`. The thermal
-        conductivity of air at the given temperature.
-    dynamic_viscosity_of_air:
-        :math:`\mu_f~\left[\text{kg}~\text{m}^{-1}~\text{s}^{-1}\right]`. The dynamic viscosity of
-        air.
-    specific_heat_capacity_of_air:
-        :math:`\text{J}~\left[\text{kg}^{-1}~\text{K}^{-1}\right]`. The specific heat capacity of
-        air.
-
-    Returns
-    -------
-    Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`\text{Pr}`. The Prandtl number.
-    """
-    lambda_f = thermal_conductivity_of_air
-    mu_f = dynamic_viscosity_of_air
-    c_f = specific_heat_capacity_of_air
-
-    return c_f * mu_f / lambda_f
-
-
-def compute_conductor_roughness(
-    conductor_diameter: Meter,
-    outer_layer_strand_diameter: Meter,
-) -> Unitless:
-    r"""Compute the surface roughness of the conductor.
-
-    Defined in the text on page 25 of :cite:p:`cigre601`.
-
-    Parameters
-    ----------
-    conductor_diameter:
-        :math:`D~\left[\text{m}\right]`. Outer diameter of the conductor.
-    outer_layer_strand_diameter:
-        :math:`d~\left[\text{m}\right]`. The diameter of the strands in the outer layer of the
-        conductor.
-
-    Returns
-    -------
-    Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`\text{Rs}`. The roughness number
-    """
-    D = conductor_diameter
-    d = outer_layer_strand_diameter
-
-    if np.any(d < 0):
-        raise ValueError(
-            dedent(
-                """\
-            Cannot have negative outer layer strand diameter. If it was set this way to signify
-            that it is a smooth conductor, then set the outer layer strand diameter to nan or zero
-            instead.\
-            """
-            )
-        )
-    if np.any(d >= D):
-        raise ValueError(
-            "The outer layer strand diameter must be strictly smaller than the conductor diameter."
-        )
-
-    return d / (2 * (D - d))
 
 
 ## Nusselt number calculation
@@ -351,8 +185,8 @@ def _check_perpendicular_flow_nusseltnumber_out_of_bounds(reynolds_number, condu
 
 @vectorize(nopython=True)
 def _compute_perpendicular_flow_nusseltnumber(
-    reynolds_number: Unitless,
-    conductor_roughness: Meter,
+        reynolds_number: Unitless,
+        conductor_roughness: Meter,
 ) -> Unitless:
     # TODO: Look at references for this table
     Re = reynolds_number
@@ -382,12 +216,12 @@ def _compute_perpendicular_flow_nusseltnumber(
         else:
             B, n = 0.048, 0.800
 
-    return B * Re**n  # type: ignore
+    return B * Re ** n  # type: ignore
 
 
 def compute_perpendicular_flow_nusseltnumber(
-    reynolds_number: Unitless,
-    conductor_roughness: Meter,
+        reynolds_number: Unitless,
+        conductor_roughness: Meter,
 ) -> Unitless:
     r"""Compute the Nusselt number for perpendicular flow.
 
@@ -419,9 +253,9 @@ def compute_perpendicular_flow_nusseltnumber(
 
 @vectorize(nopython=True)
 def _correct_wind_direction_effect_on_nusselt_number(
-    perpendicular_flow_nusselt_number: Unitless,
-    angle_of_attack: Radian,
-    conductor_roughness: Unitless,
+        perpendicular_flow_nusselt_number: Unitless,
+        angle_of_attack: Radian,
+        conductor_roughness: Unitless,
 ) -> Unitless:
     delta = angle_of_attack
     Nu_90 = perpendicular_flow_nusselt_number
@@ -430,23 +264,23 @@ def _correct_wind_direction_effect_on_nusselt_number(
     sin_delta = np.sin(delta)
 
     if Rs == 0 or np.isnan(Rs):
-        sin_delta_sq = sin_delta**2
+        sin_delta_sq = sin_delta ** 2
         cos_delta_sq = 1 - sin_delta_sq
 
         correction_factor = (sin_delta_sq + cos_delta_sq * 0.0169) ** 0.225
     else:
         if delta <= np.radians(24):
-            correction_factor = 0.42 + 0.68 * (sin_delta**1.08)
+            correction_factor = 0.42 + 0.68 * (sin_delta ** 1.08)
         else:
-            correction_factor = 0.42 + 0.58 * (sin_delta**0.90)
+            correction_factor = 0.42 + 0.58 * (sin_delta ** 0.90)
 
     return correction_factor * Nu_90
 
 
 def correct_wind_direction_effect_on_nusselt_number(
-    perpendicular_flow_nusselt_number: Unitless,
-    angle_of_attack: Radian,
-    conductor_roughness: Unitless,
+        perpendicular_flow_nusselt_number: Unitless,
+        angle_of_attack: Radian,
+        conductor_roughness: Unitless,
 ) -> Unitless:
     r"""Correct the Nusselt number for the wind's angle-of-attack.
 
@@ -481,7 +315,7 @@ def correct_wind_direction_effect_on_nusselt_number(
 
 
 def _check_horizontal_natural_nusselt_number(
-    grashof_number: Unitless, prandtl_number: Unitless
+        grashof_number: Unitless, prandtl_number: Unitless
 ) -> None:
     GrPr = grashof_number * prandtl_number
     if np.any(GrPr < 0):
@@ -492,26 +326,26 @@ def _check_horizontal_natural_nusselt_number(
 
 @vectorize(nopython=True)
 def _compute_horizontal_natural_nusselt_number(
-    grashof_number: Unitless,
-    prandtl_number: Unitless,
+        grashof_number: Unitless,
+        prandtl_number: Unitless,
 ) -> Unitless:
     GrPr = grashof_number * prandtl_number
 
     if GrPr < 1e-1:
         return 0
     elif GrPr < 1e2:
-        return 1.020 * GrPr**0.148
+        return 1.020 * GrPr ** 0.148
     elif GrPr < 1e4:
-        return 0.850 * GrPr**0.188
+        return 0.850 * GrPr ** 0.188
     elif GrPr < 1e7:
-        return 0.480 * GrPr**0.250
+        return 0.480 * GrPr ** 0.250
     else:
-        return 0.125 * GrPr**0.333
+        return 0.125 * GrPr ** 0.333
 
 
 def compute_horizontal_natural_nusselt_number(
-    grashof_number: Unitless,
-    prandtl_number: Unitless,
+        grashof_number: Unitless,
+        prandtl_number: Unitless,
 ) -> Unitless:
     r"""The Nusselt number for natural (passive) convection on a horizontal conductor.
 
@@ -544,8 +378,8 @@ def compute_horizontal_natural_nusselt_number(
 
 
 def _check_conductor_inclination(
-    conductor_inclination: Radian,
-    conductor_roughness: Unitless,
+        conductor_inclination: Radian,
+        conductor_roughness: Unitless,
 ) -> None:
     beta = np.degrees(conductor_inclination)
     Rs = conductor_roughness
@@ -562,24 +396,24 @@ def _check_conductor_inclination(
 
 @vectorize(nopython=True)
 def _correct_natural_nusselt_number_inclination(
-    horizontal_natural_nusselt_number: Unitless,
-    conductor_inclination: Radian,
-    conductor_roughness: Unitless,
+        horizontal_natural_nusselt_number: Unitless,
+        conductor_inclination: Radian,
+        conductor_roughness: Unitless,
 ) -> Unitless:
     beta = np.degrees(conductor_inclination)
     Nu_nat = horizontal_natural_nusselt_number
     Rs = conductor_roughness
 
     if Rs == 0 or np.isnan(Rs):
-        return Nu_nat * (1 - 1.58e-4 * beta**1.5)
+        return Nu_nat * (1 - 1.58e-4 * beta ** 1.5)
     else:
-        return Nu_nat * (1 - 1.76e-6 * beta**2.5)
+        return Nu_nat * (1 - 1.76e-6 * beta ** 2.5)
 
 
 def correct_natural_nusselt_number_inclination(
-    horizontal_natural_nusselt_number: Unitless,
-    conductor_inclination: Radian,
-    conductor_roughness: Unitless,
+        horizontal_natural_nusselt_number: Unitless,
+        conductor_inclination: Radian,
+        conductor_roughness: Unitless,
 ) -> Unitless:
     r"""Correct the natural Nusselt number for the effect of the span inclination.
 
@@ -613,8 +447,8 @@ def correct_natural_nusselt_number_inclination(
 
 
 def compute_nusselt_number(
-    forced_convection_nusselt_number: Unitless,
-    natural_nusselt_number: Unitless,
+        forced_convection_nusselt_number: Unitless,
+        natural_nusselt_number: Unitless,
 ) -> Unitless:
     r"""Compute the nusselt number.
 
@@ -634,44 +468,3 @@ def compute_nusselt_number(
         :math:`Nu`. The nusselt number.
     """
     return np.maximum(forced_convection_nusselt_number, natural_nusselt_number)
-
-
-# Cooling computation
-#####################
-
-
-def compute_convective_cooling(
-    surface_temperature: Celsius,
-    air_temperature: Celsius,
-    nusselt_number: Unitless,
-    thermal_conductivity_of_air: WattPerMeterPerKelvin,
-) -> WattPerMeter:
-    r"""Compute the convective cooling of the conductor.
-
-    Equation (17) on page 24 of :cite:p:`cigre601`.
-
-    Parameters
-    ----------
-    surface_temperature:
-        :math:`T_s~\left[^\circ\text{C}\right]`. The conductor surface temperature.
-    air_temperature:
-        :math:`T_a~\left[^\circ\text{C}\right]`. The ambient air temperature.
-    nusselt_number:
-        :math:`Nu`. The nusselt number.
-    thermal_conductivity_of_air:
-        :math:`\lambda_f~\left[\text{W}~\text{m}^{-1}~\text{K}^{-1}\right]`. The thermal
-        conductivity of air at the given temperature.
-
-    Returns
-    -------
-    Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`P_c~\left[\text{W}~\text{m}^{-1}\right]`. The convective cooling of the conductor.
-        Either due to wind, or passive convection, whichever is largest.
-    """
-    pi = np.pi
-    lambda_f = thermal_conductivity_of_air
-    T_s = surface_temperature
-    T_a = air_temperature
-    Nu = nusselt_number
-
-    return pi * lambda_f * (T_s - T_a) * Nu

@@ -19,7 +19,7 @@ from linerate.equations import (
     joule_heating,
     math,
     radiative_cooling,
-    solar_angles,
+    solar_angles, convective_cooling, dimensionless,
 )
 from linerate.equations.math import switch_cos_sin
 from linerate.types import Span, Weather
@@ -386,12 +386,12 @@ class Cigre601(ThermalModel):
 
         # Compute unitless quantities
         Re = np.minimum(
-            cigre601.convective_cooling.compute_reynolds_number(V, D, nu_f),
+            dimensionless.compute_reynolds_number(V, D, nu_f),
             self.max_reynolds_number,
         )
-        Gr = cigre601.convective_cooling.compute_grashof_number(D, T_c, T_a, nu_f)
-        Pr = cigre601.convective_cooling.compute_prandtl_number(lambda_f, mu_f, c_f)
-        Rs = cigre601.convective_cooling.compute_conductor_roughness(D, d)
+        Gr = dimensionless.compute_grashof_number(D, T_c, T_a, nu_f)
+        Pr = dimensionless.compute_prandtl_number(lambda_f, mu_f, c_f)
+        Rs = dimensionless.compute_conductor_roughness(D, d)
 
         # Compute nusselt numbers
         Nu_90 = cigre601.convective_cooling.compute_perpendicular_flow_nusseltnumber(
@@ -410,7 +410,7 @@ class Cigre601(ThermalModel):
             forced_convection_nusselt_number=Nu_delta, natural_nusselt_number=Nu_beta
         )
 
-        return cigre601.convective_cooling.compute_convective_cooling(
+        return convective_cooling.compute_convective_cooling(
             surface_temperature=conductor_temperature,
             air_temperature=self.weather.air_temperature,
             nusselt_number=Nu,
@@ -519,7 +519,7 @@ class IEEE738(ThermalModel):
         rho_f = ieee738.convective_cooling.compute_air_density(T_f, y)
         nu_f = ieee738.convective_cooling.compute_kinematic_viscosity_of_air(mu_f, rho_f)
         Re = np.minimum(
-            ieee738.convective_cooling.compute_reynolds_number(V, D, nu_f),  # N_Re in IEEE
+            dimensionless.compute_reynolds_number(V, D, nu_f),  # N_Re in IEEE
             self.max_reynolds_number,
         )
         delta = math.compute_angle_of_attack(
