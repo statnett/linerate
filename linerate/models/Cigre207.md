@@ -3,7 +3,7 @@
 ## Cigre 207 vs 601
 
 The Cigre 601 report states that 601 takes into account improvements in the calculation of AC resistance of stranded
-conductors, includes a more realistic estimation of the axial and radial temeprature distributions, more coherent
+conductors, includes a more realistic estimation of the axial and radial temperature distributions, more coherent
 convection model for low wind speeds, and has a more flexible solar radiation model.
 
 ## Skin effect

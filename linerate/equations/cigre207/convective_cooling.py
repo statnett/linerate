@@ -10,7 +10,7 @@ from ...units import (
     MeterPerSecond,
     Radian,
     Unitless,
-    WattPerMeterPerKelvin,
+    WattPerMeterPerKelvin, SquareMeterPerSecond,
 )
 
 
@@ -105,6 +105,42 @@ def compute_prandtl_number(
         :math:`\text{Pr}`. The Prandtl number.
     """
     return 0.715 - 2.5e-4*film_temperature
+
+
+def compute_reynolds_number(
+    wind_speed: MeterPerSecond,
+    conductor_diameter: Meter,
+    kinematic_viscosity_of_air: SquareMeterPerSecond,
+    relative_air_density: Unitless
+) -> Unitless:
+    r"""Compute the Reynolds number using the conductor diameter as characteristic length scale.
+
+    Defined on page 5 of :cite:p:`cigre207`.
+    This is a non-standard definition which seems to indicate that the kinematic viscosity has to
+    be corrected for the density.
+
+    Parameters
+    ----------
+    wind_speed:
+        :math:`v~\left[\text{m}~\text{s}^{-1}\right]`. The wind speed.
+    conductor_diameter:
+        :math:`D~\left[\text{m}\right]`. Outer diameter of the conductor.
+    kinematic_viscosity_of_air:
+        :math:`\nu_f~\left[\text{m}^2~\text{s}^{-1}\right]`. The kinematic viscosity of air.
+    relative_air_density:
+        :math:`\rho_r~1`. The air density relative to density at sea level.
+
+    Returns
+    -------
+    Union[float, float64, ndarray[Any, dtype[float64]]]
+        :math:`\text{Re}`. The Reynolds number.
+    """
+    v = wind_speed
+    D = conductor_diameter
+    nu_f = kinematic_viscosity_of_air
+    rho_r = relative_air_density
+    return rho_r * v * D / nu_f
+
 
 
 ## Nusselt number calculation
