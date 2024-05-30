@@ -1,4 +1,4 @@
-from linerate.units import WattPerSquareMeter, Unitless, Meter, WattPerMeter
+from linerate.units import Meter, Unitless, WattPerMeter, WattPerSquareMeter
 
 
 def compute_solar_heating(

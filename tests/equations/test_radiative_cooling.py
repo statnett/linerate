@@ -87,11 +87,7 @@ def test_radiative_cooling_with_example(
 
 @pytest.mark.parametrize(
     "surface_temperature, expected_cooling",
-    [
-        (57, 5.76),
-        (93, 21.27),
-        (75, 12.92)
-    ],
+    [(57, 5.76), (93, 21.27), (75, 12.92)],
 )
 def test_cooling_matches_cigre207_examples(surface_temperature, expected_cooling):
     # See Appendix 1, Example 1 in Cigre 207

@@ -1,8 +1,8 @@
 import numpy as np
 from numpy import pi
 
-from .. import cigre601
 from ...units import Meter, Unitless, WattPerSquareMeter
+from .. import cigre601
 
 
 def compute_direct_solar_radiation(
@@ -19,8 +19,8 @@ def compute_direct_solar_radiation(
         N_s \frac{1280 \sin(H_s)}{\sin(H_s) + 0.314},
 
     where :math:`H_s` is the solar altitude.
-    To correct for height above sea level, we use the Eq. 19 from Cigre 601, since no equation is provided
-    in Cigre 207.
+    To correct for height above sea level, we use the Eq. 19 from Cigre 601,
+    since no equation is provided in Cigre 207.
 
     Parameters
     ----------
@@ -35,7 +35,9 @@ def compute_direct_solar_radiation(
         :math:`I_B~\left[\text{W}~\text{m}^{-2}\right]`. The direct solar radiation.
     """
     clearness_ratio = 1.0
-    return cigre601.solar_heating.compute_direct_solar_radiation(sin_solar_altitude, clearness_ratio, height_above_sea_level)
+    return cigre601.solar_heating.compute_direct_solar_radiation(
+        sin_solar_altitude, clearness_ratio, height_above_sea_level
+    )
 
 
 def compute_diffuse_sky_radiation(
@@ -64,7 +66,7 @@ def compute_diffuse_sky_radiation(
     """
     sin_H_s = sin_solar_altitude
     I_B = direct_solar_radiation
-    return np.maximum(0, (570 - 0.47 * I_B)) * np.maximum(0, sin_H_s)**1.2
+    return np.maximum(0, (570 - 0.47 * I_B)) * np.maximum(0, sin_H_s) ** 1.2
 
 
 def compute_global_radiation_intensity(
@@ -142,4 +144,4 @@ def compute_global_radiation_intensity(
     sin_eta = sin_angle_of_sun_on_line
     F_pi_half = 0.5 * pi * F
 
-    return I_B * (sin_eta + F_pi_half * sin_H_s) + I_d * pi/2 * (1 + F)  # type: ignore
+    return I_B * (sin_eta + F_pi_half * sin_H_s) + I_d * pi / 2 * (1 + F)  # type: ignore

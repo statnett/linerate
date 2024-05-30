@@ -1,17 +1,18 @@
 import numpy as np
 
-from linerate.units import Celsius, Unitless, WattPerMeterPerKelvin, WattPerMeter
+from linerate.units import Celsius, Unitless, WattPerMeter, WattPerMeterPerKelvin
 
 
 def compute_convective_cooling(
-        surface_temperature: Celsius,
-        air_temperature: Celsius,
-        nusselt_number: Unitless,
-        thermal_conductivity_of_air: WattPerMeterPerKelvin,
+    surface_temperature: Celsius,
+    air_temperature: Celsius,
+    nusselt_number: Unitless,
+    thermal_conductivity_of_air: WattPerMeterPerKelvin,
 ) -> WattPerMeter:
     r"""Compute the convective cooling of the conductor.
 
-    Equation (17) on page 24 of :cite:p:`cigre601` and Equation (12) on page 6 of :cite:p:`cigre207`.
+    Equation (17) on page 24 of :cite:p:`cigre601`
+    and Equation (12) on page 6 of :cite:p:`cigre207`.
 
     Parameters
     ----------

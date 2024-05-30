@@ -7,7 +7,6 @@ from scipy.interpolate import lagrange
 
 import linerate.equations.cigre601.convective_cooling as convective_cooling
 
-
 # Tests for physical quantities
 ###############################
 
@@ -258,8 +257,6 @@ def test_kinematic_viscosity_of_air_with_example():
     gamma = 4
 
     assert convective_cooling.compute_kinematic_viscosity_of_air(mu_f, gamma) == approx(1)
-
-
 
 
 ## Nusselt number calculation

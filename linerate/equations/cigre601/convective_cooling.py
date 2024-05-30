@@ -15,16 +15,15 @@ from ...units import (
     WattPerMeterPerKelvin,
 )
 
-
 # Physical quantities
 #####################
 
 
 def compute_temperature_gradient(
-        total_heat_gain: WattPerMeter,
-        conductor_thermal_conductivity: WattPerMeterPerKelvin,
-        core_diameter: Meter,
-        conductor_diameter: Meter,
+    total_heat_gain: WattPerMeter,
+    conductor_thermal_conductivity: WattPerMeterPerKelvin,
+    core_diameter: Meter,
+    conductor_diameter: Meter,
 ) -> Celsius:
     r"""Compute the difference between the core and surface temperature.
 
@@ -64,8 +63,8 @@ def compute_temperature_gradient(
     if D_1 == 0:  # TODO: Maybe lower tolerance?
         return 0.5 * tmp
     else:
-        D_1_sq = D_1 ** 2
-        delta_D_sq = D ** 2 - D_1_sq
+        D_1_sq = D_1**2
+        delta_D_sq = D**2 - D_1_sq
         return tmp * (0.5 - (D_1_sq / delta_D_sq) * np.log(D / D_1))
 
 
@@ -90,11 +89,11 @@ def compute_thermal_conductivity_of_air(film_temperature: Celsius) -> WattPerMet
         conductivity of air at the given temperature.
     """
     T_f = film_temperature
-    return 2.368e-2 + 7.23e-5 * T_f - 2.763e-8 * (T_f ** 2)
+    return 2.368e-2 + 7.23e-5 * T_f - 2.763e-8 * (T_f**2)
 
 
 def compute_air_density(
-        film_temperature: Celsius, height_above_sea_level: Meter
+    film_temperature: Celsius, height_above_sea_level: Meter
 ) -> KilogramPerCubeMeter:
     r"""Approximation of the density of air at a given temperature and altitude.
 
@@ -116,7 +115,7 @@ def compute_air_density(
     """
     T_f = film_temperature
     y = height_above_sea_level
-    return (1.293 - 1.525e-4 * y + 6.379e-9 * (y ** 2)) / (1 + 0.00367 * T_f)
+    return (1.293 - 1.525e-4 * y + 6.379e-9 * (y**2)) / (1 + 0.00367 * T_f)
 
 
 def compute_dynamic_viscosity_of_air(film_temperature: Celsius) -> KilogramPerMeterPerSecond:
@@ -138,11 +137,11 @@ def compute_dynamic_viscosity_of_air(film_temperature: Celsius) -> KilogramPerMe
         of air.
     """
     T_f = film_temperature
-    return 17.239e-6 + 4.635e-8 * T_f - 2.03e-11 * (T_f ** 2)
+    return 17.239e-6 + 4.635e-8 * T_f - 2.03e-11 * (T_f**2)
 
 
 def compute_kinematic_viscosity_of_air(
-        dynamic_viscosity_of_air: KilogramPerMeterPerSecond, air_density: KilogramPerCubeMeter
+    dynamic_viscosity_of_air: KilogramPerMeterPerSecond, air_density: KilogramPerCubeMeter
 ) -> SquareMeterPerSecond:
     r"""Compute the kinematic viscosity of air.
 
@@ -185,8 +184,8 @@ def _check_perpendicular_flow_nusseltnumber_out_of_bounds(reynolds_number, condu
 
 @vectorize(nopython=True)
 def _compute_perpendicular_flow_nusseltnumber(
-        reynolds_number: Unitless,
-        conductor_roughness: Meter,
+    reynolds_number: Unitless,
+    conductor_roughness: Meter,
 ) -> Unitless:
     # TODO: Look at references for this table
     Re = reynolds_number
@@ -216,12 +215,12 @@ def _compute_perpendicular_flow_nusseltnumber(
         else:
             B, n = 0.048, 0.800
 
-    return B * Re ** n  # type: ignore
+    return B * Re**n  # type: ignore
 
 
 def compute_perpendicular_flow_nusseltnumber(
-        reynolds_number: Unitless,
-        conductor_roughness: Meter,
+    reynolds_number: Unitless,
+    conductor_roughness: Meter,
 ) -> Unitless:
     r"""Compute the Nusselt number for perpendicular flow.
 
@@ -253,9 +252,9 @@ def compute_perpendicular_flow_nusseltnumber(
 
 @vectorize(nopython=True)
 def _correct_wind_direction_effect_on_nusselt_number(
-        perpendicular_flow_nusselt_number: Unitless,
-        angle_of_attack: Radian,
-        conductor_roughness: Unitless,
+    perpendicular_flow_nusselt_number: Unitless,
+    angle_of_attack: Radian,
+    conductor_roughness: Unitless,
 ) -> Unitless:
     delta = angle_of_attack
     Nu_90 = perpendicular_flow_nusselt_number
@@ -264,23 +263,23 @@ def _correct_wind_direction_effect_on_nusselt_number(
     sin_delta = np.sin(delta)
 
     if Rs == 0 or np.isnan(Rs):
-        sin_delta_sq = sin_delta ** 2
+        sin_delta_sq = sin_delta**2
         cos_delta_sq = 1 - sin_delta_sq
 
         correction_factor = (sin_delta_sq + cos_delta_sq * 0.0169) ** 0.225
     else:
         if delta <= np.radians(24):
-            correction_factor = 0.42 + 0.68 * (sin_delta ** 1.08)
+            correction_factor = 0.42 + 0.68 * (sin_delta**1.08)
         else:
-            correction_factor = 0.42 + 0.58 * (sin_delta ** 0.90)
+            correction_factor = 0.42 + 0.58 * (sin_delta**0.90)
 
     return correction_factor * Nu_90
 
 
 def correct_wind_direction_effect_on_nusselt_number(
-        perpendicular_flow_nusselt_number: Unitless,
-        angle_of_attack: Radian,
-        conductor_roughness: Unitless,
+    perpendicular_flow_nusselt_number: Unitless,
+    angle_of_attack: Radian,
+    conductor_roughness: Unitless,
 ) -> Unitless:
     r"""Correct the Nusselt number for the wind's angle-of-attack.
 
@@ -315,7 +314,7 @@ def correct_wind_direction_effect_on_nusselt_number(
 
 
 def _check_horizontal_natural_nusselt_number(
-        grashof_number: Unitless, prandtl_number: Unitless
+    grashof_number: Unitless, prandtl_number: Unitless
 ) -> None:
     GrPr = grashof_number * prandtl_number
     if np.any(GrPr < 0):
@@ -326,26 +325,26 @@ def _check_horizontal_natural_nusselt_number(
 
 @vectorize(nopython=True)
 def _compute_horizontal_natural_nusselt_number(
-        grashof_number: Unitless,
-        prandtl_number: Unitless,
+    grashof_number: Unitless,
+    prandtl_number: Unitless,
 ) -> Unitless:
     GrPr = grashof_number * prandtl_number
 
     if GrPr < 1e-1:
         return 0
     elif GrPr < 1e2:
-        return 1.020 * GrPr ** 0.148
+        return 1.020 * GrPr**0.148
     elif GrPr < 1e4:
-        return 0.850 * GrPr ** 0.188
+        return 0.850 * GrPr**0.188
     elif GrPr < 1e7:
-        return 0.480 * GrPr ** 0.250
+        return 0.480 * GrPr**0.250
     else:
-        return 0.125 * GrPr ** 0.333
+        return 0.125 * GrPr**0.333
 
 
 def compute_horizontal_natural_nusselt_number(
-        grashof_number: Unitless,
-        prandtl_number: Unitless,
+    grashof_number: Unitless,
+    prandtl_number: Unitless,
 ) -> Unitless:
     r"""The Nusselt number for natural (passive) convection on a horizontal conductor.
 
@@ -378,8 +377,8 @@ def compute_horizontal_natural_nusselt_number(
 
 
 def _check_conductor_inclination(
-        conductor_inclination: Radian,
-        conductor_roughness: Unitless,
+    conductor_inclination: Radian,
+    conductor_roughness: Unitless,
 ) -> None:
     beta = np.degrees(conductor_inclination)
     Rs = conductor_roughness
@@ -396,24 +395,24 @@ def _check_conductor_inclination(
 
 @vectorize(nopython=True)
 def _correct_natural_nusselt_number_inclination(
-        horizontal_natural_nusselt_number: Unitless,
-        conductor_inclination: Radian,
-        conductor_roughness: Unitless,
+    horizontal_natural_nusselt_number: Unitless,
+    conductor_inclination: Radian,
+    conductor_roughness: Unitless,
 ) -> Unitless:
     beta = np.degrees(conductor_inclination)
     Nu_nat = horizontal_natural_nusselt_number
     Rs = conductor_roughness
 
     if Rs == 0 or np.isnan(Rs):
-        return Nu_nat * (1 - 1.58e-4 * beta ** 1.5)
+        return Nu_nat * (1 - 1.58e-4 * beta**1.5)
     else:
-        return Nu_nat * (1 - 1.76e-6 * beta ** 2.5)
+        return Nu_nat * (1 - 1.76e-6 * beta**2.5)
 
 
 def correct_natural_nusselt_number_inclination(
-        horizontal_natural_nusselt_number: Unitless,
-        conductor_inclination: Radian,
-        conductor_roughness: Unitless,
+    horizontal_natural_nusselt_number: Unitless,
+    conductor_inclination: Radian,
+    conductor_roughness: Unitless,
 ) -> Unitless:
     r"""Correct the natural Nusselt number for the effect of the span inclination.
 
@@ -447,8 +446,8 @@ def correct_natural_nusselt_number_inclination(
 
 
 def compute_nusselt_number(
-        forced_convection_nusselt_number: Unitless,
-        natural_nusselt_number: Unitless,
+    forced_convection_nusselt_number: Unitless,
+    natural_nusselt_number: Unitless,
 ) -> Unitless:
     r"""Compute the nusselt number.
 

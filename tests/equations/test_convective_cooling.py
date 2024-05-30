@@ -1,8 +1,8 @@
 import hypothesis
 import hypothesis.strategies as st
 import numpy as np
-
 from pytest import approx
+
 from linerate.equations import convective_cooling
 
 

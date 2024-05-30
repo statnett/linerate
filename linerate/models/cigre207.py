@@ -1,11 +1,19 @@
 from abc import abstractmethod
 
-from linerate import ThermalModel, Span, Weather
-from linerate.equations import solar_angles, cigre601, math, cigre207, dimensionless, convective_cooling, joule_heating, \
-    solar_heating
+from linerate import Span, ThermalModel, Weather
+from linerate.equations import (
+    cigre207,
+    cigre601,
+    convective_cooling,
+    dimensionless,
+    joule_heating,
+    math,
+    solar_angles,
+    solar_heating,
+)
 from linerate.equations.math import switch_cos_sin
 from linerate.model import _copy_method_docstring
-from linerate.units import Date, Celsius, Ampere, WattPerMeter, OhmPerMeter
+from linerate.units import Ampere, Celsius, Date, OhmPerMeter, WattPerMeter
 
 
 class Cigre207(ThermalModel):
@@ -80,9 +88,6 @@ class Cigre207(ThermalModel):
         )
 
         # Compute unitless quantities
-        # Reynolds number is defined in the text on page 5 of :cite:p:`cigre207`.
-        # The definition includes a relative air density, which does not make sense, so we omit it here and use the
-        # standard definition of Reynolds number instead.
         rho_r = cigre207.convective_cooling.compute_relative_air_density(y)
         Re = cigre207.convective_cooling.compute_reynolds_number(V, D, nu_f, rho_r)
         Gr = dimensionless.compute_grashof_number(D, T_c, T_a, nu_f)
@@ -101,8 +106,10 @@ class Cigre207(ThermalModel):
         Nu_0 = cigre207.convective_cooling.compute_horizontal_natural_nusselt_number(Gr, Pr)
 
         Nu = cigre207.convective_cooling.compute_nusselt_number(
-            forced_convection_nusselt_number=Nu_delta, natural_nusselt_number=Nu_0,
-            low_wind_nusselt_number=Nu_cor, wind_speed=V
+            forced_convection_nusselt_number=Nu_delta,
+            natural_nusselt_number=Nu_0,
+            low_wind_nusselt_number=Nu_cor,
+            wind_speed=V,
         )
 
         return convective_cooling.compute_convective_cooling(

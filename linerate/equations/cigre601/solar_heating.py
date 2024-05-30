@@ -1,7 +1,7 @@
 import numpy as np
 from numpy import pi
 
-from ...units import Meter, Unitless, WattPerMeter, WattPerSquareMeter
+from ...units import Meter, Unitless, WattPerSquareMeter
 
 
 def compute_direct_solar_radiation(
