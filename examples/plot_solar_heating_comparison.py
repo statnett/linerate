@@ -21,7 +21,7 @@ from linerate.equations.math import switch_cos_sin
 # ^^^^^^^^^^^^^^^^^^^^^
 time = np.datetime64("2022-06-01T13:00")
 
-omega = solar_angles.compute_hour_angle_relative_to_noon(time)
+omega = solar_angles.compute_hour_angle_relative_to_noon(time, 0)
 delta = solar_angles.compute_solar_declination(time)
 
 vals_with_range = {

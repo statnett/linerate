@@ -24,7 +24,7 @@ def _get_minute_of_hour(when: Date) -> Unitless:
     return (when.astype(MinuteResolutionType) - when.astype(HourResolutionType)).astype(float)
 
 
-def compute_hour_angle_relative_to_noon(when: Date) -> Radian:
+def compute_hour_angle_relative_to_noon(when: Date, longitude: Degrees) -> Radian:
     r"""Compute the hour angle.
 
     Described in the text on p. 18 of :cite:p:`ieee738`. The hour angle is the number of hours
@@ -35,6 +35,9 @@ def compute_hour_angle_relative_to_noon(when: Date) -> Radian:
     which is the same as 15^\circ.
 
     The hour angle is used when calculating the solar altitude.
+    This function does not take into account the difference between apparent/actual
+    and mean solar time, which means that the result may be up to 15 minutes from the
+    correct hour angle.
 
     Parameters
     ----------
@@ -46,10 +49,13 @@ def compute_hour_angle_relative_to_noon(when: Date) -> Radian:
     Union[float, float64, ndarray[Any, dtype[float64]]]
         :math:'\omega~\left[\text{radian}\right]`. The hour angle relative to noon.
     """
-    hour = _get_hour_of_day(when)
-    minute = _get_minute_of_hour(when)
+    utc_hour = _get_hour_of_day(when)
+    utc_minute = _get_minute_of_hour(when)
     pi = np.pi
-    return (-12 + hour + minute / 60) * (pi / 12)  # pi/12 is 15 degrees
+    # We add longitude/15 since 15 degrees of longitude increases solar hour by 1
+    return np.mod((-12 + utc_hour + utc_minute / 60 + longitude / 15), 24) * (
+        pi / 12
+    )  # pi/12 is 15 degrees
 
 
 def compute_solar_declination(

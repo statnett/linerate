@@ -41,7 +41,14 @@ def test_get_minute_of_hour_with_example():
 def test_hour_angle_relative_to_noon_with_example():
     when = np.datetime64("2022-06-01T12:00")
     omega = 0
-    assert solar_angles.compute_hour_angle_relative_to_noon(when) == approx(omega)
+    assert solar_angles.compute_hour_angle_relative_to_noon(when, 0) == approx(omega)
+
+
+def test_hour_angle_relative_to_noon_norway():
+    when = np.datetime64("2022-12-01T12:00+01:00")
+    omega = 0
+    longitude = 15  # Longitude at timezone +01:00
+    assert solar_angles.compute_hour_angle_relative_to_noon(when, longitude) == approx(omega)
 
 
 def test_solar_azimuth_variable_with_example():
@@ -119,12 +126,13 @@ def test_solar_declination_scales_correctly_with_day_of_year(day):
     when=st.datetimes(
         min_value=datetime.datetime(2022, 1, 1, 1, 0),
         max_value=datetime.datetime(2022, 12, 31, 23, 0),
-    )
+    ),
+    longitude=st.floats(min_value=-180, max_value=180),
 )
-def test_solar_declination_scales_with_dates_and_times(when):
-    omega = (-12 + when.hour + when.minute / 60) * np.pi / 12
+def test_solar_declination_scales_with_dates_and_times(when, longitude):
+    omega = ((-12 + when.hour + when.minute / 60 + longitude / 15) % 24) * np.pi / 12
     when = np.datetime64(when)
-    assert omega == approx(solar_angles.compute_hour_angle_relative_to_noon(when))
+    assert omega == approx(solar_angles.compute_hour_angle_relative_to_noon(when, longitude))
 
 
 def test_solar_declination_with_examples():
