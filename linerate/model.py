@@ -37,11 +37,11 @@ __all__ = ["ThermalModel", "Cigre601", "IEEE738", "Cigre207"]
 
 class Cigre601(ThermalModel):
     def __init__(
-            self,
-            span: Span,
-            weather: Weather,
-            time: Date,
-            max_reynolds_number: Real = 4000,  # Max value of the angle correction in CIGRE601
+        self,
+        span: Span,
+        weather: Weather,
+        time: Date,
+        max_reynolds_number: Real = 4000,  # Max value of the angle correction in CIGRE601
     ):
         super().__init__(span, weather)
         self.time = time
@@ -55,7 +55,7 @@ class Cigre601(ThermalModel):
 
     @_copy_method_docstring(ThermalModel)
     def compute_joule_heating(
-            self, conductor_temperature: Celsius, current: Ampere
+        self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
         return super().compute_joule_heating(
             conductor_temperature=conductor_temperature, current=current
@@ -63,7 +63,7 @@ class Cigre601(ThermalModel):
 
     @_copy_method_docstring(ThermalModel)
     def compute_solar_heating(
-            self, conductor_temperature: Celsius, current: Ampere
+        self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
         alpha_s = self.span.conductor.solar_absorptivity
         F = self.span.ground_albedo
@@ -97,7 +97,7 @@ class Cigre601(ThermalModel):
 
     @_copy_method_docstring(ThermalModel)
     def compute_convective_cooling(
-            self, conductor_temperature: Celsius, current: Ampere
+        self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
         D = self.span.conductor.conductor_diameter
         d = self.span.conductor.outer_layer_strand_diameter
@@ -153,14 +153,14 @@ class Cigre601(ThermalModel):
 
     @_copy_method_docstring(ThermalModel)
     def compute_radiative_cooling(
-            self, conductor_temperature: Celsius, current: Ampere
+        self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
         return super().compute_radiative_cooling(
             conductor_temperature=conductor_temperature, current=current
         )
 
     def compute_temperature_gradient(
-            self, conductor_temperature: Celsius, current: Ampere
+        self, conductor_temperature: Celsius, current: Ampere
     ) -> Celsius:
         r"""Estimate the difference between the core temperature and the surface temperature.
 
@@ -191,11 +191,11 @@ class Cigre601(ThermalModel):
 
 class IEEE738(ThermalModel):
     def __init__(
-            self,
-            span: Span,
-            weather: Weather,
-            time: Date,
-            max_reynolds_number: Real = 50_000,  # Max Reynolds number for forced convection
+        self,
+        span: Span,
+        weather: Weather,
+        time: Date,
+        max_reynolds_number: Real = 50_000,  # Max Reynolds number for forced convection
     ):
         super().__init__(span, weather)
         self.time = time
@@ -209,7 +209,7 @@ class IEEE738(ThermalModel):
 
     @_copy_method_docstring(ThermalModel)
     def compute_joule_heating(
-            self, conductor_temperature: Celsius, current: Ampere
+        self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
         return super().compute_joule_heating(
             conductor_temperature=conductor_temperature, current=current
@@ -217,7 +217,7 @@ class IEEE738(ThermalModel):
 
     @_copy_method_docstring(ThermalModel)
     def compute_solar_heating(
-            self, conductor_temperature: Celsius, current: Ampere
+        self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
         alpha_s = self.span.conductor.solar_absorptivity  # alpha in IEEE
         phi = self.span.latitude  # Lat in IEEE
@@ -240,7 +240,7 @@ class IEEE738(ThermalModel):
 
     @_copy_method_docstring(ThermalModel)
     def compute_convective_cooling(
-            self, conductor_temperature: Celsius, current: Ampere
+        self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
         D = self.span.conductor.conductor_diameter  # D_0 in IEEE
         y = self.span.conductor_altitude  # H_e in IEEE
@@ -267,7 +267,7 @@ class IEEE738(ThermalModel):
 
     @_copy_method_docstring(ThermalModel)
     def compute_radiative_cooling(
-            self, conductor_temperature: Celsius, current: Ampere
+        self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
         return super().compute_radiative_cooling(
             conductor_temperature=conductor_temperature, current=current
