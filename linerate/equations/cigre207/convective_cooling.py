@@ -9,10 +9,10 @@ from ...units import (
     Meter,
     MeterPerSecond,
     Radian,
+    SquareMeterPerSecond,
     Unitless,
-    WattPerMeterPerKelvin, SquareMeterPerSecond,
+    WattPerMeterPerKelvin,
 )
-
 
 # Physical quantities
 #####################
@@ -40,10 +40,9 @@ def compute_thermal_conductivity_of_air(film_temperature: Celsius) -> WattPerMet
     return 2.42e-2 + 7.2e-5 * T_f
 
 
-def compute_relative_air_density(
-    height_above_sea_level: Meter
-) -> Unitless:
-    r"""Approximation of the relative density of air at a given altitude, relative to density at sea level.
+def compute_relative_air_density(height_above_sea_level: Meter) -> Unitless:
+    r"""Approximation of the relative density of air at a given altitude,
+    relative to density at sea level.
 
     Equation on page 6 of :cite:p:`cigre207`.
 
@@ -58,7 +57,7 @@ def compute_relative_air_density(
         :math:`\rho_r`. The relative mass density of air.
     """
     y = height_above_sea_level
-    return np.exp(-1.16e-4*y)
+    return np.exp(-1.16e-4 * y)
 
 
 def compute_kinematic_viscosity_of_air(film_temperature: Celsius) -> KilogramPerCubeMeter:
@@ -79,8 +78,7 @@ def compute_kinematic_viscosity_of_air(film_temperature: Celsius) -> KilogramPer
         :math:`\nu_f~\left[\text{m}^2~\text{s}^{-1}\right]`. The kinematic viscosity of air.
     """
     T_f = film_temperature
-    return 1.32e-5 + 9.5e-8*T_f
-
+    return 1.32e-5 + 9.5e-8 * T_f
 
 
 def compute_prandtl_number(
@@ -104,14 +102,14 @@ def compute_prandtl_number(
     Union[float, float64, ndarray[Any, dtype[float64]]]
         :math:`\text{Pr}`. The Prandtl number.
     """
-    return 0.715 - 2.5e-4*film_temperature
+    return 0.715 - 2.5e-4 * film_temperature
 
 
 def compute_reynolds_number(
     wind_speed: MeterPerSecond,
     conductor_diameter: Meter,
     kinematic_viscosity_of_air: SquareMeterPerSecond,
-    relative_air_density: Unitless
+    relative_air_density: Unitless,
 ) -> Unitless:
     r"""Compute the Reynolds number using the conductor diameter as characteristic length scale.
 
@@ -140,7 +138,6 @@ def compute_reynolds_number(
     nu_f = kinematic_viscosity_of_air
     rho_r = relative_air_density
     return rho_r * v * D / nu_f
-
 
 
 ## Nusselt number calculation
@@ -219,8 +216,7 @@ def compute_low_wind_speed_nusseltnumber(
     Union[float, float64, ndarray[Any, dtype[float64]]]
         :math:`\text{Nu}_{90}`. The corrected Nusselt number for low wind speed.
     """
-    return 0.55*perpendicular_flow_nusselt_number
-
+    return 0.55 * perpendicular_flow_nusselt_number
 
 
 @vectorize(nopython=True)
@@ -265,8 +261,7 @@ def correct_wind_direction_effect_on_nusselt_number(
         :math:`\text{Nu}_\delta`. The Nusselt number for the given wind angle-of-attack.
     """
     return _correct_wind_direction_effect_on_nusselt_number(
-        perpendicular_flow_nusselt_number,
-        angle_of_attack
+        perpendicular_flow_nusselt_number, angle_of_attack
     )
 
 
@@ -337,7 +332,7 @@ def compute_nusselt_number(
     forced_convection_nusselt_number: Unitless,
     natural_nusselt_number: Unitless,
     low_wind_nusselt_number: Unitless,
-    wind_speed: MeterPerSecond
+    wind_speed: MeterPerSecond,
 ) -> Unitless:
     r"""Compute the nusselt number.
 

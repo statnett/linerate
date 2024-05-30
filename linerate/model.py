@@ -11,15 +11,19 @@ from numbers import Real
 from typing import Dict
 
 import numpy as np
+from models.cigre207 import Cigre207
 
 from linerate import solver
 from linerate.equations import (
     cigre601,
+    convective_cooling,
+    dimensionless,
     ieee738,
     joule_heating,
     math,
     radiative_cooling,
-    solar_angles, convective_cooling, dimensionless, solar_heating,
+    solar_angles,
+    solar_heating,
 )
 from linerate.equations.math import switch_cos_sin
 from linerate.types import Span, Weather
@@ -32,7 +36,7 @@ from linerate.units import (
     WattPerMeter,
 )
 
-__all__ = ["ThermalModel", "Cigre601", "IEEE738"]
+__all__ = ["ThermalModel", "Cigre601", "IEEE738", "Cigre207"]
 
 
 def _copy_method_docstring(parent_class):

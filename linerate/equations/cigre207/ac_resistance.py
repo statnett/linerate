@@ -1,5 +1,3 @@
-from typing import Union
-
 from linerate.units import OhmPerMeter
 
 

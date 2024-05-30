@@ -1,6 +1,7 @@
 import numpy as np
 from pytest import approx
-from linerate.equations import cigre207, dimensionless, convective_cooling
+
+from linerate.equations import cigre207, dimensionless
 
 
 def test_matches_example1():
@@ -10,7 +11,7 @@ def test_matches_example1():
     assert rho_r == approx(0.8306, rel=1e-4)
     T_s = 57
     T_amb = 40
-    T_f = (T_s + T_amb)/2
+    T_f = (T_s + T_amb) / 2
     nu_f = cigre207.convective_cooling.compute_kinematic_viscosity_of_air(T_f)
     assert nu_f == approx(1.78e-5, rel=1e-3)
     v = 2
@@ -29,7 +30,9 @@ def test_matches_example1_nusselt_number():
     Re = 2670
     Nu_90 = cigre207.convective_cooling.compute_perpendicular_flow_nusseltnumber(Re, Rs)
     assert Nu_90 == approx(26.45, 1e-4)
-    Nu_45 = cigre207.convective_cooling.correct_wind_direction_effect_on_nusselt_number(Nu_90, np.radians(45))
+    Nu_45 = cigre207.convective_cooling.correct_wind_direction_effect_on_nusselt_number(
+        Nu_90, np.radians(45)
+    )
     assert Nu_45 == approx(22.34, rel=1e-4)
 
 
@@ -41,7 +44,7 @@ def test_matches_example2():
     T_amb = 40
     v = 0.2
     D = 0.0286
-    T_f = (T_s + T_amb)/2
+    T_f = (T_s + T_amb) / 2
     nu_f = cigre207.convective_cooling.compute_kinematic_viscosity_of_air(T_f)
     nu_f_exp = 1.95e-5
     assert nu_f == approx(nu_f_exp, rel=1e-3)
@@ -53,7 +56,9 @@ def test_matches_example2():
     Rs = dimensionless.compute_conductor_roughness(D, d)
     Nu_90 = cigre207.convective_cooling.compute_perpendicular_flow_nusseltnumber(Re, Rs)
     assert Nu_90 == approx(8.53, 1e-3)
-    Nu_45 = cigre207.convective_cooling.correct_wind_direction_effect_on_nusselt_number(Nu_90, np.radians(45))
+    Nu_45 = cigre207.convective_cooling.correct_wind_direction_effect_on_nusselt_number(
+        Nu_90, np.radians(45)
+    )
     assert Nu_45 == approx(7.20, rel=2e-3)
     Nu_cor = cigre207.convective_cooling.compute_low_wind_speed_nusseltnumber(Nu_90)
     assert Nu_cor == approx(4.69, rel=1e-3)
@@ -76,7 +81,7 @@ def test_matches_example3():
     v = 2
     D = 0.0286
     d = 0.00318
-    T_f = (T_s + T_amb)/2
+    T_f = (T_s + T_amb) / 2
     nu_f = cigre207.convective_cooling.compute_kinematic_viscosity_of_air(T_f)
     nu_f_exp = 1.866e-5
     assert nu_f == approx(nu_f_exp, rel=1e-3)
@@ -87,7 +92,9 @@ def test_matches_example3():
     Rs = dimensionless.compute_conductor_roughness(D, d)
     Nu_90 = cigre207.convective_cooling.compute_perpendicular_flow_nusseltnumber(Re, Rs)
     assert Nu_90 == approx(25.77, 1e-3)
-    Nu_45 = cigre207.convective_cooling.correct_wind_direction_effect_on_nusselt_number(Nu_90, np.radians(45))
+    Nu_45 = cigre207.convective_cooling.correct_wind_direction_effect_on_nusselt_number(
+        Nu_90, np.radians(45)
+    )
     assert Nu_45 == approx(21.8, rel=2e-3)
 
 
@@ -99,7 +106,7 @@ def test_matches_example4():
     T_amb = 40
     v = 0.4
     D = 0.0286
-    T_f = (T_s + T_amb)/2
+    T_f = (T_s + T_amb) / 2
     nu_f = cigre207.convective_cooling.compute_kinematic_viscosity_of_air(T_f)
     nu_f_exp = 1.866e-5
     assert nu_f == approx(nu_f_exp, rel=1e-3)
@@ -111,7 +118,9 @@ def test_matches_example4():
     Rs = dimensionless.compute_conductor_roughness(D, d)
     Nu_90 = cigre207.convective_cooling.compute_perpendicular_flow_nusseltnumber(Re, Rs)
     assert Nu_90 == approx(12.08, 1e-3)
-    Nu_45 = cigre207.convective_cooling.correct_wind_direction_effect_on_nusselt_number(Nu_90, np.radians(45))
+    Nu_45 = cigre207.convective_cooling.correct_wind_direction_effect_on_nusselt_number(
+        Nu_90, np.radians(45)
+    )
     assert Nu_45 == approx(10.2, rel=2e-3)
     Nu_cor = cigre207.convective_cooling.compute_low_wind_speed_nusseltnumber(Nu_90)
     assert Nu_cor == approx(6.64, rel=1e-3)
@@ -134,7 +143,7 @@ def test_matches_example5():
     T_amb = 40
     v = 2
     D = 0.0286
-    T_f = (T_s + T_amb)/2
+    T_f = (T_s + T_amb) / 2
     nu_f = cigre207.convective_cooling.compute_kinematic_viscosity_of_air(T_f)
     nu_f_exp = 1.78e-5
     assert nu_f == approx(nu_f_exp, rel=1e-3)
@@ -146,5 +155,7 @@ def test_matches_example5():
     Rs = dimensionless.compute_conductor_roughness(D, d)
     Nu_90 = cigre207.convective_cooling.compute_perpendicular_flow_nusseltnumber(Re, Rs)
     assert Nu_90 == approx(29.85, 1e-3)
-    Nu_45 = cigre207.convective_cooling.correct_wind_direction_effect_on_nusselt_number(Nu_90, np.radians(45))
+    Nu_45 = cigre207.convective_cooling.correct_wind_direction_effect_on_nusselt_number(
+        Nu_90, np.radians(45)
+    )
     assert Nu_45 == approx(25.21, rel=2e-3)

@@ -2,8 +2,17 @@ from textwrap import dedent
 
 import numpy as np
 
-from linerate.units import Unitless, WattPerMeterPerKelvin, KilogramPerMeterPerSecond, JoulePerKilogramPerKelvin, \
-    MeterPerSecond, Meter, SquareMeterPerSecond, Celsius, MeterPerSquareSecond
+from linerate.units import (
+    Celsius,
+    JoulePerKilogramPerKelvin,
+    KilogramPerMeterPerSecond,
+    Meter,
+    MeterPerSecond,
+    MeterPerSquareSecond,
+    SquareMeterPerSecond,
+    Unitless,
+    WattPerMeterPerKelvin,
+)
 
 
 def compute_reynolds_number(
@@ -13,7 +22,8 @@ def compute_reynolds_number(
 ) -> Unitless:
     r"""Compute the Reynolds number using the conductor diameter as characteristic length scale.
 
-    Defined in the text on page 25 of :cite:p:`cigre601` and equation (2c) on page 10 in :cite:p:`ieee738`.
+    Defined in the text on page 25 of :cite:p:`cigre601` and equation (2c)
+    on page 10 in :cite:p:`ieee738`.
 
     The Reynolds number is a dimensionless quantity that can be used to assess if a stream is
     likely to be turbulent or not. It is given by
@@ -125,8 +135,8 @@ def compute_prandtl_number(
 
 
 def compute_conductor_roughness(
-        conductor_diameter: Meter,
-        outer_layer_strand_diameter: Meter,
+    conductor_diameter: Meter,
+    outer_layer_strand_diameter: Meter,
 ) -> Unitless:
     r"""Compute the surface roughness of the conductor.
 
