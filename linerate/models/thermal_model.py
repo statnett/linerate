@@ -2,17 +2,9 @@ from abc import ABC, abstractmethod
 from typing import Dict
 
 from linerate import solver
-from linerate.equations import (
-    joule_heating,
-    radiative_cooling,
-)
+from linerate.equations import joule_heating, radiative_cooling
 from linerate.types import Span, Weather
-from linerate.units import (
-    Ampere,
-    Celsius,
-    OhmPerMeter,
-    WattPerMeter,
-)
+from linerate.units import Ampere, Celsius, OhmPerMeter, WattPerMeter
 
 
 def _copy_method_docstring(parent_class):
