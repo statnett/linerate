@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-from linerate import Span, ThermalModel, Weather
+from linerate.types import Span, Weather
 from linerate.equations import (
     cigre207,
     cigre601,
@@ -12,7 +12,7 @@ from linerate.equations import (
     solar_heating,
 )
 from linerate.equations.math import switch_cos_sin
-from linerate.model import _copy_method_docstring
+from linerate.models.thermal_model import _copy_method_docstring, ThermalModel
 from linerate.units import Ampere, Celsius, Date, OhmPerMeter, WattPerMeter
 
 
