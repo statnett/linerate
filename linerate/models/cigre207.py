@@ -1,7 +1,8 @@
 from abc import abstractmethod
 
 from linerate import ThermalModel, Span, Weather
-from linerate.equations import solar_angles, cigre601, math, cigre207, dimensionless, convective_cooling, joule_heating
+from linerate.equations import solar_angles, cigre601, math, cigre207, dimensionless, convective_cooling, joule_heating, \
+    solar_heating
 from linerate.equations.math import switch_cos_sin
 from linerate.model import _copy_method_docstring
 from linerate.units import Date, Celsius, Ampere, WattPerMeter, OhmPerMeter
@@ -53,7 +54,7 @@ class Cigre207(ThermalModel):
         I_T = cigre601.solar_heating.compute_global_radiation_intensity(
             I_B, I_d, F, sin_eta, sin_H_s
         )
-        return cigre601.solar_heating.compute_solar_heating(
+        return solar_heating.compute_solar_heating(
             alpha_s,
             I_T,
             D,

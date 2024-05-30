@@ -299,7 +299,6 @@ def _compute_horizontal_natural_nusselt_number(
     elif GrPr < 1e6:
         return 0.480 * GrPr**0.250
     else:
-        warnings.warn("GrPr out of bounds: Must be < 10^6.")
         # Outside table range, what should we do here?
         return 0.125 * GrPr**0.333
 

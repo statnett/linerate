@@ -85,7 +85,7 @@ def compute_diffuse_sky_radiation(
 
     Equation (13) on page 20 of :cite:p:`cigre601`.
 
-    This equation differ from :cite:p:`cigre207`, however the difference is small, and the
+    This equation differs from :cite:p:`cigre207`, however the difference is small, and the
     diffuse radiation is a small contributor to the overall solar radiation, so the total
     discrepancy between the models is small.
 
@@ -182,35 +182,3 @@ def compute_global_radiation_intensity(
     F_pi_half = 0.5 * pi * F
 
     return I_B * (sin_eta + F_pi_half * sin_H_s) + I_d * (1 + F_pi_half)  # type: ignore
-
-
-def compute_solar_heating(
-    absorptivity: Unitless,
-    global_radiation_intensity: WattPerSquareMeter,
-    conductor_diameter: Meter,
-) -> WattPerMeter:
-    r"""Compute the solar heating experienced by the conductor.
-
-    Equation (8) on page 18 of :cite:p:`cigre601`.
-
-    Parameters
-    ----------
-    absorptivity:
-        :math:`\alpha_s`. Material constant. According to :cite:p:`cigre601`, it starts at
-        approximately 0.2 for new cables and reaches a constant value of approximately 0.9
-        after about one year.
-    global_radiation_intensity:
-        :math:`I_T~\left[\text{W}~\text{m}^{-2}\right]`.The global radiation intensity.
-    conductor_diameter:
-        :math:`D~\left[\text{m}\right]`. Outer diameter of the conductor.
-
-    Returns
-    -------
-    Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`P_S~\left[\text{W}~\text{m}^{-1}\right]`. The solar heating of the conductor
-    """
-    alpha_s = absorptivity
-    I_T = global_radiation_intensity
-    D = conductor_diameter
-
-    return alpha_s * I_T * D
