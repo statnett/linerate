@@ -4,7 +4,8 @@ from linerate.equations import (
     dimensionless,
     math,
     solar_angles,
-    solar_heating, )
+    solar_heating,
+)
 from linerate.equations.math import switch_cos_sin
 from linerate.models.thermal_model import ThermalModel, _copy_method_docstring
 from linerate.types import Span, Weather
@@ -13,11 +14,7 @@ from linerate.units import Ampere, Celsius, Date, OhmPerMeter, WattPerMeter
 
 class Cigre207(ThermalModel):
     def __init__(
-        self,
-        span: Span,
-        weather: Weather,
-        time: Date,
-        include_diffuse_radiation: bool = True
+        self, span: Span, weather: Weather, time: Date, include_diffuse_radiation: bool = True
     ):
         super().__init__(span, weather)
         self.time = time
