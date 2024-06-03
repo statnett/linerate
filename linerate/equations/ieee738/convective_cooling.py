@@ -27,9 +27,9 @@ def compute_air_temperature_at_boundary_layer(  # T_film
     Parameters
     ----------
     temperature_of_conductor_surface:
-        :math:'T_s ~left[\circ\text{C}\right]`. The temperature of the surface of the conductor.
+        :math:`T_s ~left[\circ\text{C}\right]`. The temperature of the surface of the conductor.
     temperature_of_ambient_air:
-        :math:'T_a ~left[\circ\text{C}\right]`. The temperature of the ambient air.
+        :math:`T_a ~left[\circ\text{C}\right]`. The temperature of the ambient air.
 
     Returns
     -------
@@ -275,13 +275,13 @@ def compute_convective_cooling(
 ) -> WattPerMeter:
     r"""Compute the convective cooling of the conductor.
 
-    On page 11 in :cite:p:`ieee738, it says that one should calculate both forced and natural
+    On page 11 in :cite:p:`ieee738`, it says that one should calculate both forced and natural
     convection, and choose the larger of the two as the convective cooling.
 
     Parameters
     ----------
     forced_convection:
-        :math:`q_c. The forced convection.
+        :math:`q_c`. The forced convection.
     natural_convection:
         :math:`q_{cn}~\left[\text{W}~\text{m}^{-1}\right]`. The natural convection.
 
