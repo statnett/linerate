@@ -354,8 +354,7 @@ def compute_nusselt_number(
     Union[float, float64, ndarray[Any, dtype[float64]]]
         :math:`Nu`. The nusselt number.
     """
-    max_nusselt = np.maximum(forced_convection_nusselt_number, natural_nusselt_number)
-    if wind_speed < 0.5:
-        return np.maximum(max_nusselt, low_wind_nusselt_number)
-    else:
-        return max_nusselt
+    normal_nusselt = np.maximum(forced_convection_nusselt_number, natural_nusselt_number)
+    low_wind_nusselt = np.maximum(normal_nusselt, low_wind_nusselt_number)
+    low_wind_speed = wind_speed < 0.5
+    return np.where(low_wind_speed, low_wind_nusselt, normal_nusselt)
