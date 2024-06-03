@@ -214,7 +214,7 @@ def compute_low_wind_speed_nusseltnumber(
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`\text{Nu}_{90}`. The corrected Nusselt number for low wind speed.
+        :math:`\text{Nu}_{cor}`. The corrected Nusselt number for low wind speed.
     """
     return 0.55 * perpendicular_flow_nusselt_number
 
