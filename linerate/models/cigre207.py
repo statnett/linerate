@@ -1,15 +1,10 @@
-from abc import abstractmethod
-
 from linerate.equations import (
     cigre207,
-    cigre601,
     convective_cooling,
     dimensionless,
-    joule_heating,
     math,
     solar_angles,
-    solar_heating,
-)
+    solar_heating, )
 from linerate.equations.math import switch_cos_sin
 from linerate.models.thermal_model import ThermalModel, _copy_method_docstring
 from linerate.types import Span, Weather
@@ -22,9 +17,11 @@ class Cigre207(ThermalModel):
         span: Span,
         weather: Weather,
         time: Date,
+        include_diffuse_radiation: bool = True
     ):
         super().__init__(span, weather)
         self.time = time
+        self.include_diffuse_radiation = include_diffuse_radiation
 
     @_copy_method_docstring(ThermalModel)
     def compute_joule_heating(
@@ -39,14 +36,12 @@ class Cigre207(ThermalModel):
         self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
         alpha_s = self.span.conductor.solar_absorptivity
-        F = self.span.ground_albedo
         phi = self.span.latitude
         gamma_c = self.span.conductor_azimuth
         y = self.span.conductor_altitude
-        N_s = self.weather.clearness_ratio
         D = self.span.conductor.conductor_diameter
 
-        omega = solar_angles.compute_hour_angle_relative_to_noon(self.time)
+        omega = solar_angles.compute_hour_angle_relative_to_noon(self.time, self.span.longitude)
         delta = solar_angles.compute_solar_declination(self.time)
         sin_H_s = solar_angles.compute_sin_solar_altitude(phi, delta, omega)
         chi = solar_angles.compute_solar_azimuth_variable(phi, delta, omega)
@@ -57,9 +52,14 @@ class Cigre207(ThermalModel):
         )
         sin_eta = switch_cos_sin(cos_eta)
 
-        I_B = cigre601.solar_heating.compute_direct_solar_radiation(sin_H_s, N_s, y)
-        I_d = cigre601.solar_heating.compute_diffuse_sky_radiation(I_B, sin_H_s)
-        I_T = cigre601.solar_heating.compute_global_radiation_intensity(
+        I_B = cigre207.solar_heating.compute_direct_solar_radiation(sin_H_s, y)
+        if self.include_diffuse_radiation:
+            I_d = cigre207.solar_heating.compute_diffuse_sky_radiation(I_B, sin_H_s)
+            F = self.span.ground_albedo
+        else:
+            I_d = 0
+            F = 0
+        I_T = cigre207.solar_heating.compute_global_radiation_intensity(
             I_B, I_d, F, sin_eta, sin_H_s
         )
         return solar_heating.compute_solar_heating(
@@ -127,40 +127,8 @@ class Cigre207(ThermalModel):
             conductor_temperature=conductor_temperature, current=current
         )
 
-    @abstractmethod
+    @_copy_method_docstring(ThermalModel)
     def compute_resistance(self, conductor_temperature: Celsius, current: Ampere) -> OhmPerMeter:
-        r"""Compute the conductor resistance, :math:`R~\left[\Omega~\text{m}^{-1}\right]`.
-
-        Parameters
-        ----------
-        conductor_temperature:
-            :math:`T_\text{av}~\left[^\circ\text{C}\right]`. The average conductor temperature.
-        current:
-            :math:`I~\left[\text{A}\right]`. The current.
-
-        Returns
-        -------
-        Union[float, float64, ndarray[Any, dtype[float64]]]
-            :math:`R~\left[\Omega\right]`. The resistance at the given temperature and current.
-        """
-        resistance = joule_heating.compute_resistance(
-            conductor_temperature,
-            temperature1=self.span.conductor.temperature1,
-            temperature2=self.span.conductor.temperature2,
-            resistance_at_temperature1=self.span.conductor.resistance_at_temperature1,
-            resistance_at_temperature2=self.span.conductor.resistance_at_temperature2,
-        )
-
-        A = self.span.conductor.aluminium_cross_section_area
-        b = self.span.conductor.constant_magnetic_effect
-        m = self.span.conductor.current_density_proportional_magnetic_effect
-        max_increase = self.span.conductor.max_magnetic_core_relative_resistance_increase
-
-        return joule_heating.correct_resistance_acsr_magnetic_core_loss(
-            ac_resistance=resistance,
-            current=current,
-            aluminium_cross_section_area=A,
-            constant_magnetic_effect=b,
-            current_density_proportional_magnetic_effect=m,
-            max_relative_increase=max_increase,
+        return super().compute_resistance(
+            conductor_temperature=conductor_temperature, current=current
         )
