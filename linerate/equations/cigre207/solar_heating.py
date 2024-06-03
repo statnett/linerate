@@ -92,7 +92,7 @@ def compute_global_radiation_intensity(
     ground). The factor :math:`0.5 \pi` is due the assumption that the ground reflects light
     diffusely and uniformly in all directions, so the reflected energy is always directed normally
     to the line. In CIGRE207, it is also assumed that the diffuse radiation is uniformly directed,
-    which leads to :math:`I_d (0.5 \pi + 0.5 F \pi)` instead of  :math:`I_d (1 + 0.5 F \pi)`
+    which leads to :math:`I_d \pi/2 (1 + F)` instead of  :math:`I_d (1 + 0.5 F \pi)`
 
     Parameters
     ----------
