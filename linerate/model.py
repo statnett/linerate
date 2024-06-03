@@ -339,7 +339,7 @@ class Cigre601(ThermalModel):
         N_s = self.weather.clearness_ratio
         D = self.span.conductor.conductor_diameter
 
-        omega = solar_angles.compute_hour_angle_relative_to_noon(self.time)
+        omega = solar_angles.compute_hour_angle_relative_to_noon(self.time, self.span.longitude)
         delta = solar_angles.compute_solar_declination(self.time)
         sin_H_s = solar_angles.compute_sin_solar_altitude(phi, delta, omega)
         chi = solar_angles.compute_solar_azimuth_variable(phi, delta, omega)
@@ -491,7 +491,7 @@ class IEEE738(ThermalModel):
         y = self.span.conductor_altitude  # H_e in IEEE
         D = self.span.conductor.conductor_diameter  # D_0 in IEEE
 
-        omega = solar_angles.compute_hour_angle_relative_to_noon(self.time)
+        omega = solar_angles.compute_hour_angle_relative_to_noon(self.time, self.span.longitude)
         delta = solar_angles.compute_solar_declination(self.time)
         sin_H_c = solar_angles.compute_sin_solar_altitude(phi, delta, omega)
         Q_s = ieee738.solar_heating.compute_total_heat_flux_density(sin_H_c, True)
