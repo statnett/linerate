@@ -91,3 +91,15 @@ poetry install
 
 Remember that when developing a library it is *not* recommended to
 commit the `poetry.lock` file.
+
+### Generate docs
+To generate docs locally:
+- Install required dependencies with `poetry install --with docs`.
+- Generate docs with `poetry run make html` in the `docs` folder.
+
+### Release new version
+Press the "Draft new release" button on the [Releases](https://github.com/statnett/linerate/releases) page.
+Choose or create an appropriate tag, e.g. `1.2.3`.
+Press "Generate release notes" to generate release notes.
+Edit Release notes if necessary and press "Publish release".
+This causes the publish workflow to run, which publishes the package to PyPI and generates [docs on Github pages](https://statnett.github.io/linerate/).
