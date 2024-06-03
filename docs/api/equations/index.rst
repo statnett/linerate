@@ -13,9 +13,23 @@ Shared functionality
     :maxdepth: 1
 
     joule_heating
+    convective_cooling
     radiative_cooling
     solar_angles
+    solar_heating
     math
+    dimensionless
+
+Cigre 207
+^^^^^^^^^
+
+.. automodule:: linerate.equations.cigre207
+
+.. toctree::
+    :maxdepth: 1
+
+    cigre207/convective_cooling
+    cigre207/solar_heating
 
 Cigre 601
 ^^^^^^^^^
