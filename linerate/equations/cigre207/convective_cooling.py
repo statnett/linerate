@@ -1,7 +1,6 @@
 import warnings
 
 import numpy as np
-from numba import vectorize
 
 from ...units import (
     Celsius,
@@ -153,7 +152,6 @@ def _check_perpendicular_flow_nusseltnumber_out_of_bounds(reynolds_number):
         warnings.warn("Reynolds number is out of bounds", stacklevel=5)
 
 
-@vectorize(nopython=True)
 def _compute_perpendicular_flow_nusseltnumber(
     reynolds_number: Unitless,
     conductor_roughness: Meter,
@@ -161,16 +159,11 @@ def _compute_perpendicular_flow_nusseltnumber(
     # From table on page 6 in Cigre207
     Re = reynolds_number
     Rs = conductor_roughness
-
-    if Re < 100:
-        B, n = 0, 0
-    elif Re < 2.65e3:
-        B, n = 0.641, 0.471
-    elif Rs <= 0.05:
-        B, n = 0.178, 0.633
-    else:
-        B, n = 0.048, 0.800
-
+    conditions = [Re < 100, Re < 2.65e3, Rs <= 0.05]
+    B_choices = [0, 0.641, 0.178]
+    n_choices = [0, 0.471, 0.633]
+    B = np.select(conditions, B_choices, default=0.048)
+    n = np.select(conditions, n_choices, default=0.800)
     return B * Re**n  # type: ignore
 
 
@@ -219,24 +212,6 @@ def compute_low_wind_speed_nusseltnumber(
     return 0.55 * perpendicular_flow_nusselt_number
 
 
-@vectorize(nopython=True)
-def _correct_wind_direction_effect_on_nusselt_number(
-    perpendicular_flow_nusselt_number: Unitless,
-    angle_of_attack: Radian,
-) -> Unitless:
-    delta = angle_of_attack
-    Nu_90 = perpendicular_flow_nusselt_number
-
-    sin_delta = np.sin(delta)
-    # Equation (14) on page 7 of Cigre207
-    if delta <= np.radians(24):
-        correction_factor = 0.42 + 0.68 * (sin_delta**1.08)
-    else:
-        correction_factor = 0.42 + 0.58 * (sin_delta**0.90)
-
-    return correction_factor * Nu_90
-
-
 def correct_wind_direction_effect_on_nusselt_number(
     perpendicular_flow_nusselt_number: Unitless,
     angle_of_attack: Radian,
@@ -260,8 +235,17 @@ def correct_wind_direction_effect_on_nusselt_number(
     Union[float, float64, ndarray[Any, dtype[float64]]]
         :math:`\text{Nu}_\delta`. The Nusselt number for the given wind angle-of-attack.
     """
-    return _correct_wind_direction_effect_on_nusselt_number(
-        perpendicular_flow_nusselt_number, angle_of_attack
+    delta = angle_of_attack
+    Nu_90 = perpendicular_flow_nusselt_number
+    sin_delta = np.sin(delta)
+    # Equation (14) on page 7 of Cigre207
+    return (
+        np.where(
+            delta <= np.radians(24),
+            0.42 + 0.68 * (sin_delta**1.08),
+            0.42 + 0.58 * (sin_delta**0.90),
+        )
+        * Nu_90
     )
 
 
@@ -275,27 +259,24 @@ def _check_horizontal_natural_nusselt_number(
     GrPr = grashof_number * prandtl_number
     if np.any(GrPr < 0):
         raise ValueError("GrPr cannot be negative.")
-    elif np.any(GrPr > 1e6):
-        raise ValueError("GrPr out of bounds: Must be < 10^6.")
+    elif np.any(GrPr >= 1e12):
+        raise ValueError("GrPr out of bounds: Must be < 10^12.")
 
 
-@vectorize(nopython=True)
 def _compute_horizontal_natural_nusselt_number(
     grashof_number: Unitless,
     prandtl_number: Unitless,
 ) -> Unitless:
     GrPr = grashof_number * prandtl_number
-
-    if GrPr < 1e2:
-        # Outside table range, should we use 0??
-        return 0
-    elif GrPr < 1e4:
-        return 0.850 * GrPr**0.188
-    elif GrPr < 1e6:
-        return 0.480 * GrPr**0.250
-    else:
-        # Outside table range, what should we do here?
-        return 0.125 * GrPr**0.333
+    # CIGRE 207 only allows GrPr in the range 1e2-1e6.
+    # In Incropera (2006), Table 9.1, the same values appear, but the table covers a wider range
+    # from 1e-10 to 1e12, which we use here
+    conditions = [GrPr < 1e-2, GrPr < 1e2, GrPr < 1e4, GrPr < 1e7, GrPr < 1e12]
+    n_choices = [0.058, 0.148, 0.188, 0.250, 0.333]
+    C_choices = [0.0675, 1.02, 0.850, 0.480, 0.125]
+    C = np.select(conditions, C_choices, default=np.nan)
+    n = np.select(conditions, n_choices, default=np.nan)
+    return C * GrPr**n  # type: ignore
 
 
 def compute_horizontal_natural_nusselt_number(
@@ -305,9 +286,7 @@ def compute_horizontal_natural_nusselt_number(
     r"""The Nusselt number for natural (passive) convection on a horizontal conductor.
 
     Equation (16) and Table II on page 7 of :cite:p:`cigre207`.
-
-    The coefficient table is modified slightly so coefficients with
-    :math:`\text{Gr}\text{Pr} < 0.1` leads to :math:`\text{Nu} = 0`.
+    We expand the allowable range by using Table 9.1 of :cite:p:`incropera2007`.
 
     Parameters
     ----------
