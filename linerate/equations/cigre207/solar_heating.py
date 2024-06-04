@@ -11,7 +11,7 @@ def compute_direct_solar_radiation(
 ) -> WattPerSquareMeter:
     r"""Compute the direct solar radiation.
 
-    On page 38 of :cite:p:`cigre601`. Equation (10) states that the direct solar
+    On page 19 of :cite:p:`cigre601`. Equation (10) states that the direct solar
     radiation on a surface normal to the solar beam at sea level, :math:`I_{B(0)}`, is given by
 
     .. math::
@@ -32,7 +32,7 @@ def compute_direct_solar_radiation(
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`I_B~\left[\text{W}~\text{m}^{-2}\right]`. The direct solar radiation.
+        :math:`I_D~\left[\text{W}~\text{m}^{-2}\right]`. The direct solar radiation.
     """
     clearness_ratio = 1.0
     return cigre601.solar_heating.compute_direct_solar_radiation(
@@ -55,7 +55,7 @@ def compute_diffuse_sky_radiation(
     Parameters
     ----------
     direct_solar_radiation:
-        :math:`I_B~\left[\text{W}~\text{m}^{-2}\right]`. The direct solar radiation.
+        :math:`I_D~\left[\text{W}~\text{m}^{-2}\right]`. The direct solar radiation.
     sin_solar_altitude:
         :math:`\sin\left(H_s\right)`. The sine of the solar altitude.
 
@@ -65,8 +65,8 @@ def compute_diffuse_sky_radiation(
         :math:`I_d~\left[\text{W}~\text{m}^{-2}\right]`.The diffuse solar radiation.
     """
     sin_H_s = sin_solar_altitude
-    I_B = direct_solar_radiation
-    return np.maximum(0, (570 - 0.47 * I_B)) * np.maximum(0, sin_H_s) ** 1.2
+    I_D = direct_solar_radiation
+    return np.maximum(0, (570 - 0.47 * I_D)) * np.maximum(0, sin_H_s) ** 1.2
 
 
 def compute_global_radiation_intensity(
@@ -84,7 +84,7 @@ def compute_global_radiation_intensity(
     .. math::
 
         I_T =
-            I_B \left(\sin(\eta) + 0.5 F \pi \sin(H_s)\right) +
+            I_D \left(\sin(\eta) + 0.5 F \pi \sin(H_s)\right) +
             0.5 I_d \pi \left(1 + F \right),
 
     where :math:`\eta` is the incidence angle of the sun on the line, :math:`H_s` is the solar
@@ -97,7 +97,7 @@ def compute_global_radiation_intensity(
     Parameters
     ----------
     direct_solar_radiation:
-        :math:`I_B~\left[\text{W}~\text{m}^{-2}\right]`. The direct solar radiation.
+        :math:`I_D~\left[\text{W}~\text{m}^{-2}\right]`. The direct solar radiation.
     diffuse_sky_radiation:
         :math:`I_d~\left[\text{W}~\text{m}^{-2}\right]`.The diffuse solar radiation.
     albedo:
@@ -137,11 +137,11 @@ def compute_global_radiation_intensity(
         * - Snow
           - 0.6-0.8
     """
-    I_B = direct_solar_radiation
+    I_D = direct_solar_radiation
     I_d = diffuse_sky_radiation
     F = albedo
     sin_H_s = sin_solar_altitude
     sin_eta = sin_angle_of_sun_on_line
     F_pi_half = 0.5 * pi * F
 
-    return I_B * (sin_eta + F_pi_half * sin_H_s) + I_d * pi / 2 * (1 + F)  # type: ignore
+    return I_D * (sin_eta + F_pi_half * sin_H_s) + I_d * pi / 2 * (1 + F)  # type: ignore
