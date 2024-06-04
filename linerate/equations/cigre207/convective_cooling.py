@@ -152,21 +152,6 @@ def _check_perpendicular_flow_nusseltnumber_out_of_bounds(reynolds_number):
         warnings.warn("Reynolds number is out of bounds", stacklevel=5)
 
 
-def _compute_perpendicular_flow_nusseltnumber(
-    reynolds_number: Unitless,
-    conductor_roughness: Meter,
-) -> Unitless:
-    # From table on page 6 in Cigre207
-    Re = reynolds_number
-    Rs = conductor_roughness
-    conditions = [Re < 100, Re < 2.65e3, Rs <= 0.05]
-    B_choices = [0, 0.641, 0.178]
-    n_choices = [0, 0.471, 0.633]
-    B = np.select(conditions, B_choices, default=0.048)
-    n = np.select(conditions, n_choices, default=0.800)
-    return B * Re**n  # type: ignore
-
-
 def compute_perpendicular_flow_nusseltnumber(
     reynolds_number: Unitless,
     conductor_roughness: Meter,
@@ -188,10 +173,15 @@ def compute_perpendicular_flow_nusseltnumber(
         :math:`\text{Nu}_{90}`. The perpendicular flow Nusselt number.
     """
     _check_perpendicular_flow_nusseltnumber_out_of_bounds(reynolds_number)
-    return _compute_perpendicular_flow_nusseltnumber(
-        reynolds_number,
-        conductor_roughness,
-    )
+    # From table on page 6 in Cigre207
+    Re = reynolds_number
+    Rs = conductor_roughness
+    conditions = [Re < 100, Re < 2.65e3, Rs <= 0.05]
+    B_choices = [0, 0.641, 0.178]
+    n_choices = [0, 0.471, 0.633]
+    B = np.select(conditions, B_choices, default=0.048)
+    n = np.select(conditions, n_choices, default=0.800)
+    return B * Re**n
 
 
 def compute_low_wind_speed_nusseltnumber(
@@ -263,22 +253,6 @@ def _check_horizontal_natural_nusselt_number(
         raise ValueError("GrPr out of bounds: Must be < 10^12.")
 
 
-def _compute_horizontal_natural_nusselt_number(
-    grashof_number: Unitless,
-    prandtl_number: Unitless,
-) -> Unitless:
-    GrPr = grashof_number * prandtl_number
-    # CIGRE 207 only allows GrPr in the range 1e2-1e6.
-    # In Incropera (2006), Table 9.1, the same values appear, but the table covers a wider range
-    # from 1e-10 to 1e12, which we use here
-    conditions = [GrPr < 1e-2, GrPr < 1e2, GrPr < 1e4, GrPr < 1e7, GrPr < 1e12]
-    n_choices = [0.058, 0.148, 0.188, 0.250, 0.333]
-    C_choices = [0.0675, 1.02, 0.850, 0.480, 0.125]
-    C = np.select(conditions, C_choices, default=np.nan)
-    n = np.select(conditions, n_choices, default=np.nan)
-    return C * GrPr**n  # type: ignore
-
-
 def compute_horizontal_natural_nusselt_number(
     grashof_number: Unitless,
     prandtl_number: Unitless,
@@ -301,10 +275,16 @@ def compute_horizontal_natural_nusselt_number(
         :math:`\text{Nu}_0`. The natural convection nusselt number assuming horizontal conductor.
     """
     _check_horizontal_natural_nusselt_number(grashof_number, prandtl_number)
-    return _compute_horizontal_natural_nusselt_number(
-        grashof_number,
-        prandtl_number,
-    )
+    GrPr = grashof_number * prandtl_number
+    # CIGRE 207 only allows GrPr in the range 1e2-1e6.
+    # In Incropera (2006), Table 9.1, the same values appear, but the table covers a wider range
+    # from 1e-10 to 1e12, which we use here
+    conditions = [GrPr < 1e-2, GrPr < 1e2, GrPr < 1e4, GrPr < 1e7, GrPr < 1e12]
+    n_choices = [0.058, 0.148, 0.188, 0.250, 0.333]
+    C_choices = [0.0675, 1.02, 0.850, 0.480, 0.125]
+    C = np.select(conditions, C_choices, default=np.nan)
+    n = np.select(conditions, n_choices, default=np.nan)
+    return C * GrPr**n
 
 
 def compute_nusselt_number(
