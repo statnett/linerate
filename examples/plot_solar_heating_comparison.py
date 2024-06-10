@@ -13,7 +13,7 @@ This calculation is done using with the CIGRE-601 standard and the IEEE-738 stan
 import matplotlib.pyplot as plt
 import numpy as np
 
-from linerate.equations import cigre601, ieee738, solar_angles
+from linerate.equations import cigre601, ieee738, solar_angles, solar_heating
 from linerate.equations.math import switch_cos_sin
 
 ###############################################################################
@@ -72,7 +72,7 @@ for k, v in vals_with_range.items():
     # Calculate P_c with different varying parameters
     # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    P_s_cigre = cigre601.solar_heating.compute_solar_heating(alpha_s, I_T, D)
+    P_s_cigre = solar_heating.compute_solar_heating(alpha_s, I_T, D)
     P_s_ieee = ieee738.solar_heating.compute_solar_heating(alpha_s, Q_se, cos_theta, D)
 
     ###############################################################################
