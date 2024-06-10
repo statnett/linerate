@@ -5,7 +5,6 @@ from linerate.units import (
     KilogramPerCubeMeter,
     KilogramPerMeterPerSecond,
     Meter,
-    MeterPerSecond,
     Radian,
     SquareMeterPerSecond,
     Unitless,
@@ -28,9 +27,9 @@ def compute_air_temperature_at_boundary_layer(  # T_film
     Parameters
     ----------
     temperature_of_conductor_surface:
-        :math:'T_s ~left[\circ\text{C}\right]`. The temperature of the surface of the conductor.
+        :math:`T_s ~left[\circ\text{C}\right]`. The temperature of the surface of the conductor.
     temperature_of_ambient_air:
-        :math:'T_a ~left[\circ\text{C}\right]`. The temperature of the ambient air.
+        :math:`T_a ~left[\circ\text{C}\right]`. The temperature of the ambient air.
 
     Returns
     -------
@@ -89,50 +88,6 @@ def compute_kinematic_viscosity_of_air(  # nu_f
         :math:`\nu_f~\left[\text{m}^2~\text{s}^{-1}\right]`. The kinematic viscosity of air.
     """
     return dynamic_viscosity_of_air / air_density
-
-
-def compute_reynolds_number(
-    wind_speed: MeterPerSecond,
-    conductor_diameter: Meter,
-    kinematic_viscosity_of_air: SquareMeterPerSecond,
-) -> Unitless:
-    r"""Compute the Reynolds number using the conductor diameter as characteristic length scale.
-
-    Equation (2c) on page 10 in :cite:p:`ieee738`
-
-    Separated out kinematic viscosity of air into its own function because that is how CIGRE601
-    has done it, and that way they do the calculation the same way. Kinematic viscosity is given by
-
-    .. math:
-
-        \nu_f = \frac{\mu_f}{\rho_f}
-
-    where {\mu_f} is the dynamic viscosity of air and {\rho_f} is the air density.
-
-    The Reynolds number is a dimensionless quantity that can be used to assess if a stream is
-    likely to be turbulent or not. It is given by
-
-    .. math::
-
-        \text{N_{Re}} = \frac{V_w D_0}{\nu_f},
-
-    where :math:`V_w` is the flow velocity, :math:`D_0` is a *characteristic length* (in our case,
-    the conductor diameter) and :math:`\nu_f` is the kinematic viscosity.
-
-    Parameters
-    ----------
-    wind_speed:
-        :math:`V_w~\left[\text{m}~\text{s}^{-1}\right]`. The wind speed.
-    conductor_diameter:
-        :math:`D_0~\left[\text{m}\right]`. Outer diameter of the conductor.
-    kinematic_viscosity_of_air:
-        :math:`\nu_f~\left[\text{m}^2~\text{s}^{-1}\right]`. The kinematic viscosity of air.
-
-    """
-    V_w = wind_speed
-    D_0 = conductor_diameter
-    nu_f = kinematic_viscosity_of_air
-    return V_w * D_0 / nu_f
 
 
 def compute_wind_direction_factor(  # K_angle
@@ -320,13 +275,13 @@ def compute_convective_cooling(
 ) -> WattPerMeter:
     r"""Compute the convective cooling of the conductor.
 
-    On page 11 in :cite:p:`ieee738, it says that one should calculate both forced and natural
+    On page 11 in :cite:p:`ieee738`, it says that one should calculate both forced and natural
     convection, and choose the larger of the two as the convective cooling.
 
     Parameters
     ----------
     forced_convection:
-        :math:`q_c. The forced convection.
+        :math:`q_c`. The forced convection.
     natural_convection:
         :math:`q_{cn}~\left[\text{W}~\text{m}^{-1}\right]`. The natural convection.
 

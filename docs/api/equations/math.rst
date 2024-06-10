@@ -1,5 +1,5 @@
 Mathematical utilities
 ----------------------
 
-.. automodule:: linerate.equations.cigre601.joule_heating
+.. automodule:: linerate.equations.math
     :members:

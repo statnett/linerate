@@ -83,3 +83,16 @@ def test_radiative_cooling_with_example(
     T_a = air_temperature
 
     assert radiative_cooling.compute_radiative_cooling(T_s, T_a, D, epsilon) == approx(cooling)
+
+
+@pytest.mark.parametrize(
+    "surface_temperature, expected_cooling",
+    [(57, 5.76), (93, 21.27), (75, 12.92)],
+)
+def test_cooling_matches_cigre207_examples(surface_temperature, expected_cooling):
+    # See Appendix 1, Example 1 in Cigre 207
+    T_a = 40
+    D = 0.0286
+    epsilon = 0.5
+    cooling = radiative_cooling.compute_radiative_cooling(surface_temperature, T_a, D, epsilon)
+    assert cooling == approx(expected_cooling, rel=2e-3)

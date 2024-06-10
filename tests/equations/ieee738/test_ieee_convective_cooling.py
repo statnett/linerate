@@ -1,7 +1,6 @@
 import hypothesis
 import hypothesis.strategies as st
 import numpy as np
-import pytest
 from pytest import approx
 from scipy.interpolate import lagrange
 
@@ -100,41 +99,6 @@ def test_kinematic_viscosity_of_air_with_example():
     rho_f = 4
 
     assert convective_cooling.compute_kinematic_viscosity_of_air(mu_f, rho_f) == approx(1)
-
-
-@hypothesis.given(wind_speed=st.floats(min_value=0, max_value=1000, allow_nan=False))
-def test_reynolds_number_scales_linearly_with_wind_speed(wind_speed):
-    v = wind_speed
-    D = 1
-    nu_f = 1
-
-    assert convective_cooling.compute_reynolds_number(v, D, nu_f) == pytest.approx(v)
-
-
-@hypothesis.given(conductor_diameter=st.floats(min_value=0, max_value=1000, allow_nan=False))
-def test_reynolds_number_scales_linearly_with_diameter(conductor_diameter):
-    v = 1
-    D = conductor_diameter
-    nu_f = 1
-
-    assert convective_cooling.compute_reynolds_number(v, D, nu_f) == pytest.approx(D)
-
-
-@hypothesis.given(kinematic_viscosity=st.floats(min_value=1e-10, allow_nan=False))
-def test_reynolds_number_scales_inversly_with_kinematic_viscosity(kinematic_viscosity):
-    v = 1
-    D = 1
-    nu_f = kinematic_viscosity
-
-    assert convective_cooling.compute_reynolds_number(v, D, nu_f) == approx(1 / nu_f)
-
-
-def test_reynolds_number_with_example():
-    v = 0.1
-    D = 1.2
-    nu_f = 10
-
-    assert convective_cooling.compute_reynolds_number(v, D, nu_f) == approx(0.012)
 
 
 def test_wind_direction_factor_with_example():
