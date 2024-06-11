@@ -33,7 +33,7 @@ def bisect(
         run for :math:`\left\lceil\frac{x_\max - x_\min}{\Delta x}\right\rceil`
         iterations.
     invalid_value:
-        If provided, then the this value is used whenever
+        If provided, then this value is used whenever
         :math:`\text{sign}(f(\mathbf{x}_\min)) = \text{sign}(f(\mathbf{x}_\max))`.
 
     Returns
