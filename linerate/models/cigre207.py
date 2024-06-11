@@ -14,17 +14,11 @@ from linerate.units import Ampere, Celsius, Date, OhmPerMeter, WattPerMeter
 
 class Cigre207(ThermalModel):
     def __init__(
-        self,
-        span: Span,
-        weather: Weather,
-        time: Date,
-        include_diffuse_radiation: bool = True,
-        direct_radiation_factor: float = 1.0,
+        self, span: Span, weather: Weather, time: Date, include_diffuse_radiation: bool = True
     ):
         super().__init__(span, weather)
         self.time = time
         self.include_diffuse_radiation = include_diffuse_radiation
-        self.direct_radiation_factor = direct_radiation_factor
 
     @_copy_method_docstring(ThermalModel)
     def compute_joule_heating(
@@ -55,9 +49,7 @@ class Cigre207(ThermalModel):
         )
         sin_eta = switch_cos_sin(cos_eta)
 
-        I_B = self.direct_radiation_factor * cigre207.solar_heating.compute_direct_solar_radiation(
-            sin_H_s, y
-        )
+        I_B = cigre207.solar_heating.compute_direct_solar_radiation(sin_H_s, y)
         if self.include_diffuse_radiation:
             I_d = cigre207.solar_heating.compute_diffuse_sky_radiation(I_B, sin_H_s)
             F = self.span.ground_albedo
