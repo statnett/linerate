@@ -166,6 +166,7 @@ class ThermalModel(ABC):
         P_s = self.compute_solar_heating(conductor_temperature, current)
         P_c = self.compute_convective_cooling(conductor_temperature, current)
         P_r = self.compute_radiative_cooling(conductor_temperature, current)
+        print ('Joule heating:', P_j, 'Solar heating:', P_s, 'Convective cooling:', P_c, 'Radiative cooling:', P_r)
         return P_j + P_s - P_c - P_r
 
     def compute_info(

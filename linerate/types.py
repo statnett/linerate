@@ -16,6 +16,7 @@ from .units import (
     SquareMeterPerAmpere,
     Unitless,
     WattPerMeterPerKelvin,
+    WattPerSquareMeter,
 )
 
 __all__ = ["Conductor", "Weather", "Tower", "Span"]
@@ -176,3 +177,4 @@ class Weather:
     #: :math:`N_s`. The clearness ratio (or clearness number in
     #: :cite:p:`sharma1965interrelationships,cigre207`).
     clearness_ratio: Unitless = 1
+    solar_irradiance: WattPerSquareMeter = 0

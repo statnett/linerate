@@ -60,6 +60,7 @@ class Cigre601(ThermalModel):
         y = self.span.conductor_altitude
         N_s = self.weather.clearness_ratio
         D = self.span.conductor.conductor_diameter
+        solar = self.weather.solar_irradiance
 
         omega = solar_angles.compute_hour_angle_relative_to_noon(self.time, self.span.longitude)
         delta = solar_angles.compute_solar_declination(self.time)
@@ -77,6 +78,7 @@ class Cigre601(ThermalModel):
         I_T = cigre601.solar_heating.compute_global_radiation_intensity(
             I_B, I_d, F, sin_eta, sin_H_s
         )
+        I_T = solar
         return solar_heating.compute_solar_heating(
             alpha_s,
             I_T,
@@ -102,9 +104,7 @@ class Cigre601(ThermalModel):
         gamma_f = cigre601.convective_cooling.compute_air_density(T_f, y)
         nu_f = cigre601.convective_cooling.compute_kinematic_viscosity_of_air(mu_f, gamma_f)
         c_f: JoulePerKilogramPerKelvin = 1005
-        delta = math.compute_angle_of_attack(
-            self.weather.wind_direction, self.span.conductor_azimuth
-        )
+        delta = self.weather.wind_direction
 
         # Compute unitless quantities
         Re = np.minimum(
