@@ -39,37 +39,13 @@ class Cigre207(ThermalModel):
         self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
         alpha_s = self.span.conductor.solar_absorptivity
-        phi = self.span.latitude
-        gamma_c = self.span.conductor_azimuth
-        y = self.span.conductor_altitude
         D = self.span.conductor.conductor_diameter
+        solar = self.weather.solar_irradiance
 
-        omega = solar_angles.compute_hour_angle_relative_to_noon(self.time, self.span.longitude)
-        delta = solar_angles.compute_solar_declination(self.time)
-        sin_H_s = solar_angles.compute_sin_solar_altitude(phi, delta, omega)
-        chi = solar_angles.compute_solar_azimuth_variable(phi, delta, omega)
-        C = solar_angles.compute_solar_azimuth_constant(chi, omega)
-        gamma_s = solar_angles.compute_solar_azimuth(C, chi)  # Z_c in IEEE
-        cos_eta = solar_angles.compute_cos_solar_effective_incidence_angle(
-            sin_H_s, gamma_s, gamma_c
-        )
-        sin_eta = switch_cos_sin(cos_eta)
-
-        I_B = self.direct_radiation_factor * cigre207.solar_heating.compute_direct_solar_radiation(
-            sin_H_s, y
-        )
-        if self.include_diffuse_radiation:
-            I_d = cigre207.solar_heating.compute_diffuse_sky_radiation(I_B, sin_H_s)
-            F = self.span.ground_albedo
-        else:
-            I_d = 0
-            F = 0
-        I_T = cigre207.solar_heating.compute_global_radiation_intensity(
-            I_B, I_d, F, sin_eta, sin_H_s
-        )
+        
         return solar_heating.compute_solar_heating(
             alpha_s,
-            I_T,
+            solar,
             D,
         )
 
@@ -88,9 +64,7 @@ class Cigre207(ThermalModel):
         # Compute physical quantities
         lambda_f = cigre207.convective_cooling.compute_thermal_conductivity_of_air(T_f)
         nu_f = cigre207.convective_cooling.compute_kinematic_viscosity_of_air(T_f)
-        delta = math.compute_angle_of_attack(
-            self.weather.wind_direction, self.span.conductor_azimuth
-        )
+        delta = self.weather.wind_direction
 
         # Compute unitless quantities
         rho_r = cigre207.convective_cooling.compute_relative_air_density(y)

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Dict
+import numpy as np
 
 from linerate import solver
 from linerate.equations import joule_heating, radiative_cooling
@@ -81,6 +82,7 @@ class ThermalModel(ABC):
         """
         resistance = self.compute_resistance(conductor_temperature, current)
         return joule_heating.compute_joule_heating(current, resistance)
+    
 
     @abstractmethod
     def compute_solar_heating(
@@ -166,8 +168,19 @@ class ThermalModel(ABC):
         P_s = self.compute_solar_heating(conductor_temperature, current)
         P_c = self.compute_convective_cooling(conductor_temperature, current)
         P_r = self.compute_radiative_cooling(conductor_temperature, current)
-        print ('Joule heating:', P_j, 'Solar heating:', P_s, 'Convective cooling:', P_c, 'Radiative cooling:', P_r)
+        
         return P_j + P_s - P_c - P_r
+    
+    def compute_heat_balance_simple(self, conductor_temperature: Celsius, current: Ampere) -> WattPerMeter:
+        P_j = self.compute_joule_heating(conductor_temperature, current)
+        P_s = self.compute_solar_heating(conductor_temperature, current)
+        P_c = self.compute_convective_cooling(conductor_temperature, current)
+        P_r = self.compute_radiative_cooling(conductor_temperature, current)
+        resistance = self.compute_resistance(conductor_temperature, current)
+        current = np.sqrt(-(P_s - P_c - P_r)/resistance)
+        # if error then 0 using np.where
+        current = np.where(np.isnan(current), 0, current)
+        return current
 
     def compute_info(
         self, conductor_temperature: Celsius, current: Ampere
@@ -232,6 +245,20 @@ class ThermalModel(ABC):
         )
         n = self.span.num_conductors
         return I * n
+    
+    def compute_steady_state_ampacity_simple(
+        self,
+        max_conductor_temperature: Celsius,
+        min_ampacity: Ampere = 0,
+        max_ampacity: Ampere = 1000,
+        tolerance: float = 1.0,
+    ) -> Ampere:
+        I = self.compute_heat_balance_simple(
+            conductor_temperature=max_conductor_temperature,
+            current=min_ampacity
+        )
+        n = self.span.num_conductors
+        return I * n
 
     def compute_conductor_temperature(
         self,
@@ -263,12 +290,13 @@ class ThermalModel(ABC):
         Union[float, float64, ndarray[Any, dtype[float64]]]
             :math:`I~\left[\text{A}\right]`. The thermal rating.
         """
+        n = self.span.num_conductors
         T = solver.compute_conductor_temperature(
             self.compute_heat_balance,
-            current=current,
+            current=current/n,
             min_temperature=min_temperature,
             max_temperature=max_temperature,
             tolerance=tolerance,
         )
-        n = self.span.num_conductors
-        return T / n
+        
+        return T 

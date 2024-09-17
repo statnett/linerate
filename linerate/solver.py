@@ -43,20 +43,46 @@ def bisect(
         there is a root :math:`x_i \in [\tilde{x}_i - 0.5 \Delta x, \tilde{x}_i + 0.5 \Delta x]`
         so :math:`f_i(x_i) = 0`.
     """
+    '''    def expand_interval(xmin, xmax, factor=2):
+        """Expand the interval if necessary."""
+        while True:
+            f_left = f(xmin)
+            f_right = f(xmax)
+            if np.any(np.sign(f_left) != np.sign(f_right)):
+                return xmin, xmax
+            xmin -= (xmax - xmin) * factor
+            xmax += (xmax - xmin) * factor'''
+
+    def expand_interval(xmin, xmax, factor=2):
+        """Expand the interval if necessary."""
+        mid = 0.5 * (xmin + xmax)
+        while True:
+            f_left = f(xmin)
+            f_right = f(xmax)
+            if np.any(np.sign(f_left) != np.sign(f_right)):
+                return xmin, xmax
+            # Expand symmetrically around the midpoint
+            xmin = mid - (mid - xmin) * factor
+            xmax = mid + (xmax - mid) * factor
+
+
     if not np.all(np.isfinite(xmin)) or not np.all(np.isfinite(xmax)):
         raise ValueError("xmin and xmax must be finite.")
-    interval = np.max(np.abs(xmax - xmin))
+
+    xmin, xmax = expand_interval(xmin, xmax)
 
     f_left = f(xmin)
     f_right = f(xmax)
 
-    invalid_mask = np.sign(f_left) == np.sign(f_right)
-    if np.any(invalid_mask) and invalid_value is None:
-        raise ValueError(
-            "f(xmin) and f(xmax) have the same sign. Consider increasing the search interval."
-        )
-    elif isinstance(invalid_mask, bool) and invalid_mask:
-        return invalid_value  # type: ignore
+    if np.all(np.sign(f_left) == np.sign(f_right)):
+        if invalid_value is None:
+            raise ValueError(
+                "f(xmin) and f(xmax) have the same sign. Consider increasing the search interval."
+            )
+        else:
+            return invalid_value  # type: ignore
+
+    interval = np.max(np.abs(xmax - xmin))
 
     while interval > tolerance:
         xmid = 0.5 * (xmax + xmin)
@@ -69,7 +95,7 @@ def bisect(
         f_left = np.where(mask, f_mid, f_left)
         f_right = np.where(mask, f_right, f_mid)
 
-    out = np.where(invalid_mask, invalid_value, 0.5 * (xmax + xmin))  # type: ignore
+    out = np.where(np.sign(f_left) == np.sign(f_right), invalid_value, 0.5 * (xmax + xmin))  # type: ignore
     return out
 
 

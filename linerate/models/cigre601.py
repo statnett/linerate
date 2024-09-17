@@ -54,34 +54,13 @@ class Cigre601(ThermalModel):
         self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
         alpha_s = self.span.conductor.solar_absorptivity
-        F = self.span.ground_albedo
-        phi = self.span.latitude
-        gamma_c = self.span.conductor_azimuth
-        y = self.span.conductor_altitude
-        N_s = self.weather.clearness_ratio
         D = self.span.conductor.conductor_diameter
         solar = self.weather.solar_irradiance
 
-        omega = solar_angles.compute_hour_angle_relative_to_noon(self.time, self.span.longitude)
-        delta = solar_angles.compute_solar_declination(self.time)
-        sin_H_s = solar_angles.compute_sin_solar_altitude(phi, delta, omega)
-        chi = solar_angles.compute_solar_azimuth_variable(phi, delta, omega)
-        C = solar_angles.compute_solar_azimuth_constant(chi, omega)
-        gamma_s = solar_angles.compute_solar_azimuth(C, chi)  # Z_c in IEEE
-        cos_eta = solar_angles.compute_cos_solar_effective_incidence_angle(
-            sin_H_s, gamma_s, gamma_c
-        )
-        sin_eta = switch_cos_sin(cos_eta)
 
-        I_B = cigre601.solar_heating.compute_direct_solar_radiation(sin_H_s, N_s, y)
-        I_d = cigre601.solar_heating.compute_diffuse_sky_radiation(I_B, sin_H_s)
-        I_T = cigre601.solar_heating.compute_global_radiation_intensity(
-            I_B, I_d, F, sin_eta, sin_H_s
-        )
-        I_T = solar
         return solar_heating.compute_solar_heating(
             alpha_s,
-            I_T,
+            solar,
             D,
         )
 
