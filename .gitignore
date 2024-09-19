@@ -76,3 +76,6 @@ docs/_build
 
 # Template specific
 local.dockerfile  # only for local pycharm use
+
+# Poetry lock
+poetry.lock
