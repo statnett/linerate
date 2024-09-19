@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "gridraven-linerate"
+name = "linerate"
 version = "1.0.0"
 description = "Library for computing line ampacity ratings for overhead lines, modified for GridRaven"
 authors = ["Statnett Datascience <Datascience.Drift@Statnett.no>", "Yngve Mardal Moe <yngve.m.moe@gmail.com>"]
