@@ -3,7 +3,8 @@ import pandas as pd
 import pytest
 
 import linerate
-from linerate.helper import LineRatingComputation
+from linerate.helper import LineRatingComputation, compute_line_rating
+
 
 @pytest.fixture
 def drake_conductor_b():
@@ -126,7 +127,13 @@ def calculate_bearing(lat1, lon1, lat2, lon2):
     return compass_bearing
 
 
+def test_simplest_helper(example_dataframe_b):
+    # Use this, when using default conductor parameters.
+    result = compute_line_rating(example_dataframe_b)
+    assert isinstance(result, pd.Series)
+
 def test_dataframe_helper_works(example_dataframe_b):
+    # LineRatingComputation should when it can be re-used
     helper = LineRatingComputation()
     result = helper.compute_line_rating_from_dataframe(example_dataframe_b)
     assert isinstance(result, pd.Series)
