@@ -71,6 +71,9 @@ class LineRatingComputation:
             - `wires` (int)
             - `max_allowed_temp` (float)
             - `conductor` (str, conductor name)
+            **Optional column**
+            - `elevation` (float) (default=0)
+            - `ground_albedo` (float) (default=0.15)
 
         :param model_name:
             One of: `'Cigre601'`, `'IEEE738'`, `'Cigre207'` (default is `'Cigre601'`).
@@ -94,13 +97,15 @@ class LineRatingComputation:
             'mid_lon', 'mid_lat', 'bearing', 'wires', 'max_allowed_temp', 'conductor'
         ]
 
-        # Optional dataframe columns: elevation, ground_albedo
-
-        if not all(column in dataframe.columns for column in required_columns_df):
-            raise ValueError(f"Input DataFrame must contain the following columns: {required_columns_df}")
+        missing_columns = [column for column in required_columns_df if column not in dataframe.columns]
+        if missing_columns:
+            raise ValueError(f"Input DataFrame is missing mandatory columns: {missing_columns}")
         model = model_mapping[model_name]
 
-        fixed_elevation = 0
+        if 'elevation' not in dataframe.columns:
+            dataframe['elevation'] = 0
+        if 'ground_albedo' not in dataframe.columns:
+            dataframe['ground_albedo'] = 0.15
 
         conductor_params = self.conductor_finder.find_conductor_parameters_by_names(dataframe['conductor'])
 
@@ -123,12 +128,12 @@ class LineRatingComputation:
 
         span = Span(
             conductor=conductor,
-            start_tower=Tower(latitude=dataframe['start_lat'], longitude=dataframe['start_lon'], altitude=fixed_elevation),
-            end_tower=Tower(latitude=dataframe['end_lat'], longitude=dataframe['end_lon'], altitude=fixed_elevation),
+            start_tower=Tower(latitude=dataframe['start_lat'], longitude=dataframe['start_lon'], altitude=dataframe['elevation']),
+            end_tower=Tower(latitude=dataframe['end_lat'], longitude=dataframe['end_lon'], altitude=dataframe['elevation']),
             latitude=dataframe['mid_lat'],
             longitude=dataframe['mid_lon'],
             bearing=dataframe['bearing'],
-            ground_albedo=0.15,
+            ground_albedo=dataframe['ground_albedo'],
             num_conductors=dataframe['wires'],
         )
 

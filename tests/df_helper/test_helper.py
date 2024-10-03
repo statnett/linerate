@@ -131,6 +131,13 @@ def test_dataframe_helper_works(example_dataframe_b):
     result = helper.compute_line_rating_from_dataframe(example_dataframe_b)
     assert isinstance(result, pd.Series)
 
+def test_helper_with_missing_column_throws_error(example_dataframe_b):
+    df = example_dataframe_b.copy()
+    d = df.drop(columns=['temperature'])
+    helper = LineRatingComputation()
+    with pytest.raises(ValueError):
+        helper.compute_line_rating_from_dataframe(d)
+
 
 def test_dataframe_helper_on_v101_data_dlr():
     input_df = pd.read_pickle('fixtures/dlr_comp_input_1.0.1.pkl')
