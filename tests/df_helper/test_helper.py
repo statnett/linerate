@@ -1,10 +1,13 @@
+import os
 import numpy as np
 import pandas as pd
 import pytest
-
 import linerate
 from linerate.helper import LineRatingComputation, compute_line_rating
 
+def __pickle_path(name):
+    current_dir = os.path.dirname(__file__)
+    return os.path.join(current_dir, 'fixtures', name)
 
 @pytest.fixture
 def drake_conductor_b():
@@ -147,15 +150,15 @@ def test_helper_with_missing_column_throws_error(example_dataframe_b):
 
 
 def test_dataframe_helper_on_v101_data_dlr():
-    input_df = pd.read_pickle('fixtures/dlr_comp_input_1.0.1.pkl')
-    previous_result_dlr = pd.read_pickle('fixtures/dlr_comp_output_1.0.1.pkl')
+    input_df = pd.read_pickle(__pickle_path('dlr_comp_input_1.0.1.pkl'))
+    previous_result_dlr = pd.read_pickle(__pickle_path('dlr_comp_output_1.0.1.pkl'))
     helper = LineRatingComputation()
     result = helper.compute_line_rating_from_dataframe(input_df, angle_of_attack_low_speed_threshold=3)
     diff = previous_result_dlr.compare(result)
     assert previous_result_dlr.equals(result), f"DataFrames are not equal:\n{diff}"
 
 def test_dataframe_helper_on_v101_data_slr():
-    input_df = pd.read_pickle('fixtures/dlr_comp_input_1.0.1.pkl')
+    input_df = pd.read_pickle(__pickle_path('dlr_comp_input_1.0.1.pkl'))
 
     input_df['solar_radiation_clouds'] = 1033
     input_df['wind_speed'] = 0.61
@@ -163,7 +166,7 @@ def test_dataframe_helper_on_v101_data_slr():
     # wind direction in 90-degree angle
     input_df['wind_direction'] = (input_df['bearing'] + 90) % 360
 
-    previous_result = pd.read_pickle('fixtures/slr_comp_output_1.0.1.pkl')
+    previous_result = pd.read_pickle(__pickle_path('slr_comp_output_1.0.1.pkl'))
     helper = LineRatingComputation()
     result = helper.compute_line_rating_from_dataframe(input_df, angle_of_attack_low_speed_threshold=3)
     diff = previous_result.compare(result)

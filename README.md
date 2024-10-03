@@ -5,6 +5,7 @@ Currently, the package only contains equations from CIGRE TB 601.
 
 ## Installation
 
+
 ```raw
 pip install linerate
 ```
@@ -82,24 +83,19 @@ There is currently no transient solver or short time thermal rating solver, but 
 
 ## Development
 
-Dependencies for the project are managed with poetry.
-To install all dependencies run:
+Dependencies for the project are managed with uv (https://docs.astral.sh/uv/getting-started/installation/)
 
 ```raw
-poetry install
+uv sync
 ```
 
-Remember that when developing a library it is *not* recommended to
-commit the `poetry.lock` file.
-
 ### Generate docs
-To generate docs locally:
-- Install required dependencies with `poetry install --with docs`.
-- Generate docs with `poetry run make html` in the `docs` folder.
+??? Not sure if we need this.
 
 ### Release new version
-Press the "Draft new release" button on the [Releases](https://github.com/statnett/linerate/releases) page.
-Choose or create an appropriate tag, e.g. `1.2.3`.
-Press "Generate release notes" to generate release notes.
-Edit Release notes if necessary and press "Publish release".
-This causes the publish workflow to run, which publishes the package to PyPI and generates [docs on Github pages](https://statnett.github.io/linerate/).
+Currently, we keep our version in git repository.
+Change version in "pyproject.toml", commit and push to git.
+```raw
+git tag -v v2.1.0
+git push --tags
+```
