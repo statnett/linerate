@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import cached_property
 from typing import Optional
 
@@ -16,7 +16,7 @@ from .units import (
     SquareMeterPerAmpere,
     Unitless,
     WattPerMeterPerKelvin,
-    WattPerSquareMeter,
+    WattPerSquareMeter, FloatOrFloatArray,
 )
 
 __all__ = ["Conductor", "Weather", "Tower", "Span"]
@@ -111,15 +111,26 @@ class Span:
     #: Number of conductors in the span. 1 for simplex, 2 for duplex and 3 for triplex.
     num_conductors: Unitless
 
-    @cached_property
-    def latitude(self) -> Degrees:
-        r""":math:`\phi~\left[^\circ\right]`. The latitude of the span midpoint."""
-        return 0.5 * (self.start_tower.latitude + self.end_tower.latitude)
+    # Pre-calculated midpoint of the span
+    latitude: Optional[Degrees] = field(default=None)
+    longitude: Optional[Degrees] = field(default=None)
+    # Pre-calculated bearing of the span, in Degrees
+    bearing: Optional[Degrees] = field(default=None)
 
-    @cached_property
-    def longitude(self) -> Degrees:
-        r""":math:`\left[^\circ\right]`. The longitude of the span midpoint."""
-        return 0.5 * (self.start_tower.longitude + self.end_tower.longitude)
+    def __post_init__(self):
+        if self.latitude is None or self.longitude is None:
+            object.__setattr__(self, 'latitude', (self.start_tower.latitude + self.end_tower.latitude) / 2)
+            object.__setattr__(self, 'longitude', (self.start_tower.longitude + self.end_tower.longitude) / 2)
+        if self.bearing is None:
+            bearing = np.vectorize(pygeodesy.formy.bearing)
+            calculated_bearing = np.radians(bearing(
+                lat1=self.start_tower.latitude,
+                lon1=self.start_tower.longitude,
+                lat2=self.end_tower.latitude,
+                lon2=self.end_tower.longitude,
+            ))
+            object.__setattr__(self, 'bearing', calculated_bearing)
+
 
     @cached_property
     def inclination(self) -> Radian:
@@ -170,8 +181,8 @@ class Span:
 class Weather:
     #: :math:`T_a~\left[^\circ C\right]`. The ambient air temperature.
     air_temperature: Celsius
-    #: :math:`\delta~\left[\text{radian}\right]`. Wind direction east of north.
-    wind_direction: Radian
+    #: :math:`\delta~\left[\text{degrees}\right]`. Wind direction compass degrees.
+    wind_direction: Degrees
     #: :math:`v~\left[\text{m}~\text{s}^{-1}\right]`. Wind velocity
     wind_speed: MeterPerSecond
     #: :math:`N_s`. The clearness ratio (or clearness number in

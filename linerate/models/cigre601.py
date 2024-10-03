@@ -20,21 +20,25 @@ from linerate.units import (
     JoulePerKilogramPerKelvin,
     OhmPerMeter,
     WattPerMeter,
+    MeterPerSecond,
+    Degrees,
 )
 
 
 class Cigre601(ThermalModel):
+
     def __init__(
-        self,
-        span: Span,
-        weather: Weather,
-        time: Date,
-        max_reynolds_number: Real = 4000,  # Max value of the angle correction in CIGRE601
+            self,
+            span: Span,
+            weather: Weather,
+            time: Date,
+            angle_of_attack_low_speed_threshold: MeterPerSecond = 2.0,
+            angle_of_attack_target_angle: Degrees = 45.0,
+            max_reynolds_number: Real = 4000,  # Max value of the angle correction in CIGRE601
     ):
-        super().__init__(span, weather)
+        super().__init__(span, weather, angle_of_attack_low_speed_threshold, angle_of_attack_target_angle)
         self.time = time
         self.max_reynolds_number = max_reynolds_number
-
     @_copy_method_docstring(ThermalModel)
     def compute_resistance(self, conductor_temperature: Celsius, current: Ampere) -> OhmPerMeter:
         return super().compute_resistance(
@@ -43,7 +47,7 @@ class Cigre601(ThermalModel):
 
     @_copy_method_docstring(ThermalModel)
     def compute_joule_heating(
-        self, conductor_temperature: Celsius, current: Ampere
+            self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
         return super().compute_joule_heating(
             conductor_temperature=conductor_temperature, current=current
@@ -51,7 +55,7 @@ class Cigre601(ThermalModel):
 
     @_copy_method_docstring(ThermalModel)
     def compute_solar_heating(
-        self, conductor_temperature: Celsius, current: Ampere
+            self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
         alpha_s = self.span.conductor.solar_absorptivity
         D = self.span.conductor.conductor_diameter
@@ -66,7 +70,7 @@ class Cigre601(ThermalModel):
 
     @_copy_method_docstring(ThermalModel)
     def compute_convective_cooling(
-        self, conductor_temperature: Celsius, current: Ampere
+            self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
         D = self.span.conductor.conductor_diameter
         d = self.span.conductor.outer_layer_strand_diameter
@@ -83,7 +87,9 @@ class Cigre601(ThermalModel):
         gamma_f = cigre601.convective_cooling.compute_air_density(T_f, y)
         nu_f = cigre601.convective_cooling.compute_kinematic_viscosity_of_air(mu_f, gamma_f)
         c_f: JoulePerKilogramPerKelvin = 1005
-        delta = self.weather.wind_direction
+        # ATM it's expected to be angle of attack in radians
+        # If I know span bearing and wind direction, I can calculate it
+        delta = self.compute_angle_of_attack()
 
         # Compute unitless quantities
         Re = np.minimum(
@@ -118,16 +124,17 @@ class Cigre601(ThermalModel):
             thermal_conductivity_of_air=lambda_f,
         )
 
+
     @_copy_method_docstring(ThermalModel)
     def compute_radiative_cooling(
-        self, conductor_temperature: Celsius, current: Ampere
+            self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
         return super().compute_radiative_cooling(
             conductor_temperature=conductor_temperature, current=current
         )
 
     def compute_temperature_gradient(
-        self, conductor_temperature: Celsius, current: Ampere
+            self, conductor_temperature: Celsius, current: Ampere
     ) -> Celsius:
         r"""Estimate the difference between the core temperature and the surface temperature.
 

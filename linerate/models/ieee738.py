@@ -5,7 +5,7 @@ import numpy as np
 from linerate.equations import dimensionless, ieee738, math, solar_angles, solar_heating
 from linerate.models.thermal_model import ThermalModel, _copy_method_docstring
 from linerate.types import Span, Weather
-from linerate.units import Ampere, Celsius, Date, OhmPerMeter, WattPerMeter
+from linerate.units import Ampere, Celsius, Date, OhmPerMeter, WattPerMeter, MeterPerSecond, Degrees
 
 
 class IEEE738(ThermalModel):
@@ -14,9 +14,11 @@ class IEEE738(ThermalModel):
         span: Span,
         weather: Weather,
         time: Date,
+        angle_of_attack_low_speed_threshold: MeterPerSecond = 2.0,
+        angle_of_attack_target_angle: Degrees = 45.0,
         max_reynolds_number: Real = 50_000,  # Max Reynolds number for forced convection
     ):
-        super().__init__(span, weather)
+        super().__init__(span, weather, angle_of_attack_low_speed_threshold, angle_of_attack_target_angle)
         self.time = time
         self.max_reynolds_number = max_reynolds_number
 
