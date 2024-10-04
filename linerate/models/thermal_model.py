@@ -5,7 +5,7 @@ import numpy as np
 from linerate import solver
 from linerate.equations import joule_heating, radiative_cooling
 from linerate.types import Span, Weather
-from linerate.units import Ampere, Celsius, OhmPerMeter, WattPerMeter
+from linerate.units import Ampere, Celsius, OhmPerMeter, WattPerMeter, MeterPerSecond, Degrees
 
 
 def _copy_method_docstring(parent_class):
@@ -20,9 +20,16 @@ class ThermalModel(ABC):
     """Abstract class for a minimal conductor thermal model."""
 
     @abstractmethod
-    def __init__(self, span: Span, weather: Weather):
+    def __init__(self,
+                 span: Span,
+                 weather: Weather,
+                 angle_of_attack_low_speed_threshold: MeterPerSecond,
+                 angle_of_attack_target_angle: Degrees,
+                 ):
         self.span = span
         self.weather = weather
+        self.angle_of_attack_low_speed_threshold = angle_of_attack_low_speed_threshold
+        self.angle_of_attack_target_angle = angle_of_attack_target_angle
 
     @abstractmethod
     def compute_resistance(self, conductor_temperature: Celsius, current: Ampere) -> OhmPerMeter:
@@ -299,4 +306,34 @@ class ThermalModel(ABC):
             tolerance=tolerance,
         )
         
-        return T 
+        return T
+
+    def compute_angle_of_attack(self):
+        """
+        Computes the angle of attack of the wind on the span.
+        In case of low wind speeds, the angle of attack is set to fixed degrees degrees.
+        Returns angle in Radians
+        -------
+
+        """
+        wind_speed_to_clip = self.angle_of_attack_low_speed_threshold
+        wind_dir_to_clip = self.angle_of_attack_target_angle
+        wind_dir_to_clip_180 = 180 - wind_dir_to_clip
+
+        wind_direction_to_line = np.abs(self.weather.wind_direction - self.span.bearing)
+        wind_direction_to_line = np.where(wind_direction_to_line > 180, 360 - wind_direction_to_line,
+                                          wind_direction_to_line)
+
+        wind_direction_to_line = np.where(
+            (self.weather.wind_speed < wind_speed_to_clip) & (wind_direction_to_line < wind_dir_to_clip),
+            wind_dir_to_clip,
+            wind_direction_to_line
+        )
+
+        wind_direction_to_line = np.where(
+            (self.weather.wind_speed < wind_speed_to_clip) & (wind_direction_to_line > wind_dir_to_clip_180),
+            wind_dir_to_clip_180,
+            wind_direction_to_line
+        )
+
+        return np.radians(wind_direction_to_line)

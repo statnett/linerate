@@ -5,101 +5,82 @@ Currently, the package only contains equations from CIGRE TB 601.
 
 ## Installation
 
+
 ```raw
 pip install linerate
 ```
 
 ## Documentation
 
-This library is split into four main parts:
+### Line rate calculation
+Main usage is in the `linerate.helper` module. Use the compute_line_rating for calculating the line rating from pandas DataFrame.
+This uses default conductor values from standard (values in linerate/conductor_standard.csv).
 
- 1. The `equations` module, which contains one pure function for each equation in CIGRE TB 601,
- 2. the `types` module, which contains datatypes for conductors, weather parameters and spans,
- 3. the `model` module, which contains a wrapper class `Cigre601` to easily compute the ampacity and conductor temperature based on a `Span` and `Weather` instance,
- 4. and the `solver` module, which contains a vectorized bisection solver for estimating the steady state ampacity and temperature of a conductor.
-
-A typical user of this software package will only use the `types` and `model` module,
-and the `model` module will then use functions from `equations` and `solver` to estimate the conductor temperature and ampacity. However, to understand the parameters, it may be useful to look at the functions
-in the `equations` module, as we have taken care to ensure that the argument names stay consistent.
-
-Below, we see an example of how to compute the conductor temperature based on *Example B* on page 79-81 in CIGRE TB 601.
+In order to use custom conductor values, use the LineRatingComputation class and pass in the conductor finder. For examples look at `tests/df_helper/test_helper.py`
 
 ```python
 import numpy as np
-import linerate
+import pandas as pd
+from linerate.helper import compute_line_rating
 
-
-conductor = linerate.Conductor(
-    core_diameter=10.4e-3,
-    conductor_diameter=28.1e-3,
-    outer_layer_strand_diameter=2.2e-3,
-    emissivity=0.9,
-    solar_absorptivity=0.9,
-    temperature1=25,
-    temperature2=75,
-    resistance_at_temperature1=7.283e-5,
-    resistance_at_temperature2=8.688e-5,
-    aluminium_cross_section_area=float("nan"),  # No core magnetisation loss
-    constant_magnetic_effect=1,
-    current_density_proportional_magnetic_effect=0,
-    max_magnetic_core_relative_resistance_increase=1,
-)
-
-
-start_tower = linerate.Tower(latitude=50 - 0.0045, longitude=0, altitude=500 - 88)
-end_tower = linerate.Tower(latitude=50 + 0.0045, longitude=0, altitude=500 + 88)
-span = linerate.Span(
-    conductor=conductor,
-    start_tower=start_tower,
-    end_tower=end_tower,
-    ground_albedo=0.15,
-    num_conductors=1,
-)
-
-
-weather = linerate.Weather(
-    air_temperature=20,
-    wind_direction=np.radians(80),  # Conductor azimuth is 0, so angle of attack is 80
-    wind_speed=1.66,
-    clearness_ratio=0.5,
-)
-
-
-time_of_measurement = np.datetime64("2016-10-03 14:00")
-max_conductor_temperature = 100
-current_load = 1000
-
-model = linerate.Cigre601(span, weather, time_of_measurement)
-conductor_rating = model.compute_steady_state_ampacity(max_conductor_temperature)
-print(f"The span has a steady-state ampacity rating of {conductor_rating:.0f} A if the maximum temperature is {max_conductor_temperature} °C")
-conductor_temperature = model.compute_conductor_temperature(current_load)
-print(f"The conductor has a temperature of {conductor_temperature:.0f} °C when operated at {current_load} A")
+df = pd.DataFrame({
+    'line_id': [1],
+    'span_number': ['45.6789_50.1234'],
+    'timestamp': [np.datetime64('2024-01-01T00:00:00')],
+    'temperature': [20.0],
+    'wind_speed': [5.0],
+    'wind_direction': [np.radians(90)],
+    'humidity': [50.0],
+    'solar_radiation_clouds': [800.0],
+    'start_lon': [24.9384],
+    'start_lat': [60.1699],
+    'end_lon': [24.9484],
+    'end_lat': [60.1799],
+    'mid_lon': [24.9434],
+    'mid_lat': [60.1749],
+    'bearing': [45.0],
+    'wires': [1],
+    'max_allowed_temp': [60.0],
+    'conductor': ['565-AL1/72-ST1A']
+})
+result = compute_line_rating(df)
+assert isinstance(result, pd.Series)
 ```
 
-## Transient state solver
+### Solar irradiance clear sky calculation
+The solar irradiance clear sky calculation is done in the `linerate.helper` module. The function `calculate_solar_irradiance(latitude, longitude, timestamps)` calculates the solar irradiance clear sky based on the latitude, longitude, and timestamp.
 
-There is currently no transient solver or short time thermal rating solver, but that is on the roadmap.
+```python
+import pandas as pd
+from linerate.helper import calculate_solar_irradiance
+
+datetime_idx = pd.date_range(start='2024-01-01 00:00:00', end='2024-01-01 23:00:00', freq='h', tz='UTC')
+df = pd.DataFrame({'timestamp': datetime_idx})
+df['latitude'] = 60.1699
+df['longitude'] = 24.9384
+
+# Using this function, the dataframe has to be indexed according to timestamp
+df.set_index('timestamp', inplace=True)
+result = calculate_solar_irradiance(df['latitude'], df['longitude'], df.index)
+df['irradiance'] = result
+df.reset_index(inplace=True)
+```
 
 ## Development
 
-Dependencies for the project are managed with poetry.
-To install all dependencies run:
+Dependencies for the project are managed with uv (https://docs.astral.sh/uv/getting-started/installation/)
 
 ```raw
-poetry install
+uv sync
 ```
 
-Remember that when developing a library it is *not* recommended to
-commit the `poetry.lock` file.
-
 ### Generate docs
-To generate docs locally:
-- Install required dependencies with `poetry install --with docs`.
-- Generate docs with `poetry run make html` in the `docs` folder.
+??? Not sure if we need this.
 
 ### Release new version
-Press the "Draft new release" button on the [Releases](https://github.com/statnett/linerate/releases) page.
-Choose or create an appropriate tag, e.g. `1.2.3`.
-Press "Generate release notes" to generate release notes.
-Edit Release notes if necessary and press "Publish release".
-This causes the publish workflow to run, which publishes the package to PyPI and generates [docs on Github pages](https://statnett.github.io/linerate/).
+Currently, we keep our version in git repository.
+Change version in "pyproject.toml", commit and push to git.
+```raw
+git tag -v v2.1.0
+git push --tags
+```

@@ -79,3 +79,4 @@ local.dockerfile  # only for local pycharm use
 
 # Poetry lock
 poetry.lock
+uv.lock

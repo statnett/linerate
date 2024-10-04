@@ -30,7 +30,8 @@ def drake_conductor_a():
 def example_weather_a():
     return linerate.Weather(
         air_temperature=40,
-        wind_direction=np.radians(30),  # Conductor azimuth is 90, so 90 - 30 is 30
+        # wind_direction=np.radians(30),  # Conductor azimuth is 90, so 90 - 30 is 30
+        wind_direction=120,  # angle of attack was 30, as azimuth is 90, then wind direction is 120
         wind_speed=0.61,
         clearness_ratio=1,
     )
@@ -100,7 +101,8 @@ def drake_conductor_b():
 def example_weather_b():
     return linerate.Weather(
         air_temperature=20,
-        wind_direction=np.radians(80),  # Conductor azimuth is 0, so angle of attack is 80
+        # wind_direction=np.radians(80),  # Conductor azimuth is 0, so angle of attack is 80
+        wind_direction=80,  # Conductor azimuth is 0, so angle of attack is 80
         wind_speed=1.66,
         clearness_ratio=0.5,
     )

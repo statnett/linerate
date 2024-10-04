@@ -9,7 +9,7 @@ from linerate.equations import (
 from linerate.equations.math import switch_cos_sin
 from linerate.models.thermal_model import ThermalModel, _copy_method_docstring
 from linerate.types import Span, Weather
-from linerate.units import Ampere, Celsius, Date, OhmPerMeter, WattPerMeter
+from linerate.units import Ampere, Celsius, Date, OhmPerMeter, WattPerMeter, MeterPerSecond, Degrees
 
 
 class Cigre207(ThermalModel):
@@ -18,10 +18,12 @@ class Cigre207(ThermalModel):
         span: Span,
         weather: Weather,
         time: Date,
+        angle_of_attack_low_speed_threshold: MeterPerSecond = 2.0,
+        angle_of_attack_target_angle: Degrees = 45.0,
         include_diffuse_radiation: bool = True,
         direct_radiation_factor: float = 1.0,
     ):
-        super().__init__(span, weather)
+        super().__init__(span, weather, angle_of_attack_low_speed_threshold, angle_of_attack_target_angle)
         self.time = time
         self.include_diffuse_radiation = include_diffuse_radiation
         self.direct_radiation_factor = direct_radiation_factor
