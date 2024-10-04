@@ -4,6 +4,7 @@ version = "2.0.1"
 description = "Library for computing line ampacity ratings for overhead lines, modified for GridRaven"
 readme = "README.md"
 requires-python = ">=3.9,<3.13"
+include_package_data = true
 authors = [
     { name = "Statnett Datascience", email = "Datascience.Drift@Statnett.no" },
     { name = "Yngve Mardal Moe", email = "yngve.m.moe@gmail.com" },
