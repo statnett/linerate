@@ -34,6 +34,12 @@ dev-dependencies = [
     "pytest-randomly ==3.15.0",
 ]
 
+[tool.setuptools]
+include_package_data = true
+
+[tool.setuptools.package_data]
+"linerate" = ["conductors_standard.csv"]
+
 [project.optional-dependencies]
 docs = [
     "sphinx >=7.0.0, <8.0.0",
