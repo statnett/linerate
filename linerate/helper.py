@@ -1,9 +1,10 @@
 from typing import Optional
 
 import numpy as np
+import pvlib
 
 from linerate import Conductor, Span, Tower, Weather
-from linerate.conductor_params_finder import ConductorFinder
+from linerate.conductor_params_finder import ConductorFinder, ConductorFinderProtocol
 from linerate.models.cigre207 import Cigre207
 from linerate.models.cigre601 import Cigre601
 from linerate.models.ieee738 import IEEE738
@@ -32,10 +33,34 @@ def compute_line_rating(dataframe,
         angle_of_attack_target_angle
     )
 
+def calculate_solar_irradiance(latitude, longitude, timestamps):
+    """
+    Calculate the solar irradiance at a given location and time with clear sky assumption.
+    When using pandas dataframes, be careful about indexing by the timestamps. See test_helper.py for an example.
+
+    Parameters
+    ----------
+    latitude
+    longitude
+    timestamps
+
+    Returns
+    -------
+    pd.Series with irradiance values
+
+    """
+    # Get solar position
+    solpos = pvlib.solarposition.get_solarposition(timestamps, latitude, longitude)
+
+    # Calculate clear-sky irradiance
+    irradiance = pvlib.clearsky.haurwitz(solpos['apparent_zenith'])
+
+    return irradiance
+
 
 class LineRatingComputation:
 
-    def __init__(self, conductor_finder: Optional[ConductorFinder] = ConductorFinder):
+    def __init__(self, conductor_finder: Optional[ConductorFinderProtocol] = ConductorFinder()):
         self.conductor_finder = conductor_finder
 
     def compute_line_rating_from_dataframe(self,
@@ -74,6 +99,11 @@ class LineRatingComputation:
             **Optional column**
             - `elevation` (float) (default=0)
             - `ground_albedo` (float) (default=0.15)
+            - `emissivity` (float) (default=0.9)
+            - `solar_absorptivity` (float) (default=0.9)
+            - `constant_magnetic_effect` (float) (default=1)
+            - `current_density_proportional_magnetic_effect` (float) (default=0)
+            - `max_magnetic_core_relative_resistance_increase` (float) (default=1)
 
         :param model_name:
             One of: `'Cigre601'`, `'IEEE738'`, `'Cigre207'` (default is `'Cigre601'`).
@@ -106,24 +136,33 @@ class LineRatingComputation:
             dataframe['elevation'] = 0
         if 'ground_albedo' not in dataframe.columns:
             dataframe['ground_albedo'] = 0.15
+        if 'emissivity' not in dataframe.columns:
+            dataframe['emissivity'] = 0.9
+        if 'solar_absorptivity' not in dataframe.columns:
+            dataframe['solar_absorptivity'] = 0.9
+        if 'constant_magnetic_effect' not in dataframe.columns:
+            dataframe['constant_magnetic_effect'] = 1
+        if 'current_density_proportional_magnetic_effect' not in dataframe.columns:
+            dataframe['current_density_proportional_magnetic_effect'] = 0
+        if 'max_magnetic_core_relative_resistance_increase' not in dataframe.columns:
+            dataframe['max_magnetic_core_relative_resistance_increase'] = 1
 
         conductor_params = self.conductor_finder.find_conductor_parameters_by_names(dataframe['conductor'])
 
         conductor = Conductor(
-            core_diameter=conductor_params['steel_core_diameter'] * 1e-3,
-            conductor_diameter=conductor_params['conductor_diameter'] * 1e-3,
-            outer_layer_strand_diameter=conductor_params['outer_layer_strand_diameter'] * 1e-3,
-            emissivity=conductor_params['emissivity'],
-            solar_absorptivity=conductor_params['solar_absorptivity'],
-            temperature1=conductor_params['conductor_temperature_1'],
-            temperature2=conductor_params['conductor_temperature_2'],
-            resistance_at_temperature1=conductor_params['resistance_per_km'] * 1e-3,
-            resistance_at_temperature2=conductor_params['resistance_per_km_at_high_temperature'] * 1e-3,
-            aluminium_cross_section_area=conductor_params['aluminium_area'] * 1e-6,  # Convert mm2 to m2
-            constant_magnetic_effect=conductor_params['constant_magnetic_effect'],
-            current_density_proportional_magnetic_effect=conductor_params['current_density_proportional_magnetic_effect'],
-            max_magnetic_core_relative_resistance_increase=conductor_params[
-                'max_magnetic_core_relative_resistance_increase'],
+            core_diameter=conductor_params['core_diameter_mm'] * 1e-3,
+            conductor_diameter=conductor_params['conductor_diameter_mm'] * 1e-3,
+            outer_layer_strand_diameter=conductor_params['wire_diameter_al_mm'] * 1e-3,
+            emissivity=dataframe['emissivity'], # not conductor specific, set by Transmission System Operator (TSO)
+            solar_absorptivity=dataframe['solar_absorptivity'], # not conductor specific, set by Transmission System Operator (TSO)
+            temperature1=conductor_params['low_temperature_deg_c'],
+            temperature2=conductor_params['high_temperature_deg_c'],
+            resistance_at_temperature1=conductor_params['dc_resistance_low_temperature_ohm_per_km'] * 1e-3,
+            resistance_at_temperature2=conductor_params['dc_resistance_high_temperature_ohm_per_km'] * 1e-3,
+            aluminium_cross_section_area=conductor_params['area_al_sq_mm'] * 1e-6, # Convert mm2 to m2
+            constant_magnetic_effect=dataframe['constant_magnetic_effect'], # not conductor specific, set by TSO
+            current_density_proportional_magnetic_effect=dataframe['current_density_proportional_magnetic_effect'], # not conductor specific, set by TSO
+            max_magnetic_core_relative_resistance_increase=dataframe['max_magnetic_core_relative_resistance_increase'], # not conductor specific, set by TSO
         )
 
         span = Span(

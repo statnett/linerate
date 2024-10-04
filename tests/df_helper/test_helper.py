@@ -3,9 +3,34 @@ import numpy as np
 import pandas as pd
 import pytest
 import linerate
-from linerate.helper import LineRatingComputation, compute_line_rating
+from linerate.helper import LineRatingComputation, compute_line_rating, calculate_solar_irradiance
 
-def __pickle_path(name):
+def test_example_helper_usage():
+    df = pd.DataFrame({
+        'line_id': [1],
+        'span_number': ['45.6789_50.1234'],
+        'timestamp': [np.datetime64('2024-01-01T00:00:00')],
+        'temperature': [20.0],
+        'wind_speed': [5.0],
+        'wind_direction': [np.radians(90)],
+        'humidity': [50.0],
+        'solar_radiation_clouds': [800.0],
+        'start_lon': [24.9384],
+        'start_lat': [60.1699],
+        'end_lon': [24.9484],
+        'end_lat': [60.1799],
+        'mid_lon': [24.9434],
+        'mid_lat': [60.1749],
+        'bearing': [45.0],
+        'wires': [1],
+        'max_allowed_temp': [60.0],
+        'conductor': ['565-AL1/72-ST1A']
+    })
+    result = compute_line_rating(df)
+    assert isinstance(result, pd.Series)
+
+
+def _pickle_path(name):
     current_dir = os.path.dirname(__file__)
     return os.path.join(current_dir, 'fixtures', name)
 
@@ -94,7 +119,7 @@ def example_dataframe_b(example_span_b, example_weather_b):
 
     df = pd.DataFrame({
         'line_id': [1],
-        'span_number': [1],
+        'span_number': ['45.6789_50.1234'],
         'timestamp': [input_params['timestamp']],
         'temperature': [example_weather_b.air_temperature],
         'wind_speed': [example_weather_b.wind_speed],
@@ -148,17 +173,49 @@ def test_helper_with_missing_column_throws_error(example_dataframe_b):
     with pytest.raises(ValueError):
         helper.compute_line_rating_from_dataframe(d)
 
+@pytest.fixture
+def fingrid_conductor_finder():
+    class InlineConductorFinder:
+        @staticmethod
+        def find_conductor_parameters_by_names(name_series: pd.Series) -> pd.DataFrame:
+            fixed_params = {
+                'code': 'fixed_code',
+                'old_code': 'fixed_old_code',
+                'area_al_sq_mm': 565.0,
+                'area_steel_sq_mm': 71.6,
+                'area_total_sq_mm': 636.6,
+                'no_of_wires_al': 54,
+                'no_of_wires_steel': 19,
+                'wire_diameter_al_mm': 3.65,
+                'wire_diameter_steel_mm': 3.65,
+                'core_diameter_mm': 11.0,
+                'conductor_diameter_mm': 32.9,
+                'mass_per_unit_length_kg_per_km': 14.9,
+                'rated_strength_kn': 174.14,
+                'dc_resistance_low_temperature_ohm_per_km': 0.0500,
+                'final_modulus_of_elasticity_n_per_sq_mm': 76000,
+                'coefficient_of_linear_expansion_per_k': 0.000023,
+                'current_carrying_capacity_a': 0,
+                'country': 'FI',
+                'aluminium_type': 'AL1',
+                'low_temperature_deg_c': 20,
+                'high_temperature_deg_c': 80,
+                'dc_resistance_high_temperature_ohm_per_km': 0.0621
+            }
+            return pd.DataFrame([fixed_params] * len(name_series))
 
-def test_dataframe_helper_on_v101_data_dlr():
-    input_df = pd.read_pickle(__pickle_path('dlr_comp_input_1.0.1.pkl'))
-    previous_result_dlr = pd.read_pickle(__pickle_path('dlr_comp_output_1.0.1.pkl'))
-    helper = LineRatingComputation()
+    return InlineConductorFinder()
+
+def test_dataframe_helper_on_v101_data_dlr(fingrid_conductor_finder):
+    input_df = pd.read_pickle(_pickle_path('dlr_comp_input_1.0.1.pkl'))
+    previous_result_dlr = pd.read_pickle(_pickle_path('dlr_comp_output_1.0.1.pkl'))
+    helper = LineRatingComputation(fingrid_conductor_finder)
     result = helper.compute_line_rating_from_dataframe(input_df, angle_of_attack_low_speed_threshold=3)
     diff = previous_result_dlr.compare(result)
     assert previous_result_dlr.equals(result), f"DataFrames are not equal:\n{diff}"
 
-def test_dataframe_helper_on_v101_data_slr():
-    input_df = pd.read_pickle(__pickle_path('dlr_comp_input_1.0.1.pkl'))
+def test_dataframe_helper_on_v101_data_slr(fingrid_conductor_finder):
+    input_df = pd.read_pickle(_pickle_path('dlr_comp_input_1.0.1.pkl'))
 
     input_df['solar_radiation_clouds'] = 1033
     input_df['wind_speed'] = 0.61
@@ -166,8 +223,31 @@ def test_dataframe_helper_on_v101_data_slr():
     # wind direction in 90-degree angle
     input_df['wind_direction'] = (input_df['bearing'] + 90) % 360
 
-    previous_result = pd.read_pickle(__pickle_path('slr_comp_output_1.0.1.pkl'))
-    helper = LineRatingComputation()
+    previous_result = pd.read_pickle(_pickle_path('slr_comp_output_1.0.1.pkl'))
+    helper = LineRatingComputation(fingrid_conductor_finder)
     result = helper.compute_line_rating_from_dataframe(input_df, angle_of_attack_low_speed_threshold=3)
     diff = previous_result.compare(result)
     assert previous_result.equals(result), f"DataFrames are not equal:\n{diff}"
+
+
+def test_calculate_solar_irradiance():
+    datetime_idx = pd.date_range(start='2024-01-01 00:00:00', end='2024-01-01 23:00:00', freq='h', tz='UTC')
+    df = pd.DataFrame({'timestamp': datetime_idx})
+    df['latitude'] = 60.1699
+    df['longitude'] = 24.9384
+
+    # Using this function, the dataframe has to be indexed according to timestamp
+    df.set_index('timestamp', inplace=True)
+    result = calculate_solar_irradiance(df['latitude'], df['longitude'], df.index)
+    df['irradiance'] = result
+    df.reset_index(inplace=True)
+
+
+def test_calculate_solar_irradiance_empty_timestamps():
+    latitude = pd.Series([])
+    longitude = pd.Series([])
+    timestamps = pd.DatetimeIndex([])
+
+    result = calculate_solar_irradiance(latitude, longitude, timestamps)
+
+    assert result.empty == True

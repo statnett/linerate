@@ -1,6 +1,6 @@
 [project]
 name = "linerate"
-version = "2.0.0"
+version = "2.0.1"
 description = "Library for computing line ampacity ratings for overhead lines, modified for GridRaven"
 readme = "README.md"
 requires-python = ">=3.9,<3.13"
@@ -16,7 +16,8 @@ dependencies = [
     "numba >=0.56.4",
     "pygeodesy",
     "pydantic >=2.9.2, <3.0.0",
-    "pandas >=2.2.3, <3.0.0"
+    "pandas >=2.2.3, <3.0.0",
+    "pvlib>=0.11.1",
 ]
 
 [tool.uv]
