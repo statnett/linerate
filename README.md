@@ -13,7 +13,7 @@ pip install linerate
 ## Documentation
 
 ### Line rate calculation
-Main usage is in the `linerate.helper` module. Use the compute_line_rating for calculating the line rating from pandas DataFrame.
+Main usage is in the `linerate.helper` module. Use the `compute_line_rating` for calculating the line rating from pandas DataFrame.
 This uses default conductor values from standard (values in linerate/conductor_standard.csv).
 
 In order to use custom conductor values, use the LineRatingComputation class and pass in the conductor finder. For examples look at `tests/df_helper/test_helper.py`
@@ -29,7 +29,7 @@ df = pd.DataFrame({
     'timestamp': [np.datetime64('2024-01-01T00:00:00')],
     'temperature': [20.0],
     'wind_speed': [5.0],
-    'wind_direction': [np.radians(90)],
+    'wind_direction': [90],
     'humidity': [50.0],
     'solar_radiation_clouds': [800.0],
     'start_lon': [24.9384],

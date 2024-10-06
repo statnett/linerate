@@ -12,7 +12,7 @@ def test_example_helper_usage():
         'timestamp': [np.datetime64('2024-01-01T00:00:00')],
         'temperature': [20.0],
         'wind_speed': [5.0],
-        'wind_direction': [np.radians(90)],
+        'wind_direction': [90],
         'humidity': [50.0],
         'solar_radiation_clouds': [800.0],
         'start_lon': [24.9384],

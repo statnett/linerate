@@ -19,7 +19,8 @@ def compute_line_rating(dataframe,
                        model_name = "Cigre601",
                        wind_speed_min = 0.61,
                        angle_of_attack_low_speed_threshold = 2.0,
-                       angle_of_attack_target_angle = 45.0):
+                       angle_of_attack_target_angle = 45.0,
+                       max_reynolds_number = 50_000):
     """
     Easy access function with default conductor parameters.
     See LineRatingComputation.compute_line_rating_from_dataframe for parameter details.
@@ -30,7 +31,8 @@ def compute_line_rating(dataframe,
         model_name,
         wind_speed_min,
         angle_of_attack_low_speed_threshold,
-        angle_of_attack_target_angle
+        angle_of_attack_target_angle,
+        max_reynolds_number
     )
 
 def calculate_solar_irradiance(latitude, longitude, timestamps):
@@ -68,7 +70,8 @@ class LineRatingComputation:
                                            model_name = "Cigre601",
                                            wind_speed_min = 0.61,
                                            angle_of_attack_low_speed_threshold = 2.0,
-                                           angle_of_attack_target_angle = 45.0):
+                                           angle_of_attack_target_angle = 45.0,
+                                           max_reynolds_number = 50_000):
         """
         Calculate the Line Rating for all rows in dataframe.
 
@@ -113,6 +116,8 @@ class LineRatingComputation:
             Wind speed threshold (float) for attack angle calculation. Speeds lower than this threshold will be set to `angle_of_attack_target_angle` (default is 2.0).
         :param angle_of_attack_target_angle:
             Target angle of attack (float, in degrees) to use when wind speed is below `angle_of_attack_low_speed_threshold` (default is 45.0).
+        :param max_reynolds_number:
+            Max value of the angle correction in CIGRE601 and IEEE738 (default is 50'000).
 
         :return:
             A pandas Series containing Ampere values for each row in the input dataframe.
@@ -192,7 +197,8 @@ class LineRatingComputation:
             weather=weather,
             time=dataframe['timestamp'],
             angle_of_attack_low_speed_threshold=angle_of_attack_low_speed_threshold,
-            angle_of_attack_target_angle=angle_of_attack_target_angle
+            angle_of_attack_target_angle=angle_of_attack_target_angle,
+            max_reynolds_number=max_reynolds_number
         )
 
         # Calculate the steady-state ampacity

@@ -1,6 +1,6 @@
 [project]
 name = "linerate"
-version = "2.0.7"
+version = "2.0.8"
 description = "Library for computing line ampacity ratings for overhead lines, modified for GridRaven"
 readme = "README.md"
 requires-python = ">=3.9,<3.13"
