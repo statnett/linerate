@@ -29,6 +29,45 @@ def test_example_helper_usage():
     result = compute_line_rating(df)
     assert isinstance(result, pd.Series)
 
+def test_helper_usage():
+    df = pd.DataFrame({
+        'line_id': [1],
+        'span_number': ['45.6789_50.1234'],
+        'timestamp': [np.datetime64('2024-01-01T00:00:00')],
+        'temperature': [10.0],
+        'wind_speed': [5.0],
+        'wind_direction': [45],
+        'humidity': [50.0],
+        'solar_radiation_clouds': [0],
+        'start_lon': [24.9384],
+        'start_lat': [60.1699],
+        'end_lon': [24.9484],
+        'end_lat': [60.1799],
+        'mid_lon': [24.9434],
+        'mid_lat': [60.1749],
+        'bearing': [0.0],
+        'wires': [1],
+        'max_allowed_temp': [60.0],
+        'conductor': ['565-AL1/72-ST1A']
+    })
+    previous_result = None
+    for wind_speed in np.arange(0.61, 2.0, 0.2):
+        df_copy = df.copy()
+        df_copy['wind_speed'] = wind_speed
+        result = compute_line_rating(df_copy)[0]
+        if previous_result is not None:
+            assert result > previous_result, f"Result did not increase: {result:.1f} <= {previous_result:.1f}"
+        previous_result = result
+    # 2m/s is the threshold for low wind speed
+    previous_result = None
+    for wind_speed in np.arange(2, 20, 1):
+        df_copy = df.copy()
+        df_copy['wind_speed'] = wind_speed
+        result = compute_line_rating(df_copy)[0]
+        if previous_result is not None:
+            assert result > previous_result, f"Result did not increase: {result:.1f} <= {previous_result:.1f}"
+        previous_result = result
+
 
 def _pickle_path(name):
     current_dir = os.path.dirname(__file__)
@@ -210,7 +249,7 @@ def test_dataframe_helper_on_v101_data_dlr(fingrid_conductor_finder):
     input_df = pd.read_pickle(_pickle_path('dlr_comp_input_1.0.1.pkl'))
     previous_result_dlr = pd.read_pickle(_pickle_path('dlr_comp_output_1.0.1.pkl'))
     helper = LineRatingComputation(fingrid_conductor_finder)
-    result = helper.compute_line_rating_from_dataframe(input_df, angle_of_attack_low_speed_threshold=3)
+    result = helper.compute_line_rating_from_dataframe(input_df, angle_of_attack_low_speed_threshold=3, max_reynolds_number=4000)
     diff = previous_result_dlr.compare(result)
     assert previous_result_dlr.equals(result), f"DataFrames are not equal:\n{diff}"
 
