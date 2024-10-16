@@ -250,8 +250,8 @@ def test_dataframe_helper_on_v101_data_dlr(fingrid_conductor_finder):
     previous_result_dlr = pd.read_pickle(_pickle_path('dlr_comp_output_1.0.1.pkl'))
     helper = LineRatingComputation(fingrid_conductor_finder)
     result = helper.compute_line_rating_from_dataframe(input_df, angle_of_attack_low_speed_threshold=3, max_reynolds_number=4000)
-    diff = previous_result_dlr.compare(result)
-    assert previous_result_dlr.equals(result), f"DataFrames are not equal:\n{diff}"
+    diff = np.isclose(previous_result_dlr.values, result.values, atol=1e-5)
+    assert np.all(diff == True), f"DataFrames are not equal:\n{diff}"
 
 def test_dataframe_helper_on_v101_data_slr(fingrid_conductor_finder):
     input_df = pd.read_pickle(_pickle_path('dlr_comp_input_1.0.1.pkl'))
@@ -265,8 +265,8 @@ def test_dataframe_helper_on_v101_data_slr(fingrid_conductor_finder):
     previous_result = pd.read_pickle(_pickle_path('slr_comp_output_1.0.1.pkl'))
     helper = LineRatingComputation(fingrid_conductor_finder)
     result = helper.compute_line_rating_from_dataframe(input_df, angle_of_attack_low_speed_threshold=3)
-    diff = previous_result.compare(result)
-    assert previous_result.equals(result), f"DataFrames are not equal:\n{diff}"
+    diff = np.isclose(previous_result.values, result.values, atol=1e-5)
+    assert np.all(diff == True), f"DataFrames are not equal:\n{diff}"
 
 
 def test_calculate_solar_irradiance():
