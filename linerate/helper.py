@@ -16,11 +16,12 @@ model_mapping = {
 }
 
 def compute_line_rating(dataframe,
-                       model_name = "Cigre601",
-                       wind_speed_min = 0.61,
-                       angle_of_attack_low_speed_threshold = 2.0,
-                       angle_of_attack_target_angle = 45.0,
-                       max_reynolds_number = 50_000):
+                        model_name = "Cigre601",
+                        wind_speed_min = 0.61,
+                        angle_of_attack_low_speed_threshold = 2.0,
+                        angle_of_attack_target_angle = 45.0,
+                        max_reynolds_number = 50_000,
+                        use_direct_solver = False):
     """
     Easy access function with default conductor parameters.
     See LineRatingComputation.compute_line_rating_from_dataframe for parameter details.
@@ -32,7 +33,8 @@ def compute_line_rating(dataframe,
         wind_speed_min,
         angle_of_attack_low_speed_threshold,
         angle_of_attack_target_angle,
-        max_reynolds_number
+        max_reynolds_number,
+        use_direct_solver
     )
 
 def calculate_solar_irradiance(latitude, longitude, timestamps):
@@ -71,7 +73,8 @@ class LineRatingComputation:
                                            wind_speed_min = 0.61,
                                            angle_of_attack_low_speed_threshold = 2.0,
                                            angle_of_attack_target_angle = 45.0,
-                                           max_reynolds_number = 50_000):
+                                           max_reynolds_number = 50_000,
+                                           use_direct_solver = False):
         """
         Calculate the Line Rating for all rows in dataframe.
 
@@ -118,6 +121,8 @@ class LineRatingComputation:
             Target angle of attack (float, in degrees) to use when wind speed is below `angle_of_attack_low_speed_threshold` (default is 45.0).
         :param max_reynolds_number:
             Max value of the angle correction in CIGRE601 and IEEE738 (default is 50'000).
+        :param use_direct_solver:
+            If True, use the direct solver to compute the ampacity. If False, use the iterative solver (default is False).
 
         :return:
             A pandas Series containing Ampere values for each row in the input dataframe.
@@ -202,4 +207,7 @@ class LineRatingComputation:
         )
 
         # Calculate the steady-state ampacity
-        return model_instance.compute_steady_state_ampacity(dataframe['max_allowed_temp'])
+        if use_direct_solver:
+            return model_instance.compute_steady_state_ampacity_simple(dataframe['max_allowed_temp'])
+        else:
+            return model_instance.compute_steady_state_ampacity(dataframe['max_allowed_temp'])

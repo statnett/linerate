@@ -29,7 +29,8 @@ def test_example_helper_usage():
     result = compute_line_rating(df)
     assert isinstance(result, pd.Series)
 
-def test_helper_usage():
+@pytest.mark.parametrize("use_direct_solver", [True, False])
+def test_helper_usage(use_direct_solver):
     df = pd.DataFrame({
         'line_id': [1],
         'span_number': ['45.6789_50.1234'],
@@ -54,7 +55,7 @@ def test_helper_usage():
     for wind_speed in np.arange(0.61, 2.0, 0.2):
         df_copy = df.copy()
         df_copy['wind_speed'] = wind_speed
-        result = compute_line_rating(df_copy)[0]
+        result = compute_line_rating(df_copy, use_direct_solver=use_direct_solver)[0]
         if previous_result is not None:
             assert result > previous_result, f"Result did not increase: {result:.1f} <= {previous_result:.1f}"
         previous_result = result
@@ -63,7 +64,7 @@ def test_helper_usage():
     for wind_speed in np.arange(2, 20, 1):
         df_copy = df.copy()
         df_copy['wind_speed'] = wind_speed
-        result = compute_line_rating(df_copy)[0]
+        result = compute_line_rating(df_copy, use_direct_solver=use_direct_solver)[0]
         if previous_result is not None:
             assert result > previous_result, f"Result did not increase: {result:.1f} <= {previous_result:.1f}"
         previous_result = result
@@ -253,6 +254,15 @@ def test_dataframe_helper_on_v101_data_dlr(fingrid_conductor_finder):
     diff = np.isclose(previous_result_dlr.values, result.values, atol=1e-5)
     assert np.all(diff == True), f"DataFrames are not equal:\n{diff}"
 
+def test_dataframe_helper_on_v101_data_dlr_direct_solver(fingrid_conductor_finder):
+    input_df = pd.read_pickle(_pickle_path('dlr_comp_input_1.0.1.pkl'))
+    previous_result_dlr = pd.read_pickle(_pickle_path('dlr_comp_output_1.0.1.pkl'))
+    helper = LineRatingComputation(fingrid_conductor_finder)
+    result = helper.compute_line_rating_from_dataframe(input_df, angle_of_attack_low_speed_threshold=3, max_reynolds_number=4000, use_direct_solver=True)
+    diff = np.isclose(previous_result_dlr.values, result.values, atol=1)
+    diff_num = previous_result_dlr.compare(result)
+    assert np.all(diff == True), f"DataFrames are not equal:\n{diff_num}"
+
 def test_dataframe_helper_on_v101_data_slr(fingrid_conductor_finder):
     input_df = pd.read_pickle(_pickle_path('dlr_comp_input_1.0.1.pkl'))
 
@@ -267,6 +277,22 @@ def test_dataframe_helper_on_v101_data_slr(fingrid_conductor_finder):
     result = helper.compute_line_rating_from_dataframe(input_df, angle_of_attack_low_speed_threshold=3)
     diff = np.isclose(previous_result.values, result.values, atol=1e-5)
     assert np.all(diff == True), f"DataFrames are not equal:\n{diff}"
+
+def test_dataframe_helper_on_v101_data_slr_direct_solver(fingrid_conductor_finder):
+    input_df = pd.read_pickle(_pickle_path('dlr_comp_input_1.0.1.pkl'))
+
+    input_df['solar_radiation_clouds'] = 1033
+    input_df['wind_speed'] = 0.61
+    input_df['temperature'] = 25
+    # wind direction in 90-degree angle
+    input_df['wind_direction'] = (input_df['bearing'] + 90) % 360
+
+    previous_result = pd.read_pickle(_pickle_path('slr_comp_output_1.0.1.pkl'))
+    helper = LineRatingComputation(fingrid_conductor_finder)
+    result = helper.compute_line_rating_from_dataframe(input_df, angle_of_attack_low_speed_threshold=3, use_direct_solver=True)
+    diff = np.isclose(previous_result.values, result.values, atol=1)
+    diff_num = previous_result.compare(result)
+    assert np.all(diff == True), f"DataFrames are not equal:\n{diff_num}"
 
 
 def test_calculate_solar_irradiance():
