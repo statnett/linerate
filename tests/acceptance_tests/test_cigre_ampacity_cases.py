@@ -7,7 +7,6 @@ from pytest import approx
 import linerate
 
 
-
 def test_example_a_convective_cooling(example_model_1_conductors):
     assert example_model_1_conductors.compute_convective_cooling(100, None) == approx(77.6, abs=0.5)
 
@@ -21,7 +20,9 @@ def test_example_a_solar_heating(example_model_1_conductors):
 
 
 def test_example_a_resistance(example_model_1_conductors):
-    assert example_model_1_conductors.compute_resistance(100, None) == approx(9.3905e-5, abs=0.0001e-5)
+    assert example_model_1_conductors.compute_resistance(100, None) == approx(
+        9.3905e-5, abs=0.0001e-5
+    )
 
 
 def test_example_a_ampacity(example_model_1_conductors):

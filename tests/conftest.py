@@ -21,6 +21,7 @@ import numpy as np
 import pytest
 import linerate
 
+
 @pytest.fixture
 def drake_conductor_a():
     return linerate.Conductor(
@@ -39,6 +40,7 @@ def drake_conductor_a():
         max_magnetic_core_relative_resistance_increase=1,
     )
 
+
 @pytest.fixture
 def example_weather_a():
     return linerate.Weather(
@@ -47,6 +49,7 @@ def example_weather_a():
         wind_speed=0.61,
         clearness_ratio=1,
     )
+
 
 @pytest.fixture
 def example_span_1_conductor(drake_conductor_a):
@@ -60,6 +63,7 @@ def example_span_1_conductor(drake_conductor_a):
         num_conductors=1,
     )
 
+
 @pytest.fixture
 def example_span_2_conductors(drake_conductor_a):
     start_tower = linerate.Tower(latitude=30, longitude=0.0001, altitude=0)
@@ -72,12 +76,16 @@ def example_span_2_conductors(drake_conductor_a):
         num_conductors=2,
     )
 
+
 @pytest.fixture
 def example_model_1_conductors(example_span_1_conductor, example_weather_a):
-    return linerate.Cigre601(example_span_1_conductor,
-                             example_weather_a, np.datetime64("2016-06-10 11:00"))
+    return linerate.Cigre601(
+        example_span_1_conductor, example_weather_a, np.datetime64("2016-06-10 11:00")
+    )
+
 
 @pytest.fixture
 def example_model_2_conductors(example_span_2_conductors, example_weather_a):
-    return linerate.Cigre601(example_span_2_conductors,
-                             example_weather_a, np.datetime64("2016-06-10 11:00"))
+    return linerate.Cigre601(
+        example_span_2_conductors, example_weather_a, np.datetime64("2016-06-10 11:00")
+    )
