@@ -245,6 +245,8 @@ class ThermalModel(ABC):
         ----------
         current:
             :math:`I_\text{max}~\left[\text{A}\right]`. The current flowing through the conductor.
+            NOTE that the current is the total current for all conductors in the span. When
+            computing the temperature, the current is divided by the number of conductors.
         min_temperature:
             :math:`T_\text{min}~\left[^\circ\text{C}\right]`. Lower bound for the numerical scheme
             for computing the temperature
