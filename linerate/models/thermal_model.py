@@ -262,12 +262,12 @@ class ThermalModel(ABC):
         Union[float, float64, ndarray[Any, dtype[float64]]]
             :math:`I~\left[\text{A}\right]`. The thermal rating.
         """
+        n = self.span.num_conductors
         T = solver.compute_conductor_temperature(
             self.compute_heat_balance,
-            current=current,
+            current=current / n,
             min_temperature=min_temperature,
             max_temperature=max_temperature,
             tolerance=tolerance,
         )
-        n = self.span.num_conductors
-        return T / n
+        return T
