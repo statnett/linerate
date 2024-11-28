@@ -2,7 +2,6 @@
 
 import numpy as np
 import pytest
-from pytest import approx
 
 import linerate
 
@@ -48,6 +47,7 @@ def example_span_1_conductor(drake_conductor_a):
         num_conductors=1,
     )
 
+
 @pytest.fixture
 def example_span_2_conductors(drake_conductor_a):
     start_tower = linerate.Tower(latitude=30, longitude=0.0001, altitude=0)
@@ -64,16 +64,20 @@ def example_span_2_conductors(drake_conductor_a):
 # Using Cigre601 model to test ThermalModel.compute_conductor_temperature
 @pytest.fixture
 def example_model_1_conductors(example_span_1_conductor, example_weather_a):
-    return linerate.Cigre601(example_span_1_conductor, example_weather_a, np.datetime64("2016-06-10 11:00"))
+    return linerate.Cigre601(example_span_1_conductor,
+                             example_weather_a, np.datetime64("2016-06-10 11:00"))
 
 @pytest.fixture
 def example_model_2_conductors(example_span_2_conductors, example_weather_a):
-    return linerate.Cigre601(example_span_2_conductors, example_weather_a, np.datetime64("2016-06-10 11:00"))
+    return linerate.Cigre601(example_span_2_conductors,
+                             example_weather_a, np.datetime64("2016-06-10 11:00"))
+
 
 def test_compute_conductor_temperature(example_model_1_conductors, example_model_2_conductors):
-    # Check that the ampacity of a span with two conductors is divided when computing the conductor temperature.
+    # Check that the ampacity of a span with two conductors is divided
+    # when computing the conductor temperature.
     current_1_conductor = 1000
     current_2_conductors = current_1_conductor * 2
     # The temperature should stay the same
-    assert (example_model_1_conductors.compute_conductor_temperature(current_1_conductor) ==
-            example_model_2_conductors.compute_conductor_temperature(current_2_conductors))
+    assert (example_model_1_conductors.compute_conductor_temperature(current_1_conductor)
+            == example_model_2_conductors.compute_conductor_temperature(current_2_conductors))
