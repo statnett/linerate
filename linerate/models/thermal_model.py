@@ -245,6 +245,8 @@ class ThermalModel(ABC):
         ----------
         current:
             :math:`I_\text{max}~\left[\text{A}\right]`. The current flowing through the conductor.
+            NOTE that the current is the total current for all conductors in the span. When
+            computing the temperature, the current is divided by the number of conductors.
         min_temperature:
             :math:`T_\text{min}~\left[^\circ\text{C}\right]`. Lower bound for the numerical scheme
             for computing the temperature
@@ -262,12 +264,12 @@ class ThermalModel(ABC):
         Union[float, float64, ndarray[Any, dtype[float64]]]
             :math:`I~\left[\text{A}\right]`. The thermal rating.
         """
+        n = self.span.num_conductors
         T = solver.compute_conductor_temperature(
             self.compute_heat_balance,
-            current=current,
+            current=current / n,
             min_temperature=min_temperature,
             max_temperature=max_temperature,
             tolerance=tolerance,
         )
-        n = self.span.num_conductors
-        return T / n
+        return T

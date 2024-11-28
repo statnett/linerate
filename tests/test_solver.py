@@ -16,7 +16,7 @@ def test_compute_conductor_temperature_computes_correct_temperature():
     assert conductor_temperature == pytest.approx(15, rel=1e-7)
 
 
-def test_compute_conductor_temperature_computes_correct_ampacity():
+def test_compute_conductor_ampacity_computes_correct_ampacity():
     def heat_balance(conductor_temperature, current):
         A = current
         T = conductor_temperature
