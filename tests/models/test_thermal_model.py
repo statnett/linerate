@@ -1,5 +1,5 @@
 """Test cases from Annex E of CIGRE TB 601."""
-import pytest
+
 
 def test_compute_conductor_temperature(example_model_1_conductors, example_model_2_conductors):
     # Check that the ampacity of a span with two conductors is divided
