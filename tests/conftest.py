@@ -1,5 +1,7 @@
 import hypothesis
 import pytest
+import linerate
+import numpy as np
 
 hypothesis.settings.register_profile("default", deadline=None)
 hypothesis.settings.load_profile("default")
@@ -15,11 +17,6 @@ def rng(random_seed):
     import numpy as np
 
     return np.random.default_rng(random_seed)
-
-
-import numpy as np
-import pytest
-import linerate
 
 
 @pytest.fixture
