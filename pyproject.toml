@@ -31,7 +31,7 @@ optional = true
 [tool.poetry.group.docs.dependencies]
 sphinx = "^7.0.0"
 sphinxcontrib-bibtex = "^2.5.0"
-sphinx-gallery = "^0.15.0"
+sphinx-gallery = "^0.18.0"
 pydata-sphinx-theme = "^0.16.0"
 matplotlib = "^3.6.0"
 setuptools = "^70.0.0"
