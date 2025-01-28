@@ -19,7 +19,7 @@ coverage = { version = "*", extras = ['toml'] }
 flake8 = "7.1.1"
 flake8-bugbear = "24.12.12"
 hypothesis = ">= 6.56.2"
-isort = "5.13.2"
+isort = "6.0.0"
 pre-commit = "*"
 pytest = "8.3.4"
 pytest-cov = "6.0.0"
