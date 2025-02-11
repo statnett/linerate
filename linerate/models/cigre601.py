@@ -54,7 +54,7 @@ class Cigre601(ThermalModel):
         self, conductor_temperature: Celsius, current: Ampere
     ) -> WattPerMeter:
         alpha_s = self.span.conductor.solar_absorptivity
-        F = self.span.ground_albedo
+        F = self.weather.ground_albedo
         phi = self.span.latitude
         gamma_c = self.span.conductor_azimuth
         y = self.span.conductor_altitude

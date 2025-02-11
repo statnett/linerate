@@ -34,6 +34,7 @@ def test_vectorization(vectorization_indices):
         air_temperature=get_zeros(13, 25),
         wind_direction=get_zeros(14, 25),
         wind_speed=get_zeros(15, 25),
+        ground_albedo=get_zeros(23, 25),
         clearness_ratio=get_zeros(16, 25),
     )
     span = linerate.Span(
@@ -48,7 +49,6 @@ def test_vectorization(vectorization_indices):
             0.1 + get_zeros(21, 25),
             10 + get_zeros(22, 25),
         ),
-        ground_albedo=get_zeros(23, 25),
         num_conductors=1,
     )
     time = np.array([np.datetime64("2022-01-01")]).reshape([1] * 25)

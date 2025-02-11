@@ -1,23 +1,10 @@
-import hypothesis
+"""Test cases from Annex E of CIGRE TB 601."""
+
 import numpy as np
 import pytest
+from pytest import approx
 
 import linerate
-
-hypothesis.settings.register_profile("default", deadline=None)
-hypothesis.settings.load_profile("default")
-
-
-@pytest.fixture
-def random_seed(pytestconfig):
-    return pytestconfig.getoption("randomly_seed")
-
-
-@pytest.fixture
-def rng(random_seed):
-    import numpy as np
-
-    return np.random.default_rng(random_seed)
 
 
 @pytest.fixture
@@ -51,7 +38,7 @@ def example_weather_a():
 
 
 @pytest.fixture
-def example_span_1_conductor(drake_conductor_a):
+def example_span_a(drake_conductor_a):
     start_tower = linerate.Tower(latitude=30, longitude=0.0001, altitude=0)
     end_tower = linerate.Tower(latitude=30, longitude=-0.0001, altitude=0)
     return linerate.Span(
@@ -63,26 +50,5 @@ def example_span_1_conductor(drake_conductor_a):
 
 
 @pytest.fixture
-def example_span_2_conductors(drake_conductor_a):
-    start_tower = linerate.Tower(latitude=30, longitude=0.0001, altitude=0)
-    end_tower = linerate.Tower(latitude=30, longitude=-0.0001, altitude=0)
-    return linerate.Span(
-        conductor=drake_conductor_a,
-        start_tower=start_tower,
-        end_tower=end_tower,
-        num_conductors=2,
-    )
-
-
-@pytest.fixture
-def example_model_1_conductors(example_span_1_conductor, example_weather_a):
-    return linerate.Cigre601(
-        example_span_1_conductor, example_weather_a, np.datetime64("2016-06-10 11:00")
-    )
-
-
-@pytest.fixture
-def example_model_2_conductors(example_span_2_conductors, example_weather_a):
-    return linerate.Cigre601(
-        example_span_2_conductors, example_weather_a, np.datetime64("2016-06-10 11:00")
-    )
+def example_model_a(example_span_a, example_weather_a):
+    return linerate.Cigre601(example_span_a, example_weather_a, np.datetime64("2016-06-10 11:00"))

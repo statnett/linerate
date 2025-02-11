@@ -57,6 +57,7 @@ def example_weather_b():
         air_temperature=20,
         wind_direction=np.radians(80),  # Conductor azimuth is 0, so angle of attack is 80
         wind_speed=1.66,
+        ground_albedo=0.15,
         clearness_ratio=0.5,
     )
 
@@ -69,7 +70,6 @@ def example_span_b(drake_conductor_b):
         conductor=drake_conductor_b,
         start_tower=start_tower,
         end_tower=end_tower,
-        ground_albedo=0.15,
         num_conductors=1,
     )
 
