@@ -35,6 +35,7 @@ def example_weather_a():
         air_temperature=np.array(30),
         wind_direction=np.radians(0),
         wind_speed=0.60,
+        ground_albedo=0.0,
         clearness_ratio=1,
     )
 
@@ -47,7 +48,6 @@ def example_span_a(parrot_conductor):
         conductor=parrot_conductor,
         start_tower=start_tower,
         end_tower=end_tower,
-        ground_albedo=0.0,
         num_conductors=1,
     )
 

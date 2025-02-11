@@ -33,6 +33,7 @@ def example_weather_B():
         air_temperature=40,
         wind_direction=np.radians(90),
         wind_speed=0.61,
+        ground_albedo=0.5,
         clearness_ratio=1,
     )
 
@@ -45,7 +46,6 @@ def example_span_B(drake_conductor_B):
         conductor=drake_conductor_B,
         start_tower=start_tower,
         end_tower=end_tower,
-        ground_albedo=0.5,
         num_conductors=1,
     )
 
@@ -71,7 +71,6 @@ def example_span_C(drake_conductor_B):
         conductor=drake_conductor_B,
         start_tower=start_tower,
         end_tower=end_tower,
-        ground_albedo=0.5,
         num_conductors=2,
     )
 

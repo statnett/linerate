@@ -104,9 +104,6 @@ class Span:
     #: Container for the metadata of the second tower of the span
     end_tower: Tower
 
-    #: :math:`F`.  The ground albedo.
-    ground_albedo: Unitless
-
     #: Number of conductors in the span. 1 for simplex, 2 for duplex and 3 for triplex.
     num_conductors: Unitless
 
@@ -173,6 +170,8 @@ class Weather:
     wind_direction: Radian
     #: :math:`v~\left[\text{m}~\text{s}^{-1}\right]`. Wind velocity
     wind_speed: MeterPerSecond
+    #: :math:`F`.  The ground albedo.
+    ground_albedo: Unitless
     #: :math:`N_s`. The clearness ratio (or clearness number in
     #: :cite:p:`sharma1965interrelationships,cigre207`).
     clearness_ratio: Unitless = 1
