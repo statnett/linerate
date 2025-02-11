@@ -175,4 +175,3 @@ class Weather:
     #: :math:`N_s`. The clearness ratio (or clearness number in
     #: :cite:p:`sharma1965interrelationships,cigre207`).
     clearness_ratio: Unitless = 1
-
