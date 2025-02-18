@@ -1,5 +1,4 @@
-"""Test cases from Annex B and C of IEEE738.
-"""
+"""Test cases from Annex B and C of IEEE738."""
 
 import numpy as np
 import pytest
