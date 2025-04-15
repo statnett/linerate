@@ -26,12 +26,12 @@ dev = [
   "pytest-randomly==3.16.0",
 ]
 docs = [
-  "sphinx~=7.0.0",
-  "sphinxcontrib-bibtex~=2.5.0",
-  "sphinx-gallery~=0.19.0",
-  "pydata-sphinx-theme~=0.16.0",
-  "matplotlib~=3.6.0",
-  "setuptools~=75.0.0",
+  "sphinx",
+  "sphinxcontrib-bibtex",
+  "sphinx-gallery",
+  "pydata-sphinx-theme",
+  "matplotlib",
+  "setuptools",
 ]
 
 [tool.setuptools_scm]
