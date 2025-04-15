@@ -18,12 +18,8 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-  "black==25.1.0",
   "coverage[toml]",
-  "flake8==7.1.2",
-  "flake8-bugbear==24.12.12",
   "hypothesis>=6.56.2",
-  "isort==6.0.1",
   "pre-commit",
   "pytest==8.3.4",
   "pytest-cov==6.0.0",
@@ -42,27 +38,27 @@ docs = [
 version_scheme="release-branch-semver"
 local_scheme = "no-local-version"
 
-[tool.isort]
-profile = "black"
-line_length = 100
-known_first_party = []
-
-[tool.black]
+[tool.ruff]
 line-length = 100
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | profiling
-)/
-'''
+
+[tool.ruff.lint]
+# extend-select = ["ALL"]  # Un-comment to enable all rules
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".eggs",
+    ".git",
+    ".ruff_cache",
+    ".venv",
+    "__pypackages__",
+    "build",
+    "dist",
+    "venv",
+]
 
 [tool.coverage.report]
 # Regexes for lines to exclude from consideration

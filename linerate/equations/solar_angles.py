@@ -108,7 +108,7 @@ def compute_solar_azimuth_variable(
     Lat = np.radians(latitude)
     delta = solar_declination
     omega = hour_angle_relative_to_noon
-    return np.sin(omega) / ((np.sin(Lat) * np.cos(omega) - np.cos(Lat) * np.tan(delta)))
+    return np.sin(omega) / (np.sin(Lat) * np.cos(omega) - np.cos(Lat) * np.tan(delta))
 
 
 @vectorize
