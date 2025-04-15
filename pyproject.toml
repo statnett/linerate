@@ -1,46 +1,46 @@
-[tool.poetry]
+[project]
 name = "linerate"
-version = "1.0.0"
 description = "Library for computing line ampacity ratings for overhead lines"
-authors = ["Statnett Datascience <Datascience.Drift@Statnett.no>", "Yngve Mardal Moe <yngve.m.moe@gmail.com>"]
-repository = "https://github.com/statnett/linerate.git"
+authors = [
+  {name="Statnett Datascience", email="Datascience.Drift@Statnett.no"},
+  {name="Yngve Mardal Moe", email="yngve.m.moe@gmail.com"},
+]
 readme = "README.md"
+requires-python = ">=3.9"
+dynamic = ["version"]
 
-[tool.poetry.dependencies]
-python = ">=3.9,<3.13"
-numpy = "*"
-scipy = "*"
-numba = ">=0.56.4"
-pygeodesy = "*"
+dependencies = [
+  "numpy",
+  "scipy",
+  "numba>=0.56.4",
+  "pygeodesy",
+]
 
-[tool.poetry.dev-dependencies]
-black = "25.1.0"
-coverage = { version = "*", extras = ['toml'] }
-flake8 = "7.1.2"
-flake8-bugbear = "24.12.12"
-hypothesis = ">= 6.56.2"
-isort = "6.0.1"
-pre-commit = "*"
-pytest = "8.3.4"
-pytest-cov = "6.0.0"
-pytest-randomly = "3.16.0"
+[dependency-groups]
+dev = [
+  "black==25.1.0",
+  "coverage[toml]",
+  "flake8==7.1.2",
+  "flake8-bugbear==24.12.12",
+  "hypothesis>=6.56.2",
+  "isort==6.0.1",
+  "pre-commit",
+  "pytest==8.3.4",
+  "pytest-cov==6.0.0",
+  "pytest-randomly==3.16.0",
+]
+docs = [
+  "sphinx~=7.0.0",
+  "sphinxcontrib-bibtex~=2.5.0",
+  "sphinx-gallery~=0.19.0",
+  "pydata-sphinx-theme~=0.16.0",
+  "matplotlib~=3.6.0",
+  "setuptools~=75.0.0",
+]
 
-[tool.poetry.group.docs]
-optional = true
-
-[tool.poetry.group.docs.dependencies]
-sphinx = "^7.0.0"
-sphinxcontrib-bibtex = "^2.5.0"
-sphinx-gallery = "^0.19.0"
-pydata-sphinx-theme = "^0.16.0"
-matplotlib = "^3.6.0"
-setuptools = "^75.0.0"
-
-[tool.poetry-dynamic-versioning]
-enable = true
-vcs = "git"
-style = "semver"
-pattern = "^(?P<base>\\d+\\.\\d+\\.\\d+)(-?((?P<stage>[a-zA-Z]+)\\.?(?P<revision>\\d+)?))?$"
+[tool.setuptools_scm]
+version_scheme="release-branch-semver"
+local_scheme = "no-local-version"
 
 [tool.isort]
 profile = "black"
@@ -96,5 +96,5 @@ filterwarnings = [
 ]
 
 [build-system]
-requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools>=64", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
