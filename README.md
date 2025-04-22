@@ -82,20 +82,17 @@ There is currently no transient solver or short time thermal rating solver, but 
 
 ## Development
 
-Dependencies for the project are managed with poetry.
+Dependencies for the project are managed with uv.
 To install all dependencies run:
 
 ```raw
-poetry install
+uv sync
 ```
-
-Remember that when developing a library it is *not* recommended to
-commit the `poetry.lock` file.
 
 ### Generate docs
 To generate docs locally:
-- Install required dependencies with `poetry install --with docs`.
-- Generate docs with `poetry run make html` in the `docs` folder.
+- Install required dependencies with `uv sync --group docs`.
+- Generate docs with `uv run make html` in the `docs` folder.
 
 ### Release new version
 Press the "Draft new release" button on the [Releases](https://github.com/statnett/linerate/releases) page.
