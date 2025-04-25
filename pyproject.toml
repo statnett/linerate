@@ -22,7 +22,7 @@ dev = [
   "hypothesis>=6.56.2",
   "pre-commit",
   "pytest==8.3.5",
-  "pytest-cov==6.0.0",
+  "pytest-cov==6.1.1",
   "pytest-randomly==3.16.0",
 ]
 docs = [
