@@ -181,3 +181,16 @@ def test_solar_azimuth_example_a():
     # Because the two standards (IEEE738 and CIGRE601) define the solar azimuth differently, we have
     # to check (pi - IEEE_solar_azimuth == CIGRE_solar_azimuth). That is why the np.pi is added.
     assert (np.pi - solar_angles.compute_solar_azimuth(C, chi)) == approx(1.147975923)
+
+
+def test_compute_sin_Hs_and_sin_eta_for_span(example_span_1_conductor):
+    time = np.arange(np.datetime64("2023-06-10T00:00"), np.datetime64("2023-06-11T00:00"), np.timedelta64(1, "h"))
+    sin_H_s, sin_eta = solar_angles.compute_sin_Hs_and_sin_eta_for_span(example_span_1_conductor, time)
+
+    assert sin_H_s.shape == time.shape
+    assert sin_eta.shape == time.shape
+
+    assert sin_H_s[0] == approx(-0.60370287)
+    assert sin_eta[0] == approx(1)
+
+
