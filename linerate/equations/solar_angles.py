@@ -243,7 +243,7 @@ def compute_cos_solar_effective_incidence_angle(
 
 def compute_sin_Hs_and_sin_eta_for_span(span: Span, time: Date) -> tuple[Unitless, Unitless]:
     """Given a span, and a time array, compute the sin of the solar altitude, and the sin of the effective incidence
-     angle."""
+    angle."""
     phi = span.latitude
     gamma_c = span.conductor_azimuth
 
@@ -254,9 +254,7 @@ def compute_sin_Hs_and_sin_eta_for_span(span: Span, time: Date) -> tuple[Unitles
     chi = compute_solar_azimuth_variable(phi, delta, omega)
     C = compute_solar_azimuth_constant(chi, omega)
     gamma_s = compute_solar_azimuth(C, chi)  # Z_c in IEEE
-    cos_eta = compute_cos_solar_effective_incidence_angle(
-        sin_H_s, gamma_s, gamma_c
-    )
+    cos_eta = compute_cos_solar_effective_incidence_angle(sin_H_s, gamma_s, gamma_c)
     sin_eta = math.switch_cos_sin(cos_eta)
 
     return sin_H_s, sin_eta

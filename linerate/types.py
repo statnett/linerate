@@ -177,9 +177,11 @@ class Weather:
     #: :cite:p:`sharma1965interrelationships,cigre207`).
     clearness_ratio: Unitless = 1
 
+
 @dataclass
 class WeatherWithSolarRadiation(Weather):
-    """ Extension of the Weather class to accept solar radiation timeseries."""
+    """Extension of the Weather class to accept solar radiation timeseries."""
+
     #: :math:`I_d~\left[\text{W}~\text{m}^{-2}\right]`. The diffuse radiation intensity.
     diffuse_radiation_intensity: WattPerSquareMeter = None
     #: :math:`I_B~\left[\text{W}~\text{m}^{-2}\right]`. The direct radiation intensity.
