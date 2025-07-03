@@ -10,7 +10,6 @@ from linerate.equations import (
     solar_angles,
     solar_heating,
 )
-from linerate.equations.math import switch_cos_sin
 from linerate.models.thermal_model import ThermalModel, _copy_method_docstring
 from linerate.types import Span, Weather, WeatherWithSolarRadiation
 from linerate.units import (
