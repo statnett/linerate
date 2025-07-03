@@ -3,6 +3,7 @@ from numba import vectorize
 from linerate.equations import math
 
 from ..units import Date, Degrees, Radian, Unitless
+from ..types import Span
 
 
 def _get_day_of_year(when: Date) -> Unitless:
@@ -240,13 +241,16 @@ def compute_cos_solar_effective_incidence_angle(
     return np.cos(H_c) * np.cos(Z_c - Z_l)
 
 
-def compute_solar_radiation_angles(span, time):
+def compute_sin_Hs_and_sin_eta_for_span(span: Span, time: Date) -> tuple[Unitless, Unitless]:
+    """Given a span, and a time array, compute the sin of the solar altitude, and the sin of the effective incidence
+     angle."""
     phi = span.latitude
     gamma_c = span.conductor_azimuth
 
     omega = compute_hour_angle_relative_to_noon(time, span.longitude)
     delta = compute_solar_declination(time)
     sin_H_s = compute_sin_solar_altitude(phi, delta, omega)
+
     chi = compute_solar_azimuth_variable(phi, delta, omega)
     C = compute_solar_azimuth_constant(chi, omega)
     gamma_s = compute_solar_azimuth(C, chi)  # Z_c in IEEE

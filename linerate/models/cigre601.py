@@ -60,7 +60,7 @@ class Cigre601(ThermalModel):
         D = self.span.conductor.conductor_diameter
 
 
-        sin_H_s, sin_eta = solar_angles.compute_solar_radiation_angles(self.span, self.time)
+        sin_H_s, sin_eta = solar_angles.compute_sin_Hs_and_sin_eta_for_span(self.span, self.time)
 
         I_B = cigre601.solar_heating.compute_direct_solar_radiation(sin_H_s, N_s, y)
         I_d = cigre601.solar_heating.compute_diffuse_sky_radiation(I_B, sin_H_s)
@@ -169,7 +169,9 @@ class Cigre601(ThermalModel):
 
 
 class Cigre601WithSolarRadiation(Cigre601):
-    def __init__(self, span, weather: WeatherWithSolarRadiation, time):
+    """Extension of the Cigre601 model that accepts external solar radiation data for direct and diffuse solar
+    radiation."""
+    def __init__(self, span: Span, weather: WeatherWithSolarRadiation, time: Date):
         super().__init__(span, weather, time)
         self.weather = weather
 
@@ -183,7 +185,7 @@ class Cigre601WithSolarRadiation(Cigre601):
         I_B = self.weather.direct_radiation_intensity
         I_d = self.weather.diffuse_radiation_intensity
 
-        sin_H_s, sin_eta = solar_angles.compute_solar_radiation_angles(self.span, self.time)
+        sin_H_s, sin_eta = solar_angles.compute_sin_Hs_and_sin_eta_for_span(self.span, self.time)
 
         I_T = cigre601.solar_heating.compute_global_radiation_intensity(
             I_B, I_d, F, sin_eta, sin_H_s
