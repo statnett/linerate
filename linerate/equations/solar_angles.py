@@ -1,5 +1,6 @@
 import numpy as np
 from numba import vectorize
+from linerate.equations import math
 
 from ..units import Date, Degrees, Radian, Unitless
 
@@ -237,3 +238,21 @@ def compute_cos_solar_effective_incidence_angle(
     Z_c = solar_azimuth
     Z_l = conductor_azimuth
     return np.cos(H_c) * np.cos(Z_c - Z_l)
+
+
+def compute_solar_radiation_angles(span, time):
+    phi = span.latitude
+    gamma_c = span.conductor_azimuth
+
+    omega = compute_hour_angle_relative_to_noon(time, span.longitude)
+    delta = compute_solar_declination(time)
+    sin_H_s = compute_sin_solar_altitude(phi, delta, omega)
+    chi = compute_solar_azimuth_variable(phi, delta, omega)
+    C = compute_solar_azimuth_constant(chi, omega)
+    gamma_s = compute_solar_azimuth(C, chi)  # Z_c in IEEE
+    cos_eta = compute_cos_solar_effective_incidence_angle(
+        sin_H_s, gamma_s, gamma_c
+    )
+    sin_eta = math.switch_cos_sin(cos_eta)
+
+    return sin_H_s, sin_eta
