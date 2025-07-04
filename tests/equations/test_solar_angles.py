@@ -183,16 +183,74 @@ def test_solar_azimuth_example_a():
     assert (np.pi - solar_angles.compute_solar_azimuth(C, chi)) == approx(1.147975923)
 
 
-def test_compute_sin_Hs_and_sin_eta_for_span(example_span_1_conductor):
+def test_compute_sin_solar_altitude_for_span(example_span_1_conductor):
     time = np.arange(
         np.datetime64("2023-06-10T00:00"), np.datetime64("2023-06-11T00:00"), np.timedelta64(1, "h")
     )
-    sin_H_s, sin_eta = solar_angles.compute_sin_Hs_and_sin_eta_for_span(
-        example_span_1_conductor, time
-    )
+    sin_H_s = solar_angles.compute_sin_solar_altitude_for_span(example_span_1_conductor, time)
 
     assert sin_H_s.shape == time.shape
+
+    assert sin_H_s[0] == approx(-0.6037028727577956)
+    assert sin_H_s[1] == approx(-0.5765123992400065)
+    assert sin_H_s[2] == approx(-0.4967939645224945)
+    assert sin_H_s[3] == approx(-0.3699802481903158)
+    assert sin_H_s[4] == approx(-0.204713395441933)
+    assert sin_H_s[5] == approx(-0.012256069175761386)
+    assert sin_H_s[6] == approx(0.1942760818739301)
+    assert sin_H_s[7] == approx(0.4008082329236209)
+    assert sin_H_s[8] == approx(0.5932655591897926)
+    assert sin_H_s[9] == approx(0.7585324119381758)
+    assert sin_H_s[10] == approx(0.8853461282703547)
+    assert sin_H_s[11] == approx(0.9650645629878669)
+    assert sin_H_s[12] == approx(0.9922550365056562)
+    assert sin_H_s[13] == approx(0.9650645629878669)
+    assert sin_H_s[14] == approx(0.885346128270355)
+    assert sin_H_s[15] == approx(0.758532411938176)
+    assert sin_H_s[16] == approx(0.5932655591897933)
+    assert sin_H_s[17] == approx(0.40080823292362144)
+    assert sin_H_s[18] == approx(0.1942760818739303)
+    assert sin_H_s[19] == approx(-0.012256069175760664)
+    assert sin_H_s[20] == approx(-0.2047133954419325)
+    assert sin_H_s[21] == approx(-0.36998024819031544)
+    assert sin_H_s[22] == approx(-0.4967939645224943)
+    assert sin_H_s[23] == approx(-0.5765123992400065)
+
+def test_compute_sin_solar_effective_incidence_angle_for_span(example_span_1_conductor):
+    time = np.arange(
+        np.datetime64("2023-06-10T00:00"), np.datetime64("2023-06-11T00:00"), np.timedelta64(1, "h")
+    )
+    sin_H_s = solar_angles.compute_sin_solar_altitude_for_span(example_span_1_conductor, time)
+
+    sin_eta = solar_angles.compute_sin_solar_effective_incidence_angle_for_span(example_span_1_conductor, time, sin_H_s)
+
     assert sin_eta.shape == time.shape
 
-    assert sin_H_s[0] == approx(-0.60370287)
     assert sin_eta[0] == approx(1)
+    assert sin_eta[1] == approx(0.9711468921150654)
+    assert sin_eta[2] == approx(0.8875493154679516)
+    assert sin_eta[3] == approx(0.7586086903559678)
+    assert sin_eta[4] == approx(0.6026859691738063)
+    assert sin_eta[5] == approx(0.4559029843231809)
+    assert sin_eta[6] == approx(0.3885528601139044)
+    assert sin_eta[7] == approx(0.45590257803393736)
+    assert sin_eta[8] == approx(0.6026854368482859)
+    assert sin_eta[9] == approx(0.7586082020187381)
+    assert sin_eta[10] == approx(0.8875489539951258)
+    assert sin_eta[11] == approx(0.9711467013836234)
+    assert sin_eta[12] == approx(1)
+    assert sin_eta[13] == approx(0.9711467478944035)
+    assert sin_eta[14] == approx(0.8875490106123987)
+    assert sin_eta[15] == approx(0.7586081859456092)
+    assert sin_eta[16] == approx(0.6026851915732289)
+    assert sin_eta[17] == approx(0.4559018377845522)
+    assert sin_eta[18] == approx(0.38855146738201046)
+    assert sin_eta[19] == approx(0.4559014314940192)
+    assert sin_eta[20] == approx(0.6026846592466302)
+    assert sin_eta[21] == approx(0.7586076976076148)
+    assert sin_eta[22] == approx(0.8875486491389878)
+    assert sin_eta[23] == approx(0.9711465571624637)
+
+
+
+
