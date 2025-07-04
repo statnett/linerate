@@ -245,7 +245,7 @@ def compute_sin_solar_altitude_for_span(span: Span, time: Date) -> Unitless:
     """Compute the sine of the solar altitude for a given span and time.
 
     This function computes the sine of the solar altitude at the midpoint of the span.
-    It uses the latitude, longitude, and conductor azimuth of the span to compute the
+    It uses the latitude, longitude of the span to compute the
     hour angle and solar declination.
 
     Parameters
