@@ -187,3 +187,10 @@ class WeatherWithSolarRadiation(Weather):
     #: :math:`I_B~\left[\text{W}~\text{m}^{-2}\right]`. The direct radiation intensity on a surface normal to the
     # sun's beam.
     direct_radiation_intensity: WattPerSquareMeter = None
+
+    def __post_init__(self):
+        if (self.diffuse_radiation_intensity is None) or (self.direct_radiation_intensity is None):
+            raise ValueError(
+                "Both 'diffuse_radiation_intensity' and 'direct_radiation_intensity' must be provided. For weather"
+                " data without solar radiation, use the 'Weather' class instead.",
+            )
