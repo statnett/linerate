@@ -193,7 +193,6 @@ class Cigre601WithSolarRadiation(Cigre601):
             self.span, self.time, sin_H_s
         )
 
-
         I_T = cigre601.solar_heating.compute_global_radiation_intensity(
             I_B, I_d, F, sin_eta, sin_H_s
         )

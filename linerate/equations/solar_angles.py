@@ -265,7 +265,10 @@ def compute_sin_solar_altitude_for_span(span: Span, time: Date) -> Unitless:
     omega = compute_hour_angle_relative_to_noon(time, span.longitude)
     return compute_sin_solar_altitude(phi, delta, omega)
 
-def compute_sin_solar_effective_incidence_angle_for_span(span: Span, time: Date, sin_H_s: Unitless) -> Unitless:
+
+def compute_sin_solar_effective_incidence_angle_for_span(
+    span: Span, time: Date, sin_H_s: Unitless
+) -> Unitless:
     """Compute the sine of the solar effective incidence angle for a given span and time.
 
     This function computes the sine of the solar effective incidence angle at the midpoint of the span.
@@ -298,6 +301,3 @@ def compute_sin_solar_effective_incidence_angle_for_span(span: Span, time: Date,
     cos_eta = compute_cos_solar_effective_incidence_angle(sin_H_s, gamma_s, gamma_c)
 
     return math.switch_cos_sin(cos_eta)
-
-
-
