@@ -181,3 +181,83 @@ def test_solar_azimuth_example_a():
     # Because the two standards (IEEE738 and CIGRE601) define the solar azimuth differently, we have
     # to check (pi - IEEE_solar_azimuth == CIGRE_solar_azimuth). That is why the np.pi is added.
     assert (np.pi - solar_angles.compute_solar_azimuth(C, chi)) == approx(1.147975923)
+
+
+def test_compute_sin_solar_altitude_for_span(example_span_1_conductor):
+    time = np.arange(
+        np.datetime64("2023-06-10T00:00"), np.datetime64("2023-06-11T00:00"), np.timedelta64(1, "h")
+    )
+    sin_H_s = solar_angles.compute_sin_solar_altitude_for_span(example_span_1_conductor, time)
+
+    assert sin_H_s.shape == time.shape
+
+    assert sin_H_s == approx(
+        [
+            -0.6037028727577956,
+            -0.5765123992400065,
+            -0.4967939645224945,
+            -0.3699802481903158,
+            -0.204713395441933,
+            -0.012256069175761386,
+            0.1942760818739301,
+            0.4008082329236209,
+            0.5932655591897926,
+            0.7585324119381758,
+            0.8853461282703547,
+            0.9650645629878669,
+            0.9922550365056562,
+            0.9650645629878669,
+            0.885346128270355,
+            0.758532411938176,
+            0.5932655591897933,
+            0.40080823292362144,
+            0.1942760818739303,
+            -0.012256069175760664,
+            -0.2047133954419325,
+            -0.36998024819031544,
+            -0.4967939645224943,
+            -0.5765123992400065,
+        ]
+    )
+
+
+def test_compute_sin_solar_effective_incidence_angle_for_span(example_span_1_conductor):
+    time = np.arange(
+        np.datetime64("2023-06-10T00:00"), np.datetime64("2023-06-11T00:00"), np.timedelta64(1, "h")
+    )
+    sin_H_s = solar_angles.compute_sin_solar_altitude_for_span(example_span_1_conductor, time)
+
+    sin_eta = solar_angles.compute_sin_solar_effective_incidence_angle_for_span(
+        example_span_1_conductor, time, sin_H_s
+    )
+
+    assert sin_eta.shape == time.shape
+
+    assert sin_eta == approx(
+        [
+            1,
+            0.9711468921150654,
+            0.8875493154679516,
+            0.7586086903559678,
+            0.6026859691738063,
+            0.4559029843231809,
+            0.3885528601139044,
+            0.45590257803393736,
+            0.6026854368482859,
+            0.7586082020187381,
+            0.8875489539951258,
+            0.9711467013836234,
+            1,
+            0.9711467478944035,
+            0.8875490106123987,
+            0.7586081859456092,
+            0.6026851915732289,
+            0.4559018377845522,
+            0.38855146738201046,
+            0.4559014314940192,
+            0.6026846592466302,
+            0.7586076976076148,
+            0.8875486491389878,
+            0.9711465571624637,
+        ]
+    )

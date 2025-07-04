@@ -10,9 +10,8 @@ from linerate.equations import (
     solar_angles,
     solar_heating,
 )
-from linerate.equations.math import switch_cos_sin
 from linerate.models.thermal_model import ThermalModel, _copy_method_docstring
-from linerate.types import Span, Weather
+from linerate.types import Span, Weather, WeatherWithSolarRadiation
 from linerate.units import (
     Ampere,
     Celsius,
@@ -55,22 +54,15 @@ class Cigre601(ThermalModel):
     ) -> WattPerMeter:
         alpha_s = self.span.conductor.solar_absorptivity
         F = self.weather.ground_albedo
-        phi = self.span.latitude
-        gamma_c = self.span.conductor_azimuth
         y = self.span.conductor_altitude
         N_s = self.weather.clearness_ratio
         D = self.span.conductor.conductor_diameter
 
-        omega = solar_angles.compute_hour_angle_relative_to_noon(self.time, self.span.longitude)
-        delta = solar_angles.compute_solar_declination(self.time)
-        sin_H_s = solar_angles.compute_sin_solar_altitude(phi, delta, omega)
-        chi = solar_angles.compute_solar_azimuth_variable(phi, delta, omega)
-        C = solar_angles.compute_solar_azimuth_constant(chi, omega)
-        gamma_s = solar_angles.compute_solar_azimuth(C, chi)  # Z_c in IEEE
-        cos_eta = solar_angles.compute_cos_solar_effective_incidence_angle(
-            sin_H_s, gamma_s, gamma_c
+        sin_H_s = solar_angles.compute_sin_solar_altitude_for_span(self.span, self.time)
+
+        sin_eta = solar_angles.compute_sin_solar_effective_incidence_angle_for_span(
+            self.span, self.time, sin_H_s
         )
-        sin_eta = switch_cos_sin(cos_eta)
 
         I_B = cigre601.solar_heating.compute_direct_solar_radiation(sin_H_s, N_s, y)
         I_d = cigre601.solar_heating.compute_diffuse_sky_radiation(I_B, sin_H_s)
@@ -174,4 +166,38 @@ class Cigre601(ThermalModel):
             conductor_thermal_conductivity=self.span.conductor.thermal_conductivity,  # type: ignore  # noqa
             core_diameter=self.span.conductor.core_diameter,
             conductor_diameter=self.span.conductor.conductor_diameter,
+        )
+
+
+class Cigre601WithSolarRadiation(Cigre601):
+    """Extension of the Cigre601 model that accepts external solar radiation data for direct and diffuse solar
+    radiation."""
+
+    def __init__(self, span: Span, weather: WeatherWithSolarRadiation, time: Date):
+        super().__init__(span, weather, time)
+        self.weather = weather
+
+    def compute_solar_heating(
+        self, conductor_temperature: Celsius, current: Ampere
+    ) -> WattPerMeter:
+        alpha_s = self.span.conductor.solar_absorptivity
+        F = self.weather.ground_albedo
+        D = self.span.conductor.conductor_diameter
+
+        I_B = self.weather.direct_radiation_intensity
+        I_d = self.weather.diffuse_radiation_intensity
+
+        sin_H_s = solar_angles.compute_sin_solar_altitude_for_span(self.span, self.time)
+
+        sin_eta = solar_angles.compute_sin_solar_effective_incidence_angle_for_span(
+            self.span, self.time, sin_H_s
+        )
+
+        I_T = cigre601.solar_heating.compute_global_radiation_intensity(
+            I_B, I_d, F, sin_eta, sin_H_s
+        )
+        return solar_heating.compute_solar_heating(
+            alpha_s,
+            I_T,
+            D,
         )

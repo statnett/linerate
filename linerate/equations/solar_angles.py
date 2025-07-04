@@ -1,7 +1,9 @@
 import numpy as np
 from numba import vectorize
+from linerate.equations import math
 
 from ..units import Date, Degrees, Radian, Unitless
+from ..types import Span
 
 
 def _get_day_of_year(when: Date) -> Unitless:
@@ -237,3 +239,65 @@ def compute_cos_solar_effective_incidence_angle(
     Z_c = solar_azimuth
     Z_l = conductor_azimuth
     return np.cos(H_c) * np.cos(Z_c - Z_l)
+
+
+def compute_sin_solar_altitude_for_span(span: Span, time: Date) -> Unitless:
+    """Compute the sine of the solar altitude for a given span and time.
+
+    This function computes the sine of the solar altitude at the midpoint of the span.
+    It uses the latitude, longitude of the span to compute the
+    hour angle and solar declination.
+
+    Parameters
+    ----------
+    span:
+        The span for which to compute the sine of the solar altitude.
+    time:
+        The time at which to compute the sine of the solar altitude.
+
+    Returns
+    -------
+    Unitless
+        The sine of the solar altitude at the midpoint of the span. (sin H_s)
+    """
+    phi = span.latitude
+    delta = compute_solar_declination(time)
+    omega = compute_hour_angle_relative_to_noon(time, span.longitude)
+    return compute_sin_solar_altitude(phi, delta, omega)
+
+
+def compute_sin_solar_effective_incidence_angle_for_span(
+    span: Span, time: Date, sin_H_s: Unitless
+) -> Unitless:
+    """Compute the sine of the solar effective incidence angle for a given span and time.
+
+    This function computes the sine of the solar effective incidence angle at the midpoint of the span.
+    It uses the latitude, longitude, conductor azimuth, and solar altitude to compute the sine of the
+    effective incidence angle.
+
+    Parameters
+    ----------
+    span:
+        The span for which to compute the sine of the solar effective incidence angle.
+    time:
+        The time at which to compute the sine of the solar effective incidence angle.
+    sin_H_s:
+        The sine of the solar altitude at the midpoint of the span
+        (computed with `compute_sin_solar_altitude_for_span`).
+
+    Returns
+    -------
+    Unitless
+        The sine of the solar effective incidence angle at the midpoint of the span. (sin eta)
+    """
+    gamma_c = span.conductor_azimuth
+    delta = compute_solar_declination(time)
+    omega = compute_hour_angle_relative_to_noon(time, span.longitude)
+
+    chi = compute_solar_azimuth_variable(span.latitude, delta, omega)
+    C = compute_solar_azimuth_constant(chi, omega)
+    gamma_s = compute_solar_azimuth(C, chi)  # Z_c in IEEE
+
+    cos_eta = compute_cos_solar_effective_incidence_angle(sin_H_s, gamma_s, gamma_c)
+
+    return math.switch_cos_sin(cos_eta)

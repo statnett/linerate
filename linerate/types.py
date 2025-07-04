@@ -16,6 +16,7 @@ from .units import (
     SquareMeterPerAmpere,
     Unitless,
     WattPerMeterPerKelvin,
+    WattPerSquareMeter,
 )
 
 __all__ = ["Conductor", "Weather", "Tower", "Span"]
@@ -175,3 +176,21 @@ class Weather:
     #: :math:`N_s`. The clearness ratio (or clearness number in
     #: :cite:p:`sharma1965interrelationships,cigre207`).
     clearness_ratio: Unitless = 1
+
+
+@dataclass
+class WeatherWithSolarRadiation(Weather):
+    """Extension of the Weather class to accept solar radiation timeseries."""
+
+    #: :math:`I_d~\left[\text{W}~\text{m}^{-2}\right]`. The diffuse radiation intensity.
+    diffuse_radiation_intensity: WattPerSquareMeter = None
+    #: :math:`I_B~\left[\text{W}~\text{m}^{-2}\right]`. The direct radiation intensity on a surface normal to the
+    # sun's beam.
+    direct_radiation_intensity: WattPerSquareMeter = None
+
+    def __post_init__(self):
+        if (self.diffuse_radiation_intensity is None) or (self.direct_radiation_intensity is None):
+            raise ValueError(
+                "Both 'diffuse_radiation_intensity' and 'direct_radiation_intensity' must be provided. For weather"
+                " data without solar radiation, use the 'Weather' class instead.",
+            )
