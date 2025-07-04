@@ -19,7 +19,7 @@ from .units import (
     WattPerSquareMeter,
 )
 
-__all__ = ["Conductor", "Weather", "Tower", "Span"]
+__all__ = ["Conductor", "Weather", "Tower", "Span", "WeatherWithSolarRadiation"]
 
 
 @dataclass(frozen=True)
