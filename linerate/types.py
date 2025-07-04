@@ -184,5 +184,6 @@ class WeatherWithSolarRadiation(Weather):
 
     #: :math:`I_d~\left[\text{W}~\text{m}^{-2}\right]`. The diffuse radiation intensity.
     diffuse_radiation_intensity: WattPerSquareMeter = None
-    #: :math:`I_B~\left[\text{W}~\text{m}^{-2}\right]`. The direct radiation intensity.
+    #: :math:`I_B~\left[\text{W}~\text{m}^{-2}\right]`. The direct radiation intensity on a surface normal to the
+    # sun's beam.
     direct_radiation_intensity: WattPerSquareMeter = None
