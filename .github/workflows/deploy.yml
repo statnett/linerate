@@ -26,7 +26,7 @@ jobs:
     if: github.repository_owner == 'statnett'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Install the latest version of uv and set the python version
@@ -45,7 +45,7 @@ jobs:
     if: github.repository_owner == 'statnett'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Install the latest version of uv and set the python version
