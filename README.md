@@ -1,7 +1,7 @@
 # Overview
 
 A package containing functionality to compute ampacity line ratings for overhead lines.
-The contains equations from CIGRE TB 601, CIGRE TB 207 and IEEE738.
+The package contains equations from CIGRE TB 601, CIGRE TB 207 and IEEE738.
 
 ## Installation
 
