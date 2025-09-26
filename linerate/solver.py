@@ -59,7 +59,7 @@ def bisect(
             "f(xmin) and f(xmax) have the same sign. Consider increasing the search interval."
         )
     elif isinstance(invalid_mask, bool) and invalid_mask:
-        return _invalid_value  # type: ignore
+        return _invalid_value
 
     while interval > tolerance:
         xmid = 0.5 * (xmax + xmin)
@@ -72,7 +72,7 @@ def bisect(
         f_left = np.where(mask, f_mid, f_left)
         f_right = np.where(mask, f_right, f_mid)
 
-    out = np.where(invalid_mask, _invalid_value, 0.5 * (xmax + xmin))  # type: ignore
+    out = np.where(invalid_mask, _invalid_value, 0.5 * (xmax + xmin))
     return out
 
 
