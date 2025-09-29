@@ -33,8 +33,9 @@ def bisect(
         run for :math:`\left\lceil\frac{x_\max - x_\min}{\Delta x}\right\rceil`
         iterations.
     invalid_value:
-        If provided, then this value is used whenever
-        :math:`\text{sign}(f(\mathbf{x}_\min)) = \text{sign}(f(\mathbf{x}_\max))`.
+        This value is used whenever
+        :math:`\text{sign}(f(\mathbf{x}_\min)) = \text{sign}(f(\mathbf{x}_\max))`. If not provided
+        np.nan is used.
 
     Returns
     -------
@@ -43,6 +44,8 @@ def bisect(
         there is a root :math:`x_i \in [\tilde{x}_i - 0.5 \Delta x, \tilde{x}_i + 0.5 \Delta x]`
         so :math:`f_i(x_i) = 0`.
     """
+    _invalid_value = np.nan if invalid_value is None else invalid_value
+
     if not np.all(np.isfinite(xmin)) or not np.all(np.isfinite(xmax)):
         raise ValueError("xmin and xmax must be finite.")
     interval = np.max(np.abs(xmax - xmin))
@@ -56,7 +59,7 @@ def bisect(
             "f(xmin) and f(xmax) have the same sign. Consider increasing the search interval."
         )
     elif isinstance(invalid_mask, bool) and invalid_mask:
-        return invalid_value  # type: ignore
+        return _invalid_value
 
     while interval > tolerance:
         xmid = 0.5 * (xmax + xmin)
@@ -69,7 +72,7 @@ def bisect(
         f_left = np.where(mask, f_mid, f_left)
         f_right = np.where(mask, f_right, f_mid)
 
-    out = np.where(invalid_mask, invalid_value, 0.5 * (xmax + xmin))  # type: ignore
+    out = np.where(invalid_mask, _invalid_value, 0.5 * (xmax + xmin))
     return out
 
 
