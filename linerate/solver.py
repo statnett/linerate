@@ -61,7 +61,8 @@ def bisect(
     elif isinstance(invalid_mask, bool) and invalid_mask:
         return _invalid_value
 
-    while interval > tolerance:
+    nan_mask = np.full_like(f_left, False, dtype=bool)
+    while interval > tolerance and not np.all(nan_mask):
         xmid = 0.5 * (xmax + xmin)
         interval *= 0.5
         f_mid = f(xmid)
@@ -72,7 +73,10 @@ def bisect(
         f_left = np.where(mask, f_mid, f_left)
         f_right = np.where(mask, f_right, f_mid)
 
+        nan_mask = np.isnan(f_left) | np.isnan(f_right)
+
     out = np.where(invalid_mask, _invalid_value, 0.5 * (xmax + xmin))
+    out = np.where(nan_mask, np.nan, out)
     return out
 
 
