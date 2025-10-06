@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Dict, Optional
 
 from linerate import solver
 from linerate.equations import joule_heating, radiative_cooling
@@ -198,7 +198,7 @@ class ThermalModel(ABC):
         min_ampacity: Ampere = 0,
         max_ampacity: Ampere = 5000,
         tolerance: float = 1.0,
-        invalid_value: float | None = None,
+        invalid_value: Optional[float] = None,
     ) -> Ampere:
         r"""Use the bisection method to compute the steady-state thermal rating (ampacity).
 
