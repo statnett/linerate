@@ -125,7 +125,7 @@ def compute_conductor_ampacity(
     min_ampacity: Ampere = 0,
     max_ampacity: Ampere = 5_000,
     tolerance: float = 1,  # Ampere
-    invalid_value: float | None = None,
+    invalid_value: Optional[float] = None,
 ) -> Ampere:
     r"""Use the bisection method to compute the steady-state thermal rating (ampacity).
 
