@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Callable, Optional
+from typing import Callable
 
 import numpy as np
 
@@ -13,7 +13,7 @@ def bisect(
     xmin: FloatOrFloatArray,
     xmax: FloatOrFloatArray,
     tolerance: float,
-    invalid_value: Optional[float] = None,
+    accept_invalid_values: bool = False,
 ) -> FloatOrFloatArray:
     r"""Compute the roots of a function using a vectorized bisection method.
 
@@ -32,10 +32,10 @@ def bisect(
         bounded within an interval of size :math:`\Delta x` or less. The bisection method will
         run for :math:`\left\lceil\frac{x_\max - x_\min}{\Delta x}\right\rceil`
         iterations.
-    invalid_value:
-        This value is used whenever
-        :math:`\text{sign}(f(\mathbf{x}_\min)) = \text{sign}(f(\mathbf{x}_\max))`. If not provided
-        np.nan is used.
+    accept_invalid_values:
+        If True, np.nan is returned whenever
+        :math:`\text{sign}(f(\mathbf{x}_\min)) = \text{sign}(f(\mathbf{x}_\max))`
+        If False, a ValueError will be raised.
 
     Returns
     -------
@@ -44,7 +44,7 @@ def bisect(
         there is a root :math:`x_i \in [\tilde{x}_i - 0.5 \Delta x, \tilde{x}_i + 0.5 \Delta x]`
         so :math:`f_i(x_i) = 0`.
     """
-    _invalid_value = np.nan if invalid_value is None else invalid_value
+    _invalid_value = np.nan
 
     if not np.all(np.isfinite(xmin)) or not np.all(np.isfinite(xmax)):
         raise ValueError("xmin and xmax must be finite.")
@@ -54,7 +54,7 @@ def bisect(
     f_right = f(xmax)
 
     invalid_mask = np.sign(f_left) == np.sign(f_right)
-    if np.any(invalid_mask) and invalid_value is None:
+    if np.any(invalid_mask) and not accept_invalid_values:
         raise ValueError(
             "f(xmin) and f(xmax) have the same sign. Consider increasing the search interval."
         )
@@ -125,7 +125,7 @@ def compute_conductor_ampacity(
     min_ampacity: Ampere = 0,
     max_ampacity: Ampere = 5_000,
     tolerance: float = 1,  # Ampere
-    invalid_value: Optional[float] = None,
+    accept_invalid_values: bool = False,
 ) -> Ampere:
     r"""Use the bisection method to compute the steady-state thermal rating (ampacity).
 
@@ -148,10 +148,9 @@ def compute_conductor_ampacity(
         bisection iterations will stop once the numerical ampacity uncertainty is below
         :math:`\Delta I`. The bisection method will run for
         :math:`\left\lceil\frac{I_\text{max} - I_\text{min}}{\Delta I}\right\rceil` iterations.
-    invalid_value:
-        If the optimization problem is invalid, this value is returned instead of an error.
-        Suggested value: 0 for 0-ampacity when max_conductor_temperature is exceeded for all
-        ampacities.
+    accept_invalid_values:
+        If True, np.nan is returned whenever the current cannot be found within the provided
+        search interval. If False, a ValueError will be raised instead.
 
     Returns
     -------
@@ -160,4 +159,6 @@ def compute_conductor_ampacity(
     """
     f = partial(heat_balance, max_conductor_temperature)
 
-    return bisect(f, min_ampacity, max_ampacity, tolerance, invalid_value=invalid_value)
+    return bisect(
+        f, min_ampacity, max_ampacity, tolerance, accept_invalid_values=accept_invalid_values
+    )

@@ -89,7 +89,7 @@ def test_bisect_raises_valueerror_when_infinite_in_array_input():
         )
 
 
-def test_bisect_returns_dtype_float_if_invalid_value_is_none():
+def test_bisect_returns_dtype_float_if_not_accept_invalid_values():
     def heat_balance(currents: np.array):
         A = currents
         T = 90
@@ -101,7 +101,7 @@ def test_bisect_returns_dtype_float_if_invalid_value_is_none():
         xmin=np.array([0, 0]),
         xmax=np.array([10_000, 10_000]),
         tolerance=1e-8,
-        invalid_value=None,
+        accept_invalid_values=False,
     )
 
     assert solution.dtype == np.float64
