@@ -87,3 +87,35 @@ def test_bisect_raises_valueerror_when_infinite_in_array_input():
             xmax=np.array([10_000, 10_000]),
             tolerance=1e-8,
         )
+
+
+def test_bisect_returns_dtype_float_if_invalid_value_is_none():
+    def heat_balance(currents: np.array):
+        A = currents
+        T = 90
+        res = (A - 100 * T) * (currents + 100 * T)
+        return res
+
+    solution = solver.bisect(
+        heat_balance,
+        xmin=np.array([0, 0]),
+        xmax=np.array([10_000, 10_000]),
+        tolerance=1e-8,
+        invalid_value=None,
+    )
+
+    assert solution.dtype == np.float64
+
+
+def test_bisect_return_nan_if_heat_balance_returns_nan():
+    def heat_balance(currents: np.array):
+        return np.ones_like(currents) * np.nan
+
+    solution = solver.bisect(
+        heat_balance,
+        xmin=np.array([0, 0]),
+        xmax=np.array([10_000, 10_000]),
+        tolerance=1e-8,
+    )
+
+    np.testing.assert_array_equal(np.isnan(solution), np.full_like(solution, True, dtype=bool))
