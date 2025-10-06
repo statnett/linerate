@@ -198,6 +198,7 @@ class ThermalModel(ABC):
         min_ampacity: Ampere = 0,
         max_ampacity: Ampere = 5000,
         tolerance: float = 1.0,
+        accept_invalid_values: bool = False,
     ) -> Ampere:
         r"""Use the bisection method to compute the steady-state thermal rating (ampacity).
 
@@ -216,6 +217,9 @@ class ThermalModel(ABC):
             bisection iterations will stop once the numerical ampacity uncertainty is below
             :math:`\Delta I`. The bisection method will run for
             :math:`\left\lceil\frac{I_\text{min} - I_\text{min}}{\Delta I}\right\rceil` iterations.
+        accept_invalid_values:
+            If True, np.nan is returned whenever the current cannot be found within the provided
+            search interval. If False, a ValueError will be raised instead.
 
         Returns
         -------
@@ -228,6 +232,7 @@ class ThermalModel(ABC):
             min_ampacity=min_ampacity,
             max_ampacity=max_ampacity,
             tolerance=tolerance,
+            accept_invalid_values=accept_invalid_values,
         )
         n = self.span.num_conductors
         return I * n
