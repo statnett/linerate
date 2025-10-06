@@ -125,7 +125,7 @@ def compute_conductor_ampacity(
     min_ampacity: Ampere = 0,
     max_ampacity: Ampere = 5_000,
     tolerance: float = 1,  # Ampere
-    invalid_value=None,
+    invalid_value: float | None = None,
 ) -> Ampere:
     r"""Use the bisection method to compute the steady-state thermal rating (ampacity).
 
@@ -149,7 +149,7 @@ def compute_conductor_ampacity(
         :math:`\Delta I`. The bisection method will run for
         :math:`\left\lceil\frac{I_\text{max} - I_\text{min}}{\Delta I}\right\rceil` iterations.
     invalid_value:
-        if the optimization problem is invalid, this value is returned instead of an error.
+        If the optimization problem is invalid, this value is returned instead of an error.
         Suggested value: 0 for 0-ampacity when max_conductor_temperature is exceeded for all
         ampacities.
 
