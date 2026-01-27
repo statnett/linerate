@@ -1,5 +1,3 @@
-from numbers import Real
-
 import numpy as np
 
 from linerate.equations import (
@@ -11,24 +9,25 @@ from linerate.equations import (
     solar_heating,
 )
 from linerate.models.thermal_model import ThermalModel, _copy_method_docstring
-from linerate.types import Span, Weather, WeatherWithSolarRadiation
+from linerate.types import BaseWeather, Span, Weather, WeatherWithSolarRadiation
 from linerate.units import (
     Ampere,
     Celsius,
     Date,
     JoulePerKilogramPerKelvin,
     OhmPerMeter,
+    Unitless,
     WattPerMeter,
 )
 
 
-class Cigre601(ThermalModel):
+class BaseCigre601(ThermalModel):
     def __init__(
         self,
         span: Span,
-        weather: Weather,
+        weather: BaseWeather,
         time: Date,
-        max_reynolds_number: Real = 4000,  # Max value of the angle correction in CIGRE601
+        max_reynolds_number: Unitless = 4000.0,  # Max value of the angle correction in CIGRE601
     ):
         super().__init__(span, weather)
         self.time = time
@@ -46,33 +45,6 @@ class Cigre601(ThermalModel):
     ) -> WattPerMeter:
         return super().compute_joule_heating(
             conductor_temperature=conductor_temperature, current=current
-        )
-
-    @_copy_method_docstring(ThermalModel)
-    def compute_solar_heating(
-        self, conductor_temperature: Celsius, current: Ampere
-    ) -> WattPerMeter:
-        alpha_s = self.span.conductor.solar_absorptivity
-        F = self.weather.ground_albedo
-        y = self.span.conductor_altitude
-        N_s = self.weather.clearness_ratio
-        D = self.span.conductor.conductor_diameter
-
-        sin_H_s = solar_angles.compute_sin_solar_altitude_for_span(self.span, self.time)
-
-        sin_eta = solar_angles.compute_sin_solar_effective_incidence_angle_for_span(
-            self.span, self.time, sin_H_s
-        )
-
-        I_B = cigre601.solar_heating.compute_direct_solar_radiation(sin_H_s, N_s, y)
-        I_d = cigre601.solar_heating.compute_diffuse_sky_radiation(I_B, sin_H_s)
-        I_T = cigre601.solar_heating.compute_global_radiation_intensity(
-            I_B, I_d, F, sin_eta, sin_H_s
-        )
-        return solar_heating.compute_solar_heating(
-            alpha_s,
-            I_T,
-            D,
         )
 
     @_copy_method_docstring(ThermalModel)
@@ -169,12 +141,55 @@ class Cigre601(ThermalModel):
         )
 
 
-class Cigre601WithSolarRadiation(Cigre601):
+class Cigre601(BaseCigre601):
+    def __init__(
+        self,
+        span: Span,
+        weather: Weather,
+        time: Date,
+        max_reynolds_number: Unitless = 4000.0,  # Max value of the angle correction in CIGRE601
+    ):
+        self.span = span
+        self.weather = weather
+        self.time = time
+        self.max_reynolds_number = max_reynolds_number
+
+    @_copy_method_docstring(ThermalModel)
+    def compute_solar_heating(
+        self, conductor_temperature: Celsius, current: Ampere
+    ) -> WattPerMeter:
+        alpha_s = self.span.conductor.solar_absorptivity
+        F = self.weather.ground_albedo
+        y = self.span.conductor_altitude
+        N_s = self.weather.clearness_ratio
+        D = self.span.conductor.conductor_diameter
+
+        sin_H_s = solar_angles.compute_sin_solar_altitude_for_span(self.span, self.time)
+
+        sin_eta = solar_angles.compute_sin_solar_effective_incidence_angle_for_span(
+            self.span, self.time, sin_H_s
+        )
+
+        I_B = cigre601.solar_heating.compute_direct_solar_radiation(sin_H_s, N_s, y)
+        I_d = cigre601.solar_heating.compute_diffuse_sky_radiation(I_B, sin_H_s)
+        I_T = cigre601.solar_heating.compute_global_radiation_intensity(
+            I_B, I_d, F, sin_eta, sin_H_s
+        )
+        return solar_heating.compute_solar_heating(
+            alpha_s,
+            I_T,
+            D,
+        )
+
+
+class Cigre601WithSolarRadiation(BaseCigre601):
     """Extension of the Cigre601 model that accepts external solar radiation data for direct and diffuse solar
     radiation."""
 
     def __init__(self, span: Span, weather: WeatherWithSolarRadiation, time: Date):
-        super().__init__(span, weather, time)
+        self.span = span
+        self.weather = weather
+        self.time = time
         self.weather = weather
 
     def compute_solar_heating(

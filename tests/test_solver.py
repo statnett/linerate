@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 import linerate.solver as solver
+from linerate.units import Ampere, WattPerMeter
 
 
 def test_compute_conductor_temperature_computes_correct_temperature():
@@ -48,7 +49,7 @@ def test_bisect_raises_value_error():
 
 
 def test_bisect_handles_function_returning_array_happy_path():
-    def heat_balance(currents: np.array):
+    def heat_balance(currents: Ampere) -> WattPerMeter:
         A = currents
         T = 90
         res = (A - 100 * T) * (currents + 100 * T)
@@ -64,7 +65,7 @@ def test_bisect_handles_function_returning_array_happy_path():
 
 
 def test_bisect_raises_valueerror_when_same_sign_for_array_input():
-    def heat_balance(currents: np.array):
+    def heat_balance(currents: Ampere) -> WattPerMeter:
         A = currents
         T = 90
         res = (A - 100 * T) * (currents + 100 * T)
@@ -90,7 +91,7 @@ def test_bisect_raises_valueerror_when_infinite_in_array_input():
 
 
 def test_bisect_returns_dtype_float_if_not_accept_invalid_values():
-    def heat_balance(currents: np.array):
+    def heat_balance(currents: Ampere) -> WattPerMeter:
         A = currents
         T = 90
         res = (A - 100 * T) * (currents + 100 * T)
@@ -104,11 +105,12 @@ def test_bisect_returns_dtype_float_if_not_accept_invalid_values():
         accept_invalid_values=False,
     )
 
+    assert isinstance(solution, np.ndarray)
     assert solution.dtype == np.float64
 
 
 def test_bisect_return_nan_if_heat_balance_returns_nan():
-    def heat_balance(currents: np.array):
+    def heat_balance(currents: Ampere) -> WattPerMeter:
         return np.ones_like(currents) * np.nan
 
     solution = solver.bisect(

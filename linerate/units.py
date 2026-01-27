@@ -8,7 +8,7 @@ except ImportError:  # Python version <3.9
 import numpy as np
 import numpy.typing as npt
 
-FloatOrFloatArray = Union[float, np.float64, npt.NDArray[np.float64]]
+FloatOrFloatArray = Union[float, np.floating, npt.NDArray[np.floating]]
 BoolOrBoolArray = Union[bool, np.bool_, npt.NDArray[np.bool_]]
 
 OhmPerMeter = Annotated[FloatOrFloatArray, "Ω/m"]

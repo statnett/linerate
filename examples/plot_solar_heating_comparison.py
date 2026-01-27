@@ -73,7 +73,10 @@ for k, v in vals_with_range.items():
     # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     P_s_cigre = solar_heating.compute_solar_heating(alpha_s, I_T, D)
+    assert isinstance(P_s_cigre, np.ndarray)
+
     P_s_ieee = ieee738.solar_heating.compute_solar_heating(alpha_s, Q_se, cos_theta, D)
+    assert isinstance(P_s_ieee, np.ndarray)
 
     ###############################################################################
     # Create visualisation
@@ -92,7 +95,7 @@ for k, v in vals_with_range.items():
         )
     elif k == "sin_H_s":
         plt.xlabel("Solar altitude [$^\\circ$]")
-        plt.xticks(ticks=[0, 1 / 3, 2 / 3, 1], labels=[0, 30, 60, 90])
+        plt.xticks(ticks=[0, 1 / 3, 2 / 3, 1], labels=["0", "30", "60", "90"])
         plt.title(
             r"Solar heating calculated using the CIGRE-601 and the IEEE-736 standards."
             "\n"

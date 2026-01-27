@@ -114,7 +114,9 @@ def compute_conductor_temperature(
     Union[float, float64, ndarray[Any, dtype[float64]]]
         :math:`I~\left[\text{A}\right]`. The thermal rating.
     """
-    f = partial(heat_balance, current=current)
+
+    def f(conductor_temperature: Celsius) -> WattPerMeter:
+        return heat_balance(conductor_temperature, current)
 
     return bisect(f, min_temperature, max_temperature, tolerance)
 

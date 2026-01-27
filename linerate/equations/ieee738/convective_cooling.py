@@ -190,7 +190,7 @@ def compute_forced_convection(  # q_c1 or q_c2
     q_c1 = K_angle * (1.01 + 1.35 * N_Re**0.52) * k_f * (T_s - T_a)
     q_c2 = K_angle * 0.754 * N_Re**0.6 * k_f * (T_s - T_a)
 
-    if hasattr(q_c1, "__len__"):
+    if isinstance(q_c1, np.ndarray) and isinstance(q_c2, np.ndarray):
         q_cf = []
         for i in range(len(q_c1)):
             if q_c1[i] > q_c2[i]:

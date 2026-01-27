@@ -61,4 +61,6 @@ def test_vectorization(vectorization_indices):
     for vectorisation_index in vectorization_indices:
         shape[vectorisation_index] = 2
     shape[0] = 1
+
+    assert isinstance(temperature, np.ndarray)
     assert temperature.shape == tuple(shape)
