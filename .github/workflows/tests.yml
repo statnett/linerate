@@ -1,5 +1,5 @@
 ---
-  name: Lint and Test
+  name: Lint, type check and Test
 
   on: [push, pull_request]
 
@@ -17,7 +17,7 @@
           uses: astral-sh/setup-uv@b75a909f75acd358c2196fb9a5f1299a9a8868a4 # v6
           with:
             python-version: ${{ matrix.python-version }}
-        - name: Run linting
+        - name: Run linting and type checking
           run: |
             uv run --frozen pre-commit run --all-files
 
