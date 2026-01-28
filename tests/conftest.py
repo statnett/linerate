@@ -1,8 +1,11 @@
+from typing import Callable
+
 import hypothesis
 import numpy as np
 import pytest
 
 import linerate
+from linerate.units import Ampere, Celsius, WattPerMeter
 
 hypothesis.settings.register_profile("default", deadline=None)
 hypothesis.settings.load_profile("default")
@@ -86,3 +89,13 @@ def example_model_2_conductors(example_span_2_conductors, example_weather_a):
     return linerate.Cigre601(
         example_span_2_conductors, example_weather_a, np.datetime64("2016-06-10 11:00")
     )
+
+
+@pytest.fixture
+def heat_balance() -> Callable[[Celsius, Ampere], WattPerMeter]:
+    def _heat_balance(conductor_temperature: Celsius, current: Ampere) -> WattPerMeter:
+        A = current
+        T = conductor_temperature
+        return (A - 100 * T) * (current + 100 * T)
+
+    return _heat_balance

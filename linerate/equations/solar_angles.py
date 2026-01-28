@@ -134,7 +134,7 @@ def _compute_solar_azimuth_constant(
         else:
             C = 2 * pi
     else:
-        raise ValueError(f"Hour angle {omega} out of range [-π, π]")
+        raise ValueError(f"Hour angle {omega} out of range [-π, π)")
 
     return C
 
@@ -144,7 +144,7 @@ def compute_solar_azimuth_constant(
 ) -> Radian:
     r"""Compute the solar azimuth constant.
 
-    Table 2 on page 18 of:cite:p:`ieee738`.
+    Table 2 on page 18 of :cite:p:`ieee738`.
 
     Parameters
     ----------
