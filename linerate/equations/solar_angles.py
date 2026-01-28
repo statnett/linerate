@@ -11,7 +11,7 @@ def _get_day_of_year(when: Date) -> Unitless:
     YearResolutionType = np.datetime64(1, "Y")
     DayResolutionType = np.datetime64(1, "D")
 
-    return (when.astype(DayResolutionType) - when.astype(YearResolutionType)).astype(float) + 1
+    return (when.astype(DayResolutionType) - when.astype(YearResolutionType)).astype(float) + 1.0
 
 
 def _get_hour_of_day(when: Date) -> Unitless:

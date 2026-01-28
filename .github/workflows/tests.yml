@@ -1,10 +1,10 @@
 ---
-  name: Lint, type check and Test
+  name: Lint, type check and test
 
   on: [push, pull_request]
 
   jobs:
-    lint:
+    lint-and-type-check:
       runs-on: ubuntu-latest
       strategy:
         matrix:
