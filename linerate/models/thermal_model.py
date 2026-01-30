@@ -3,7 +3,7 @@ from typing import Dict
 
 from linerate import solver
 from linerate.equations import joule_heating, radiative_cooling
-from linerate.types import Span, Weather
+from linerate.types import BaseWeather, Span
 from linerate.units import Ampere, Celsius, OhmPerMeter, WattPerMeter
 
 
@@ -19,7 +19,7 @@ class ThermalModel(ABC):
     """Abstract class for a minimal conductor thermal model."""
 
     @abstractmethod
-    def __init__(self, span: Span, weather: Weather):
+    def __init__(self, span: Span, weather: BaseWeather):
         self.span = span
         self.weather = weather
 

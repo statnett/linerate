@@ -60,7 +60,7 @@ class Cigre207(ThermalModel):
         )
         if self.include_diffuse_radiation:
             I_d = cigre207.solar_heating.compute_diffuse_sky_radiation(I_B, sin_H_s)
-            F = self.span.ground_albedo
+            F = self.weather.ground_albedo
         else:
             I_d = 0
             F = 0

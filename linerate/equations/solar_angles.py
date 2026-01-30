@@ -1,16 +1,17 @@
 import numpy as np
 from numba import vectorize
+
 from linerate.equations import math
 
-from ..units import Date, Degrees, Radian, Unitless
 from ..types import Span
+from ..units import Date, Degrees, Radian, Unitless
 
 
 def _get_day_of_year(when: Date) -> Unitless:
     YearResolutionType = np.datetime64(1, "Y")
     DayResolutionType = np.datetime64(1, "D")
 
-    return (when.astype(DayResolutionType) - when.astype(YearResolutionType)).astype(float) + 1
+    return (when.astype(DayResolutionType) - when.astype(YearResolutionType)).astype(float) + 1.0
 
 
 def _get_hour_of_day(when: Date) -> Unitless:
@@ -55,9 +56,11 @@ def compute_hour_angle_relative_to_noon(when: Date, longitude: Degrees) -> Radia
     utc_minute = _get_minute_of_hour(when)
     pi = np.pi
     # We add longitude/15 since 15 degrees of longitude increases solar hour by 1
-    return np.mod((-12 + utc_hour + utc_minute / 60 + longitude / 15), 24) * (
+    hour_angle = np.mod((-12 + utc_hour + utc_minute / 60 + longitude / 15), 24) * (
         pi / 12
     )  # pi/12 is 15 degrees
+    # Shift to [-pi, pi] range to ensure negative values before noon
+    return np.where(hour_angle >= pi, hour_angle - 2 * pi, hour_angle)
 
 
 def compute_solar_declination(
@@ -123,13 +126,16 @@ def _compute_solar_azimuth_constant(
     if -pi <= omega < 0:
         if chi >= 0:
             C = 0
-        elif chi < 0:
+        else:
             C = pi
     elif 0 <= omega < pi:
         if chi >= 0:
             C = pi
-        elif chi < 0:
+        else:
             C = 2 * pi
+    else:
+        raise ValueError(f"Hour angle {omega} out of range [-π, π)")
+
     return C
 
 
@@ -138,7 +144,7 @@ def compute_solar_azimuth_constant(
 ) -> Radian:
     r"""Compute the solar azimuth constant.
 
-    Table 2 on page 18 of:cite:p:`ieee738`.
+    Table 2 on page 18 of :cite:p:`ieee738`.
 
     Parameters
     ----------

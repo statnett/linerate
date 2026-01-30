@@ -163,8 +163,8 @@ class Span:
         return 0.5 * (self.start_tower.altitude + self.end_tower.altitude)
 
 
-@dataclass()
-class Weather:
+@dataclass
+class BaseWeather:
     #: :math:`T_a~\left[^\circ C\right]`. The ambient air temperature.
     air_temperature: Celsius
     #: :math:`\delta~\left[\text{radian}\right]`. Wind direction east of north.
@@ -173,24 +173,21 @@ class Weather:
     wind_speed: MeterPerSecond
     #: :math:`F`.  The ground albedo.
     ground_albedo: Unitless
+
+
+@dataclass
+class Weather(BaseWeather):
     #: :math:`N_s`. The clearness ratio (or clearness number in
     #: :cite:p:`sharma1965interrelationships,cigre207`).
     clearness_ratio: Unitless = 1
 
 
 @dataclass
-class WeatherWithSolarRadiation(Weather):
+class WeatherWithSolarRadiation(BaseWeather):
     """Extension of the Weather class to accept solar radiation timeseries."""
 
     #: :math:`I_d~\left[\text{W}~\text{m}^{-2}\right]`. The diffuse radiation intensity.
-    diffuse_radiation_intensity: WattPerSquareMeter = None
+    diffuse_radiation_intensity: WattPerSquareMeter
     #: :math:`I_B~\left[\text{W}~\text{m}^{-2}\right]`. The direct radiation intensity on a surface normal to the
     # sun's beam.
-    direct_radiation_intensity: WattPerSquareMeter = None
-
-    def __post_init__(self):
-        if (self.diffuse_radiation_intensity is None) or (self.direct_radiation_intensity is None):
-            raise ValueError(
-                "Both 'diffuse_radiation_intensity' and 'direct_radiation_intensity' must be provided. For weather"
-                " data without solar radiation, use the 'Weather' class instead.",
-            )
+    direct_radiation_intensity: WattPerSquareMeter

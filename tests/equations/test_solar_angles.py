@@ -131,6 +131,7 @@ def test_solar_declination_scales_correctly_with_day_of_year(day):
 )
 def test_solar_declination_scales_with_dates_and_times(when, longitude):
     omega = ((-12 + when.hour + when.minute / 60 + longitude / 15) % 24) * np.pi / 12
+    omega = np.where(omega >= np.pi, omega - 2 * np.pi, omega)
     when = np.datetime64(when)
     assert omega == approx(solar_angles.compute_hour_angle_relative_to_noon(when, longitude))
 
@@ -189,6 +190,7 @@ def test_compute_sin_solar_altitude_for_span(example_span_1_conductor):
     )
     sin_H_s = solar_angles.compute_sin_solar_altitude_for_span(example_span_1_conductor, time)
 
+    assert isinstance(sin_H_s, np.ndarray)
     assert sin_H_s.shape == time.shape
 
     assert sin_H_s == approx(
@@ -231,6 +233,7 @@ def test_compute_sin_solar_effective_incidence_angle_for_span(example_span_1_con
         example_span_1_conductor, time, sin_H_s
     )
 
+    assert isinstance(sin_eta, np.ndarray)
     assert sin_eta.shape == time.shape
 
     assert sin_eta == approx(
