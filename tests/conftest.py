@@ -94,8 +94,8 @@ def example_model_2_conductors(example_span_2_conductors, example_weather_a):
 @pytest.fixture
 def heat_balance() -> Callable[[Celsius, Ampere], WattPerMeter]:
     def _heat_balance(conductor_temperature: Celsius, current: Ampere) -> WattPerMeter:
-        A = current
+        I = current  # noqa: E741
         T = conductor_temperature
-        return (A - 100 * T) * (current + 100 * T)
+        return (I - 100 * T) * (I + 100 * T)
 
     return _heat_balance

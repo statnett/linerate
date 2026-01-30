@@ -32,9 +32,9 @@ def test_compute_conductor_ampacity_computes_correct_ampacity(
 
 def test_bisect_raises_value_error():
     def heat_balance(current):
-        A = current
+        I = current  # noqa: E741
         T = 90
-        return (A + 100 * T) * (A + 100 * T)
+        return (I + 100 * T) * (I + 100 * T)
 
     with pytest.raises(ValueError):
         solver.bisect(
