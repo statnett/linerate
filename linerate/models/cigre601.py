@@ -22,12 +22,14 @@ from linerate.units import (
 
 
 class BaseCigre601(ThermalModel):
+    DEFAULT_MAX_REYNOLDS_NUMBER = 4000.0  # Max value of the angle correction in CIGRE601
+
     def __init__(
         self,
         span: Span,
         weather: BaseWeather,
         time: Date,
-        max_reynolds_number: Unitless = 4000.0,  # Max value of the angle correction in CIGRE601
+        max_reynolds_number: Unitless = DEFAULT_MAX_REYNOLDS_NUMBER,
     ):
         super().__init__(span, weather)
         self.time = time
@@ -142,12 +144,14 @@ class BaseCigre601(ThermalModel):
 
 
 class Cigre601(BaseCigre601):
+    """Extension of the BaseCigre601 model that uses the solar radiation parametrisation in CIGRE601."""
+
     def __init__(
         self,
         span: Span,
         weather: Weather,
         time: Date,
-        max_reynolds_number: Unitless = 4000.0,  # Max value of the angle correction in CIGRE601
+        max_reynolds_number: Unitless = BaseCigre601.DEFAULT_MAX_REYNOLDS_NUMBER,
     ):
         self.span = span
         self.weather = weather
@@ -183,14 +187,20 @@ class Cigre601(BaseCigre601):
 
 
 class Cigre601WithSolarRadiation(BaseCigre601):
-    """Extension of the Cigre601 model that accepts external solar radiation data for direct and diffuse solar
+    """Extension of the BaseCigre601 model that accepts external solar radiation data for direct and diffuse solar
     radiation."""
 
-    def __init__(self, span: Span, weather: WeatherWithSolarRadiation, time: Date):
+    def __init__(
+        self,
+        span: Span,
+        weather: WeatherWithSolarRadiation,
+        time: Date,
+        max_reynolds_number: Unitless = BaseCigre601.DEFAULT_MAX_REYNOLDS_NUMBER,
+    ):
         self.span = span
         self.weather = weather
         self.time = time
-        self.weather = weather
+        self.max_reynolds_number = max_reynolds_number
 
     def compute_solar_heating(
         self, conductor_temperature: Celsius, current: Ampere
