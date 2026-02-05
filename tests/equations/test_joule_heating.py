@@ -5,6 +5,14 @@ from pytest import approx
 from scipy.interpolate import lagrange
 
 import linerate.equations.joule_heating as joule_heating
+from linerate.units import (
+    Ampere,
+    Celsius,
+    OhmPerMeter,
+    OhmPerMeterPerCelsius,
+    SquareMeterPerAmpere,
+    Unitless,
+)
 
 
 @hypothesis.given(
@@ -17,11 +25,16 @@ import linerate.equations.joule_heating as joule_heating
     ).filter(lambda tup: abs(tup[0] - tup[1]) > 0.1),
 )
 def test_resistance_has_correct_interpolant(
-    conductor_temperature,
-    slope,
-    intercept,
-    temperatures,
+    conductor_temperature: Celsius,
+    slope: OhmPerMeterPerCelsius,
+    intercept: OhmPerMeter,
+    temperatures: tuple[Celsius, Celsius],
 ):
+    assert isinstance(conductor_temperature, float)
+    assert isinstance(slope, float)
+    assert isinstance(intercept, float)
+    assert isinstance(temperatures, tuple)
+
     T_c = 5 * np.arange(2) + conductor_temperature
     T1, T2 = temperatures
     a = slope
@@ -40,7 +53,9 @@ def test_resistance_has_correct_interpolant(
 
 
 @hypothesis.given(current=st.floats(min_value=0, max_value=1e10, allow_nan=False))
-def test_acsr_magnetic_core_loss_correction_is_affine_in_current_without_saturation(current):
+def test_acsr_magnetic_core_loss_correction_is_affine_in_current_without_saturation(
+    current: Ampere,
+):
     R_ac = 1
     I = current  # noqa
     A = 1
@@ -55,7 +70,7 @@ def test_acsr_magnetic_core_loss_correction_is_affine_in_current_without_saturat
 
 
 @hypothesis.given(resistance=st.floats(min_value=0, max_value=1e10, allow_nan=False))
-def test_acsr_magnetic_core_loss_correction_is_linear_in_resistance(resistance):
+def test_acsr_magnetic_core_loss_correction_is_linear_in_resistance(resistance: OhmPerMeter):
     R_ac = resistance
     I = 1  # noqa
     A = 1
@@ -71,7 +86,7 @@ def test_acsr_magnetic_core_loss_correction_is_linear_in_resistance(resistance):
 
 @hypothesis.given(constant_magnetic_effect=st.floats(min_value=0, max_value=1e10, allow_nan=False))
 def test_acsr_magnetic_core_loss_correction_is_affine_in_constant_magnetic_effect(
-    constant_magnetic_effect,
+    constant_magnetic_effect: Unitless,
 ):
     R_ac = 2
     I = 1  # noqa
@@ -92,7 +107,7 @@ def test_acsr_magnetic_core_loss_correction_is_affine_in_constant_magnetic_effec
     )
 )
 def test_acsr_magnetic_core_loss_correction_is_affine_in_linear_magnetic_effect(
-    current_density_proportional_magnetic_effect,
+    current_density_proportional_magnetic_effect: SquareMeterPerAmpere,
 ):
     R_ac = 2
     I = 1  # noqa
@@ -108,7 +123,7 @@ def test_acsr_magnetic_core_loss_correction_is_affine_in_linear_magnetic_effect(
 
 
 @hypothesis.given(max_relative_increase=st.floats(min_value=0, max_value=1e10, allow_nan=False))
-def test_acsr_magnetic_core_loss_correction_saturates(max_relative_increase):
+def test_acsr_magnetic_core_loss_correction_saturates(max_relative_increase: Unitless):
     R_ac = 2
     I = 2e10  # noqa
     A = 1
@@ -125,7 +140,7 @@ def test_acsr_magnetic_core_loss_correction_saturates(max_relative_increase):
     current=st.floats(min_value=0, max_value=1e5, allow_nan=False),
     resistance=st.floats(min_value=0, max_value=1e5, allow_nan=False),
 )
-def test_joule_heating(current, resistance):
+def test_joule_heating(current: Ampere, resistance: OhmPerMeter):
     I = current  # noqa
     R = resistance
 

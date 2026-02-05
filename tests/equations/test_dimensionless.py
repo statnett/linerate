@@ -8,10 +8,20 @@ import pytest
 from pytest import approx
 
 from linerate.equations import dimensionless
+from linerate.units import (
+    Celsius,
+    JoulePerKilogramPerKelvin,
+    KilogramPerMeterPerSecond,
+    Meter,
+    MeterPerSecond,
+    MeterPerSquareSecond,
+    SquareMeterPerSecond,
+    WattPerMeterPerKelvin,
+)
 
 
 @hypothesis.given(wind_speed=st.floats(min_value=0, max_value=1000, allow_nan=False))
-def test_reynolds_number_scales_linearly_with_wind_speed(wind_speed):
+def test_reynolds_number_scales_linearly_with_wind_speed(wind_speed: MeterPerSecond):
     V = wind_speed
     D = 1
     Nu_f = 1
@@ -20,7 +30,7 @@ def test_reynolds_number_scales_linearly_with_wind_speed(wind_speed):
 
 
 @hypothesis.given(conductor_diameter=st.floats(min_value=0, max_value=1000, allow_nan=False))
-def test_reynolds_number_scales_linearly_with_diameter(conductor_diameter):
+def test_reynolds_number_scales_linearly_with_diameter(conductor_diameter: Meter):
     V = 1
     D = conductor_diameter
     Nu_f = 1
@@ -29,7 +39,9 @@ def test_reynolds_number_scales_linearly_with_diameter(conductor_diameter):
 
 
 @hypothesis.given(kinematic_viscosity=st.floats(min_value=1e-10, allow_nan=False))
-def test_reynolds_number_scales_inversly_with_kinematic_viscosity(kinematic_viscosity):
+def test_reynolds_number_scales_inversly_with_kinematic_viscosity(
+    kinematic_viscosity: SquareMeterPerSecond,
+):
     V = 1
     D = 1
     Nu_f = kinematic_viscosity
@@ -46,7 +58,7 @@ def test_reynolds_number_with_example():
 
 
 @hypothesis.given(conductor_diameter=st.floats(min_value=1e-5, max_value=1e5, allow_nan=False))
-def test_grashof_number_scales_cubic_with_conductor_diameter(conductor_diameter):
+def test_grashof_number_scales_cubic_with_conductor_diameter(conductor_diameter: Meter):
     D = conductor_diameter
     T_s = 1
     T_a = 0
@@ -58,7 +70,7 @@ def test_grashof_number_scales_cubic_with_conductor_diameter(conductor_diameter)
 
 
 @hypothesis.given(surface_temperature=st.floats(min_value=273, max_value=1000, allow_nan=False))
-def test_grashof_number_scales_correctly_with_surface_temperature(surface_temperature):
+def test_grashof_number_scales_correctly_with_surface_temperature(surface_temperature: Celsius):
     D = 1
     T_s = surface_temperature
     T_a = 0
@@ -70,7 +82,7 @@ def test_grashof_number_scales_correctly_with_surface_temperature(surface_temper
 
 
 @hypothesis.given(air_temperature=st.floats(min_value=273, max_value=1000, allow_nan=False))
-def test_grashof_number_scales_correctly_with_air_temperature(air_temperature):
+def test_grashof_number_scales_correctly_with_air_temperature(air_temperature: Celsius):
     D = 1
     T_s = 0
     T_a = air_temperature
@@ -85,7 +97,7 @@ def test_grashof_number_scales_correctly_with_air_temperature(air_temperature):
     kinematic_viscosity_of_air=st.floats(min_value=1e-5, max_value=1e10, allow_nan=False)
 )
 def test_grashof_number_scales_inversely_squared_with_kinematic_viscosity(
-    kinematic_viscosity_of_air,
+    kinematic_viscosity_of_air: SquareMeterPerSecond,
 ):
     D = 1
     T_s = 1
@@ -98,7 +110,7 @@ def test_grashof_number_scales_inversely_squared_with_kinematic_viscosity(
 
 
 @hypothesis.given(coefficient_of_gravity=st.floats(min_value=1e-3, max_value=1e3, allow_nan=False))
-def test_grashof_number_scales_linearly_with_gravity(coefficient_of_gravity):
+def test_grashof_number_scales_linearly_with_gravity(coefficient_of_gravity: MeterPerSquareSecond):
     D = 1
     T_s = 1
     T_a = 0
@@ -121,7 +133,9 @@ def test_grashof_number_with_example():
 
 
 @hypothesis.given(thermal_conductivity=st.floats(min_value=1e-10, max_value=1e10, allow_nan=False))
-def test_prandtl_number_scales_inversely_with_thermal_conductivity(thermal_conductivity):
+def test_prandtl_number_scales_inversely_with_thermal_conductivity(
+    thermal_conductivity: WattPerMeterPerKelvin,
+):
     c_f = 1
     mu_f = 1
     lambda_f = thermal_conductivity
@@ -130,7 +144,9 @@ def test_prandtl_number_scales_inversely_with_thermal_conductivity(thermal_condu
 
 
 @hypothesis.given(dynamic_viscosity=st.floats(min_value=1e-10, max_value=1e10, allow_nan=False))
-def test_prandtl_number_scales_linearly_with_dynamic_viscosity(dynamic_viscosity):
+def test_prandtl_number_scales_linearly_with_dynamic_viscosity(
+    dynamic_viscosity: KilogramPerMeterPerSecond,
+):
     c_f = 1
     mu_f = dynamic_viscosity
     lambda_f = 1
@@ -141,7 +157,9 @@ def test_prandtl_number_scales_linearly_with_dynamic_viscosity(dynamic_viscosity
 @hypothesis.given(
     specific_heat_capacity=st.floats(min_value=1e-10, max_value=1e10, allow_nan=False)
 )
-def test_prandtl_number_scales_linearly_with_specific_heat_capacity(specific_heat_capacity):
+def test_prandtl_number_scales_linearly_with_specific_heat_capacity(
+    specific_heat_capacity: JoulePerKilogramPerKelvin,
+):
     c_f = specific_heat_capacity
     mu_f = 1
     lambda_f = 1

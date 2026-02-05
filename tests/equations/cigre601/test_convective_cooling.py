@@ -6,13 +6,24 @@ from pytest import approx
 from scipy.interpolate import lagrange
 
 import linerate.equations.cigre601.convective_cooling as convective_cooling
+from linerate.units import (
+    Celsius,
+    Degrees,
+    KilogramPerCubeMeter,
+    KilogramPerMeterPerSecond,
+    Meter,
+    Radian,
+    Unitless,
+    WattPerMeter,
+    WattPerMeterPerKelvin,
+)
 
 # Tests for physical quantities
 ###############################
 
 
 @hypothesis.given(total_heat_gain=st.floats(allow_nan=False))
-def test_temperature_gradient_scales_linearly_with_heating(total_heat_gain):
+def test_temperature_gradient_scales_linearly_with_heating(total_heat_gain: WattPerMeter):
     P_T = total_heat_gain
     lambda_ = 0.5 / np.pi  # 2 pi lambda = 1
     D = 2
@@ -39,7 +50,7 @@ def test_temperature_gradient_scales_linearly_with_heating(total_heat_gain):
 
 @hypothesis.given(conductor_thermal_conductivity=st.floats(allow_nan=False, min_value=1e-5))
 def test_temperature_gradient_scales_inversely_with_heat_conductivity(
-    conductor_thermal_conductivity,
+    conductor_thermal_conductivity: WattPerMeterPerKelvin,
 ):
     P_T = 2 * np.pi
     lambda_ = conductor_thermal_conductivity
@@ -67,8 +78,9 @@ def test_temperature_gradient_scales_inversely_with_heat_conductivity(
 
 @hypothesis.given(conductor_diameter=st.floats(allow_nan=False, min_value=1e-5, max_value=1e5))
 @hypothesis.settings(suppress_health_check=[hypothesis.HealthCheck.function_scoped_fixture])
-def test_temperature_gradient_scales_correctly_with_diameter(random_seed, conductor_diameter):
-    rng = np.random.default_rng(random_seed)
+def test_temperature_gradient_scales_correctly_with_diameter(
+    rng: np.random.Generator, conductor_diameter: Meter
+):
     P_T = 2 * np.pi
     lambda_ = 1
     D = conductor_diameter
@@ -102,11 +114,11 @@ def test_temperature_gradient_scales_correctly_with_diameter(random_seed, conduc
     ],
 )
 def test_temperature_gradient_with_examples(
-    total_heat_gain,
-    conductor_thermal_conductivity,
-    core_diameter,
-    conductor_diameter,
-    temperature_difference,
+    total_heat_gain: WattPerMeter,
+    conductor_thermal_conductivity: WattPerMeterPerKelvin,
+    core_diameter: Meter,
+    conductor_diameter: Meter,
+    temperature_difference: Celsius,
 ):
     P_T = total_heat_gain
     lambda_ = conductor_thermal_conductivity
@@ -136,7 +148,7 @@ def test_thermal_conductivity_of_air_has_correct_roots():
 
 
 @hypothesis.given(air_temperature=st.floats(allow_nan=False, min_value=-273, max_value=1000))
-def test_thermal_conductivity_of_air_has_correct_interpolant(air_temperature):
+def test_thermal_conductivity_of_air_has_correct_interpolant(air_temperature: Celsius):
     T_f = np.arange(3) + air_temperature
     lambda_ = convective_cooling.compute_thermal_conductivity_of_air(T_f)
     lagrange_poly = lagrange(T_f, lambda_)
@@ -152,14 +164,16 @@ def test_thermal_conductivity_of_air_has_correct_interpolant(air_temperature):
     "air_temperature, air_thermal_conductivity",
     [(0, 2.368e-2), (10, 2.368e-2 + 7.23e-4 - 2.763e-6)],
 )
-def test_thermal_conductivity_of_air_with_examples(air_temperature, air_thermal_conductivity):
+def test_thermal_conductivity_of_air_with_examples(
+    air_temperature: Celsius, air_thermal_conductivity: WattPerMeterPerKelvin
+):
     T_f = air_temperature
     lambda_f = air_thermal_conductivity
     assert convective_cooling.compute_thermal_conductivity_of_air(T_f) == approx(lambda_f)
 
 
 @hypothesis.given(air_temperature=st.floats(allow_nan=False, min_value=-273, max_value=1000))
-def test_compute_air_density_scales_correctly_with_air_temperature(air_temperature):
+def test_compute_air_density_scales_correctly_with_air_temperature(air_temperature: Celsius):
     T_f = air_temperature
     y = 1
 
@@ -172,7 +186,7 @@ def test_compute_air_density_scales_correctly_with_air_temperature(air_temperatu
     height_above_sea_level=st.floats(allow_nan=False, min_value=0, max_value=10_000),
 )
 def test_compute_air_density_scales_has_correct_height_above_sea_level_interpolant(
-    air_temperature, height_above_sea_level
+    air_temperature: Celsius, height_above_sea_level: Meter
 ):
     T_f = air_temperature
     y = np.arange(3) + height_above_sea_level
@@ -193,18 +207,20 @@ def test_compute_air_density_scales_has_correct_height_above_sea_level_interpola
         (1000, 10, (1.293 - 1.525e-1 + 6.379e-3) / 1.0367),
     ],
 )
-def test_compute_air_density_with_examples(height_above_sea_level, air_temperature, air_density):
+def test_compute_air_density_with_examples(
+    height_above_sea_level: Meter, air_temperature: Celsius, air_density: KilogramPerCubeMeter
+):
     y = height_above_sea_level
     T_f = air_temperature
     gamma = air_density
 
-    assert convective_cooling.compute_air_density(T_f, y) == pytest.approx(gamma)
+    assert convective_cooling.compute_air_density(T_f, y) == approx(gamma)
 
 
 @hypothesis.given(
     air_temperature=st.floats(allow_nan=False, min_value=-273, max_value=1000),
 )
-def test_dynamic_viscosity_of_air_has_correct_interpolant(air_temperature):
+def test_dynamic_viscosity_of_air_has_correct_interpolant(air_temperature: Celsius):
     T_f = np.arange(3) + air_temperature
     mu_f = convective_cooling.compute_dynamic_viscosity_of_air(T_f)
 
@@ -228,7 +244,9 @@ def test_dynamic_viscosity_of_air_has_correct_roots():
 @pytest.mark.parametrize(
     "air_temperature, dynamic_viscosity", [(0, 1.7239e-5), (0.5, 1.7239e-5 + 2.3175e-8 - 5.075e-12)]
 )
-def test_dynamic_viscosity_of_air_with_examples(air_temperature, dynamic_viscosity):
+def test_dynamic_viscosity_of_air_with_examples(
+    air_temperature: Celsius, dynamic_viscosity: KilogramPerMeterPerSecond
+):
     T_f = air_temperature
     mu_f = dynamic_viscosity
     assert convective_cooling.compute_dynamic_viscosity_of_air(T_f) == approx(mu_f)
@@ -236,7 +254,7 @@ def test_dynamic_viscosity_of_air_with_examples(air_temperature, dynamic_viscosi
 
 @hypothesis.given(dynamic_viscosity_of_air=st.floats(allow_nan=False, allow_infinity=False))
 def test_kinematic_viscosity_of_air_scales_linearly_with_dynamic_viscosity(
-    dynamic_viscosity_of_air,
+    dynamic_viscosity_of_air: KilogramPerMeterPerSecond,
 ):
     mu_f = dynamic_viscosity_of_air
     gamma = 1
@@ -245,7 +263,9 @@ def test_kinematic_viscosity_of_air_scales_linearly_with_dynamic_viscosity(
 
 
 @hypothesis.given(air_density=st.floats(min_value=1e-8, allow_nan=False, allow_infinity=False))
-def test_kinematic_viscosity_of_air_scales_inversely_with_density(air_density):
+def test_kinematic_viscosity_of_air_scales_inversely_with_density(
+    air_density: KilogramPerCubeMeter,
+):
     mu_f = 1
     gamma = air_density
 
@@ -317,10 +337,10 @@ _eps = np.finfo(np.float64).eps
     ],
 )
 def test_perpendicular_flow_nusselt_number_uses_correct_exponential(
-    reynolds_number,
-    conductor_roughness,
-    B,
-    n,
+    reynolds_number: Unitless,
+    conductor_roughness: Meter,
+    B: Unitless,
+    n: Unitless,
 ):
     Re = reynolds_number
     Rs = conductor_roughness
@@ -346,8 +366,8 @@ def test_perpendicular_flow_nusselt_number_uses_correct_exponential(
     angle_of_attack=st.floats(allow_infinity=False, min_value=0, max_value=90),
 )
 def test_stranded_angle_of_attack_correction_has_correct_form(
-    perpendicular_flow_nusselt_number,
-    angle_of_attack,
+    perpendicular_flow_nusselt_number: Unitless,
+    angle_of_attack: Degrees,
 ):
     Nu_90 = perpendicular_flow_nusselt_number
     delta = np.radians(angle_of_attack)
@@ -369,9 +389,9 @@ def test_stranded_angle_of_attack_correction_has_correct_form(
 )
 @pytest.mark.parametrize("conductor_roughness", [0, np.nan])
 def test_smooth_angle_of_attack_correction_has_correct_form(
-    perpendicular_flow_nusselt_number,
-    angle_of_attack,
-    conductor_roughness,
+    perpendicular_flow_nusselt_number: Unitless,
+    angle_of_attack: Degrees,
+    conductor_roughness: Meter,
 ):
     Nu_90 = perpendicular_flow_nusselt_number
     delta = np.radians(angle_of_attack)
@@ -404,10 +424,10 @@ def test_smooth_angle_of_attack_correction_has_correct_form(
     ],
 )
 def test_angle_of_attack_correction_with_examples(
-    perpendicular_flow_nusselt_number,
-    angle_of_attack,
-    conductor_roughness,
-    corrected_nusselt_number,
+    perpendicular_flow_nusselt_number: Unitless,
+    angle_of_attack: Degrees,
+    conductor_roughness: Meter,
+    corrected_nusselt_number: Unitless,
 ):
     Nu_90 = perpendicular_flow_nusselt_number
     delta = angle_of_attack
@@ -429,7 +449,9 @@ def test_angle_of_attack_correction_with_examples(
         + [(x, 0.125, 0.333) for x in np.logspace(7 + 1e-8, 12, 5, endpoint=True)]
     ),
 )
-def test_horizontal_natural_nusselt_number_uses_correct_exponential(x, A, m):
+def test_horizontal_natural_nusselt_number_uses_correct_exponential(
+    x: Unitless, A: Unitless, m: Unitless
+):
     Nu_0 = A * (x**m)
 
     assert convective_cooling.compute_horizontal_natural_nusselt_number(x, 1) == approx(
@@ -442,7 +464,9 @@ def test_horizontal_natural_nusselt_number_uses_correct_exponential(x, A, m):
 
 @hypothesis.given(inclination=st.floats(min_value=0, max_value=np.pi / 3))
 @pytest.mark.parametrize("conductor_roughness", [0, np.nan])
-def test_smooth_inclination_correction_has_correct_form(inclination, conductor_roughness):
+def test_smooth_inclination_correction_has_correct_form(
+    inclination: Radian, conductor_roughness: Meter
+):
     Nu_0 = 1
     beta = inclination
     Rs = conductor_roughness
@@ -453,7 +477,9 @@ def test_smooth_inclination_correction_has_correct_form(inclination, conductor_r
 
 @hypothesis.given(inclination=st.floats(min_value=0, max_value=np.radians(80)))
 @pytest.mark.parametrize("conductor_roughness", [_eps, 1])
-def test_stranded_inclination_correction_has_correct_form(inclination, conductor_roughness):
+def test_stranded_inclination_correction_has_correct_form(
+    inclination: Radian, conductor_roughness: Meter
+):
     Nu_0 = 1
     beta = inclination
     Rs = conductor_roughness
@@ -472,7 +498,10 @@ def test_stranded_inclination_correction_has_correct_form(inclination, conductor
     ),
 )
 def test_inclination_correction_with_examples(
-    horizontal_natural_nusselt_number, inclination, conductor_roughness, natural_nusselt_number
+    horizontal_natural_nusselt_number: Unitless,
+    inclination: Radian,
+    conductor_roughness: Meter,
+    natural_nusselt_number: Unitless,
 ):
     Nu_0 = horizontal_natural_nusselt_number
     beta = inclination
@@ -487,7 +516,9 @@ def test_inclination_correction_with_examples(
     forced_convection_nusselt_number=st.floats(allow_nan=False),
     natural_nusselt_number=st.floats(allow_nan=False),
 )
-def test_compute_nusselt_number(forced_convection_nusselt_number, natural_nusselt_number):
+def test_compute_nusselt_number(
+    forced_convection_nusselt_number: Unitless, natural_nusselt_number: Unitless
+):
     Nu_delta = forced_convection_nusselt_number
     Nu_beta = natural_nusselt_number
 

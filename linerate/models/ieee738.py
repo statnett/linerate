@@ -34,7 +34,7 @@ class IEEE738(ThermalModel):
 
     @_copy_method_docstring(ThermalModel)
     def compute_solar_heating(
-        self, conductor_temperature: Celsius, current: Ampere
+        self,
     ) -> WattPerMeter:
         alpha_s = self.span.conductor.solar_absorptivity  # alpha in IEEE
         phi = self.span.latitude  # Lat in IEEE
@@ -56,9 +56,7 @@ class IEEE738(ThermalModel):
         return ieee738.solar_heating.compute_solar_heating(alpha_s, Q_se, cos_theta, D)
 
     @_copy_method_docstring(ThermalModel)
-    def compute_convective_cooling(
-        self, conductor_temperature: Celsius, current: Ampere
-    ) -> WattPerMeter:
+    def compute_convective_cooling(self, conductor_temperature: Celsius) -> WattPerMeter:
         D = self.span.conductor.conductor_diameter  # D_0 in IEEE
         y = self.span.conductor_altitude  # H_e in IEEE
         V = self.weather.wind_speed  # V_w in IEEE
@@ -83,9 +81,7 @@ class IEEE738(ThermalModel):
         return ieee738.convective_cooling.compute_convective_cooling(q_cf, q_cn)
 
     @_copy_method_docstring(ThermalModel)
-    def compute_radiative_cooling(
-        self, conductor_temperature: Celsius, current: Ampere
-    ) -> WattPerMeter:
+    def compute_radiative_cooling(self, conductor_temperature: Celsius) -> WattPerMeter:
         return super().compute_radiative_cooling(
-            conductor_temperature=conductor_temperature, current=current
+            conductor_temperature=conductor_temperature,
         )

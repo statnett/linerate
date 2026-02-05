@@ -6,11 +6,14 @@ from pytest import approx
 
 import linerate.equations.ieee738.solar_heating as solar_heating
 from linerate.equations.math import switch_cos_sin
+from linerate.units import BoolOrBoolArray, Meter, Radian, Unitless, WattPerSquareMeter
 
 
 @hypothesis.given(solar_altitude=st.floats(min_value=-10, max_value=10, allow_nan=False))
 @pytest.mark.parametrize("industrial_atmosphere", [True, False])
-def test_total_heat_flux_density_is_nonnegative(solar_altitude, industrial_atmosphere):
+def test_total_heat_flux_density_is_nonnegative(
+    solar_altitude: Radian, industrial_atmosphere: BoolOrBoolArray
+):
     H_c = solar_altitude
     sin_H_c = np.sin(H_c)
 
@@ -20,7 +23,7 @@ def test_total_heat_flux_density_is_nonnegative(solar_altitude, industrial_atmos
 
 @hypothesis.given(solar_altitude=st.floats(min_value=-10, max_value=10, allow_nan=False))
 def test_total_heat_flux_density_clear_atmosphere_scales_correctly_with_solar_altitude(
-    solar_altitude,
+    solar_altitude: Radian,
 ):
     sin_solar_altitude = np.sin(solar_altitude)
 
@@ -45,7 +48,9 @@ def test_total_heat_flux_density_clear_atmosphere_scales_correctly_with_solar_al
         min_value=-10, max_value=10000, allow_nan=False
     )
 )
-def test_solar_altitude_correction_factor_is_nonnegative(elevation_of_conductor_above_sea_level):
+def test_solar_altitude_correction_factor_is_nonnegative(
+    elevation_of_conductor_above_sea_level: Meter,
+):
     H_e = elevation_of_conductor_above_sea_level
     K_solar = solar_heating.compute_solar_altitude_correction_factor(H_e)
     assert K_solar >= 0
@@ -55,7 +60,7 @@ def test_solar_altitude_correction_factor_is_nonnegative(elevation_of_conductor_
     height_above_sea_level_of_conductor=st.floats(min_value=-10, max_value=10000, allow_nan=False)
 )
 def test_solar_altitude_correction_factor_scales_correctly_with_height_above_sea_level_of_conductor(
-    height_above_sea_level_of_conductor,
+    height_above_sea_level_of_conductor: Meter,
 ):
     H_e = height_above_sea_level_of_conductor
 
@@ -64,7 +69,7 @@ def test_solar_altitude_correction_factor_scales_correctly_with_height_above_sea
 
 
 @hypothesis.given(absorptivity=st.floats(min_value=0.23, max_value=0.91, allow_nan=False))
-def test_solar_heating_scales_linearly_with_absorptivity(absorptivity):
+def test_solar_heating_scales_linearly_with_absorptivity(absorptivity: Unitless):
     alpha = absorptivity
     Q_se = 1
     cos_theta = 0
@@ -75,7 +80,7 @@ def test_solar_heating_scales_linearly_with_absorptivity(absorptivity):
 
 @hypothesis.given(elevation_correction_factor=st.floats(allow_nan=False))
 def test_solar_heating_scales_linearly_with_elevation_correction_factor(
-    elevation_correction_factor,
+    elevation_correction_factor: WattPerSquareMeter,
 ):
     alpha = 1
     Q_se = elevation_correction_factor
@@ -89,7 +94,7 @@ def test_solar_heating_scales_linearly_with_elevation_correction_factor(
     solar_effective_incidence_angle=st.floats(min_value=0, max_value=np.pi, allow_nan=False)
 )
 def test_solar_heating_scales_linearly_with_cos_solar_effective_incidence_angle(
-    solar_effective_incidence_angle,
+    solar_effective_incidence_angle: Radian,
 ):
     alpha = 1
     Q_se = 1
@@ -104,7 +109,7 @@ def test_solar_heating_scales_linearly_with_cos_solar_effective_incidence_angle(
     projected_area_of_conductor=st.floats(min_value=0.001, max_value=1, allow_nan=False)
 )
 def test_solar_heating_scales_linearly_with_projected_area_of_conductor(
-    projected_area_of_conductor,
+    projected_area_of_conductor: Meter,
 ):
     alpha = 1
     Q_se = 1

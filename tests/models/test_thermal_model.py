@@ -1,7 +1,11 @@
 """Test cases from Annex E of CIGRE TB 601."""
 
+from linerate.models.thermal_model import ThermalModel
 
-def test_compute_conductor_temperature(example_model_1_conductors, example_model_2_conductors):
+
+def test_compute_conductor_temperature(
+    example_model_1_conductors: ThermalModel, example_model_2_conductors: ThermalModel
+):
     # Check that the ampacity of a span with two conductors is divided
     # when computing the conductor temperature.
     current_1_conductor = 1000

@@ -22,12 +22,14 @@ from linerate.units import (
 
 
 class BaseCigre601(ThermalModel):
+    DEFAULT_MAX_REYNOLDS_NUMBER = 4000.0  # Max value of the angle correction in CIGRE601
+
     def __init__(
         self,
         span: Span,
         weather: BaseWeather,
         time: Date,
-        max_reynolds_number: Unitless = 4000.0,  # Max value of the angle correction in CIGRE601
+        max_reynolds_number: Unitless = DEFAULT_MAX_REYNOLDS_NUMBER,
     ):
         super().__init__(span, weather)
         self.time = time
@@ -49,7 +51,8 @@ class BaseCigre601(ThermalModel):
 
     @_copy_method_docstring(ThermalModel)
     def compute_convective_cooling(
-        self, conductor_temperature: Celsius, current: Ampere
+        self,
+        conductor_temperature: Celsius,
     ) -> WattPerMeter:
         D = self.span.conductor.conductor_diameter
         d = self.span.conductor.outer_layer_strand_diameter
@@ -105,10 +108,11 @@ class BaseCigre601(ThermalModel):
 
     @_copy_method_docstring(ThermalModel)
     def compute_radiative_cooling(
-        self, conductor_temperature: Celsius, current: Ampere
+        self,
+        conductor_temperature: Celsius,
     ) -> WattPerMeter:
         return super().compute_radiative_cooling(
-            conductor_temperature=conductor_temperature, current=current
+            conductor_temperature=conductor_temperature,
         )
 
     def compute_temperature_gradient(
@@ -142,12 +146,14 @@ class BaseCigre601(ThermalModel):
 
 
 class Cigre601(BaseCigre601):
+    """Extension of the BaseCigre601 model that uses the solar radiation parametrisation in CIGRE601."""
+
     def __init__(
         self,
         span: Span,
         weather: Weather,
         time: Date,
-        max_reynolds_number: Unitless = 4000.0,  # Max value of the angle correction in CIGRE601
+        max_reynolds_number: Unitless = BaseCigre601.DEFAULT_MAX_REYNOLDS_NUMBER,
     ):
         self.span = span
         self.weather = weather
@@ -155,9 +161,7 @@ class Cigre601(BaseCigre601):
         self.max_reynolds_number = max_reynolds_number
 
     @_copy_method_docstring(ThermalModel)
-    def compute_solar_heating(
-        self, conductor_temperature: Celsius, current: Ampere
-    ) -> WattPerMeter:
+    def compute_solar_heating(self) -> WattPerMeter:
         alpha_s = self.span.conductor.solar_absorptivity
         F = self.weather.ground_albedo
         y = self.span.conductor_altitude
@@ -183,18 +187,22 @@ class Cigre601(BaseCigre601):
 
 
 class Cigre601WithSolarRadiation(BaseCigre601):
-    """Extension of the Cigre601 model that accepts external solar radiation data for direct and diffuse solar
+    """Extension of the BaseCigre601 model that accepts external solar radiation data for direct and diffuse solar
     radiation."""
 
-    def __init__(self, span: Span, weather: WeatherWithSolarRadiation, time: Date):
+    def __init__(
+        self,
+        span: Span,
+        weather: WeatherWithSolarRadiation,
+        time: Date,
+        max_reynolds_number: Unitless = BaseCigre601.DEFAULT_MAX_REYNOLDS_NUMBER,
+    ):
         self.span = span
         self.weather = weather
         self.time = time
-        self.weather = weather
+        self.max_reynolds_number = max_reynolds_number
 
-    def compute_solar_heating(
-        self, conductor_temperature: Celsius, current: Ampere
-    ) -> WattPerMeter:
+    def compute_solar_heating(self) -> WattPerMeter:
         alpha_s = self.span.conductor.solar_absorptivity
         F = self.weather.ground_albedo
         D = self.span.conductor.conductor_diameter

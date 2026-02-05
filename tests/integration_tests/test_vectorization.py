@@ -2,20 +2,21 @@ import hypothesis
 import hypothesis.strategies as st
 import numpy as np
 
-import linerate
+from linerate.models.cigre601 import Cigre601
+from linerate.types import Conductor, Span, Tower, Weather
 
 
 @hypothesis.given(
     vectorization_indices=st.sets(st.integers(min_value=1, max_value=24), max_size=10)
 )
-def test_vectorization(vectorization_indices):
+def test_vectorization(vectorization_indices: set[int]):
     def get_zeros(index, length):
         out = np.ones(length, dtype=int)
         if index in vectorization_indices:
             out[index] = 2
         return np.zeros(out)
 
-    conductor = linerate.types.Conductor(
+    conductor = Conductor(
         core_diameter=get_zeros(0, 25) + 1,
         conductor_diameter=get_zeros(1, 25) + 2,
         outer_layer_strand_diameter=get_zeros(2, 25),
@@ -30,21 +31,21 @@ def test_vectorization(vectorization_indices):
         current_density_proportional_magnetic_effect=get_zeros(11, 25) + 1,
         max_magnetic_core_relative_resistance_increase=get_zeros(12, 25),
     )
-    weather = linerate.types.Weather(
+    weather = Weather(
         air_temperature=get_zeros(13, 25),
         wind_direction=get_zeros(14, 25),
         wind_speed=get_zeros(15, 25),
         ground_albedo=get_zeros(23, 25),
         clearness_ratio=get_zeros(16, 25),
     )
-    span = linerate.Span(
+    span = Span(
         conductor=conductor,
-        start_tower=linerate.Tower(
+        start_tower=Tower(
             get_zeros(17, 25),
             get_zeros(18, 25),
             get_zeros(19, 25),
         ),
-        end_tower=linerate.Tower(
+        end_tower=Tower(
             0.1 + get_zeros(20, 25),
             0.1 + get_zeros(21, 25),
             10 + get_zeros(22, 25),
@@ -55,7 +56,7 @@ def test_vectorization(vectorization_indices):
     if 24 in vectorization_indices:
         time = np.concatenate([time, time], axis=-1)
 
-    model = linerate.model.Cigre601(span=span, weather=weather, time=time)
+    model = Cigre601(span=span, weather=weather, time=time)
     temperature = model.compute_conductor_temperature(100)
     shape = [1] * 25
     for vectorisation_index in vectorization_indices:

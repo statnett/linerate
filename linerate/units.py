@@ -12,6 +12,7 @@ FloatOrFloatArray = Union[float, np.floating, npt.NDArray[np.floating]]
 BoolOrBoolArray = Union[bool, np.bool_, npt.NDArray[np.bool_]]
 
 OhmPerMeter = Annotated[FloatOrFloatArray, "Ω/m"]
+OhmPerMeterPerCelsius = Annotated[FloatOrFloatArray, "Ω/(m °C)"]
 Ampere = Annotated[FloatOrFloatArray, "A"]
 Radian = Annotated[FloatOrFloatArray, "rad"]
 Degrees = Annotated[FloatOrFloatArray, "°"]

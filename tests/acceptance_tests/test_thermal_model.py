@@ -3,12 +3,13 @@
 import numpy as np
 import pytest
 
-import linerate
+from linerate.models.cigre601 import Cigre601
+from linerate.types import Conductor, Span, Tower, Weather
 
 
 @pytest.fixture
-def drake_conductor_a():
-    return linerate.Conductor(
+def drake_conductor_a() -> Conductor:
+    return Conductor(
         core_diameter=10.4e-3,
         conductor_diameter=28.1e-3,
         outer_layer_strand_diameter=4.4e-3,
@@ -26,8 +27,8 @@ def drake_conductor_a():
 
 
 @pytest.fixture
-def example_weather_a():
-    return linerate.Weather(
+def example_weather_a() -> Weather:
+    return Weather(
         air_temperature=40,
         wind_direction=np.radians(30),  # Conductor azimuth is 90, so 90 - 30 is 30
         wind_speed=0.61,
@@ -37,10 +38,10 @@ def example_weather_a():
 
 
 @pytest.fixture
-def example_span_a(drake_conductor_a):
-    start_tower = linerate.Tower(latitude=30, longitude=0.0001, altitude=0)
-    end_tower = linerate.Tower(latitude=30, longitude=-0.0001, altitude=0)
-    return linerate.Span(
+def example_span_a(drake_conductor_a: Conductor) -> Span:
+    start_tower = Tower(latitude=30, longitude=0.0001, altitude=0)
+    end_tower = Tower(latitude=30, longitude=-0.0001, altitude=0)
+    return Span(
         conductor=drake_conductor_a,
         start_tower=start_tower,
         end_tower=end_tower,
@@ -49,5 +50,5 @@ def example_span_a(drake_conductor_a):
 
 
 @pytest.fixture
-def example_model_a(example_span_a, example_weather_a):
-    return linerate.Cigre601(example_span_a, example_weather_a, np.datetime64("2016-06-10 11:00"))
+def example_model_a(example_span_a: Span, example_weather_a: Weather) -> Cigre601:
+    return Cigre601(example_span_a, example_weather_a, np.datetime64("2016-06-10 11:00"))
