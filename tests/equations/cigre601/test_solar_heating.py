@@ -4,10 +4,11 @@ import numpy as np
 from pytest import approx
 
 import linerate.equations.cigre601.solar_heating as solar_heating
+from linerate.units import Meter, Radian, Unitless, WattPerSquareMeter
 
 
 @hypothesis.given(
-    solar_altitude=st.floats(),
+    solar_altitude=st.floats(allow_nan=False, allow_infinity=False),
     clearness_ratio=st.floats(
         allow_nan=False, min_value=0, max_value=3
     ),  # Recommended values between 0 and 1.4
@@ -16,7 +17,7 @@ import linerate.equations.cigre601.solar_heating as solar_heating
     ),  # Tallest mountain on earth is lower than 10 000 m
 )
 def test_direct_solar_radiation_nonnegative(
-    solar_altitude, clearness_ratio, height_above_sea_level
+    solar_altitude: Radian, clearness_ratio: Unitless, height_above_sea_level: Meter
 ):
     N_s = clearness_ratio
     y = height_above_sea_level
@@ -24,10 +25,7 @@ def test_direct_solar_radiation_nonnegative(
 
     direct_solar_radiation = solar_heating.compute_direct_solar_radiation(sin_H_s, N_s, y)
 
-    if any(np.isnan([N_s, y, sin_H_s])):
-        assert np.isnan(direct_solar_radiation)
-    else:
-        assert direct_solar_radiation >= 0
+    assert np.all(direct_solar_radiation >= 0)
 
 
 @hypothesis.given(
@@ -35,7 +33,7 @@ def test_direct_solar_radiation_nonnegative(
         allow_nan=False, min_value=0, max_value=10
     ),  # Recommended values between 0 and 1.4
 )
-def test_direct_solar_radiation_scales_linearly_with_clearness_ratio(clearness_ratio):
+def test_direct_solar_radiation_scales_linearly_with_clearness_ratio(clearness_ratio: Unitless):
     y = 0
     N_s = clearness_ratio
     sin_H_s = 1
@@ -50,7 +48,9 @@ def test_direct_solar_radiation_scales_linearly_with_clearness_ratio(clearness_r
         allow_nan=False, min_value=0, max_value=10_000
     ),  # Tallest mountain on earth is lower than 10 000 m
 )
-def test_direct_solar_radiation_scales_affinely_with_height_above_sea_level(height_above_sea_level):
+def test_direct_solar_radiation_scales_affinely_with_height_above_sea_level(
+    height_above_sea_level: Meter,
+):
     y = height_above_sea_level
     N_s = 1
     sin_H_s = 1
@@ -64,7 +64,7 @@ def test_direct_solar_radiation_scales_affinely_with_height_above_sea_level(heig
 @hypothesis.given(
     solar_altitude=st.floats(allow_nan=False, allow_infinity=False),
 )
-def test_direct_solar_radiation_scales_correctly_with_sin_solar_altitude(solar_altitude):
+def test_direct_solar_radiation_scales_correctly_with_sin_solar_altitude(solar_altitude: Radian):
     y = 0
     N_s = 1
     sin_H_s = np.sin(solar_altitude)
@@ -92,27 +92,26 @@ def test_direct_solar_radiation_with_example():
 
 
 @hypothesis.given(
-    solar_altitude=st.floats(),
+    solar_altitude=st.floats(allow_nan=False, allow_infinity=False),
     direct_solar_radiation=st.floats(
         allow_nan=False, min_value=0, max_value=5000
     ),  # Cannot be greater than 5000 (approximately 4x solar constant)
 )
-def test_diffuse_sky_radiation_radiation_nonnegative(solar_altitude, direct_solar_radiation):
+def test_diffuse_sky_radiation_radiation_nonnegative(
+    solar_altitude: Radian, direct_solar_radiation: WattPerSquareMeter
+):
     I_B = direct_solar_radiation
     sin_H_s = np.sin(solar_altitude)
 
     I_d = solar_heating.compute_diffuse_sky_radiation(I_B, sin_H_s)
 
-    if any(np.isnan([I_B, sin_H_s])):
-        assert np.isnan(I_d)
-    else:
-        assert I_d >= 0
+    assert I_d >= 0
 
 
 @hypothesis.given(
     solar_altitude=st.floats(allow_nan=False, allow_infinity=False),
 )
-def test_diffuse_sky_radiation_scales_linearly_with_sin_solar_altitude(solar_altitude):
+def test_diffuse_sky_radiation_scales_linearly_with_sin_solar_altitude(solar_altitude: Radian):
     sin_H_s = np.sin(solar_altitude)
     I_B = 0
     I_d = solar_heating.compute_diffuse_sky_radiation(I_B, sin_H_s)
@@ -126,7 +125,9 @@ def test_diffuse_sky_radiation_scales_linearly_with_sin_solar_altitude(solar_alt
 @hypothesis.given(
     direct_solar_radiation=st.floats(allow_nan=False, allow_infinity=False),
 )
-def test_diffuse_sky_radiation_scales_affinely_with_direct_solar_radiation(direct_solar_radiation):
+def test_diffuse_sky_radiation_scales_affinely_with_direct_solar_radiation(
+    direct_solar_radiation: WattPerSquareMeter,
+):
     sin_H_s = 1
     I_B = direct_solar_radiation
     I_d = solar_heating.compute_diffuse_sky_radiation(I_B, sin_H_s)
@@ -147,7 +148,7 @@ def test_diffuse_sky_radiation_with_example():
 
 @hypothesis.given(diffuse_sky_radiation=st.floats(allow_nan=False))
 def test_global_radiation_intensity_scales_affinely_with_diffuse_sky_radiation(
-    diffuse_sky_radiation,
+    diffuse_sky_radiation: WattPerSquareMeter,
 ):
     I_B = 1
     sin_eta = -1
@@ -160,7 +161,9 @@ def test_global_radiation_intensity_scales_affinely_with_diffuse_sky_radiation(
 
 
 @hypothesis.given(direct_solar_radiation=st.floats(allow_nan=False))
-def test_global_radiation_intensity_scales_affinely_with_direct_radiation(direct_solar_radiation):
+def test_global_radiation_intensity_scales_affinely_with_direct_radiation(
+    direct_solar_radiation: WattPerSquareMeter,
+):
     I_B = direct_solar_radiation
     sin_eta = 1
     F = 2 / np.pi
@@ -172,7 +175,7 @@ def test_global_radiation_intensity_scales_affinely_with_direct_radiation(direct
 
 
 @hypothesis.given(albedo=st.floats(allow_nan=False))
-def test_global_radiation_intensity_scales_affinely_with_albedo(albedo):
+def test_global_radiation_intensity_scales_affinely_with_albedo(albedo: Unitless):
     I_B = 1
     sin_eta = 1
     F = albedo
@@ -184,7 +187,9 @@ def test_global_radiation_intensity_scales_affinely_with_albedo(albedo):
 
 
 @hypothesis.given(sin_solar_altitude=st.floats(allow_nan=False))
-def test_global_radiation_intensity_scales_affinely_sin_solar_altitude(sin_solar_altitude):
+def test_global_radiation_intensity_scales_affinely_sin_solar_altitude(
+    sin_solar_altitude: Unitless,
+):
     I_B = 1
     sin_eta = 1
     F = 2 / np.pi
@@ -197,7 +202,7 @@ def test_global_radiation_intensity_scales_affinely_sin_solar_altitude(sin_solar
 
 @hypothesis.given(sin_angle_of_sun_on_line=st.floats(allow_nan=False))
 def test_global_radiation_intensity_scales_affinely_sin_angle_of_sun_on_line(
-    sin_angle_of_sun_on_line,
+    sin_angle_of_sun_on_line: Unitless,
 ):
     I_B = 1
     sin_eta = sin_angle_of_sun_on_line

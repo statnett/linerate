@@ -11,7 +11,7 @@ INCH_PER_M = 1 / 0.0254
 
 
 @pytest.fixture
-def parrot_conductor():
+def parrot_conductor() -> linerate.Conductor:
     return linerate.Conductor(
         core_diameter=0.1004 / INCH_PER_M,
         conductor_diameter=1.508 / INCH_PER_M,
@@ -30,7 +30,7 @@ def parrot_conductor():
 
 
 @pytest.fixture
-def example_weather_a():
+def example_weather_a() -> linerate.Weather:
     return linerate.Weather(
         air_temperature=np.array(30),
         wind_direction=np.radians(0),
@@ -41,7 +41,7 @@ def example_weather_a():
 
 
 @pytest.fixture
-def example_span_a(parrot_conductor):
+def example_span_a(parrot_conductor: linerate.Conductor) -> linerate.Span:
     start_tower = linerate.Tower(latitude=65, longitude=0.0000, altitude=0)
     end_tower = linerate.Tower(latitude=65, longitude=0.0001, altitude=0)
     return linerate.Span(
@@ -53,7 +53,9 @@ def example_span_a(parrot_conductor):
 
 
 @pytest.fixture
-def example_model_a(example_span_a, example_weather_a):
+def example_model_a(
+    example_span_a: linerate.Span, example_weather_a: linerate.Weather
+) -> linerate.Cigre207:
     return linerate.Cigre207(
         example_span_a,
         example_weather_a,
@@ -62,54 +64,56 @@ def example_model_a(example_span_a, example_weather_a):
     )
 
 
-def test_example_a_convective_cooling(example_model_a):
-    assert example_model_a.compute_convective_cooling(50, None) == approx(32.52, abs=0.5)
+def test_example_a_convective_cooling(example_model_a: linerate.ThermalModel):
+    assert example_model_a.compute_convective_cooling(50) == approx(32.52, abs=0.5)
 
 
-def test_example_a_radiative_cooling(example_model_a):
-    assert example_model_a.compute_radiative_cooling(50, None) == approx(13.41, abs=0.5)
+def test_example_a_radiative_cooling(example_model_a: linerate.ThermalModel):
+    assert example_model_a.compute_radiative_cooling(50) == approx(13.41, abs=0.5)
 
 
-def test_example_a_solar_heating(example_model_a):
-    assert example_model_a.compute_solar_heating(50, None) == approx(31.04, abs=0.5)
+def test_example_a_solar_heating(example_model_a: linerate.ThermalModel):
+    assert example_model_a.compute_solar_heating() == approx(31.04, abs=0.5)
 
 
-def test_example_a_resistance(example_model_a):
-    assert example_model_a.compute_resistance(50, None) == approx(0.0428 / 1e3, rel=1e-3)
+def test_example_a_resistance(example_model_a: linerate.ThermalModel):
+    assert example_model_a.compute_resistance(50, np.nan) == approx(0.0428 / 1e3, rel=1e-3)
 
 
-def test_example_a_ampacity(example_model_a):
+def test_example_a_ampacity(example_model_a: linerate.ThermalModel):
     assert example_model_a.compute_steady_state_ampacity(
         50, min_ampacity=0, max_ampacity=10000, tolerance=1e-8
     ) == approx(590, abs=1.5)
 
 
-def test_example_a_convective_cooling_70(example_model_a):
-    assert example_model_a.compute_convective_cooling(70, None) == approx(63.59, rel=3e-2)
+def test_example_a_convective_cooling_70(example_model_a: linerate.ThermalModel):
+    assert example_model_a.compute_convective_cooling(70) == approx(63.59, rel=3e-2)
 
 
-def test_example_a_radiative_cooling_70(example_model_a):
-    assert example_model_a.compute_radiative_cooling(70, None) == approx(29.56, abs=0.5)
+def test_example_a_radiative_cooling_70(example_model_a: linerate.ThermalModel):
+    assert example_model_a.compute_radiative_cooling(70) == approx(29.56, abs=0.5)
 
 
-def test_example_a_solar_heating_70(example_model_a):
-    assert example_model_a.compute_solar_heating(70, None) == approx(31.05, abs=0.5)
+def test_example_a_solar_heating_70(example_model_a: linerate.ThermalModel):
+    assert example_model_a.compute_solar_heating() == approx(31.05, abs=0.5)
 
 
-def test_example_a_resistance_70(example_model_a):
-    assert example_model_a.compute_resistance(70, None) == approx(0.0458 / 1e3, rel=1e-3)
+def test_example_a_resistance_70(example_model_a: linerate.ThermalModel):
+    assert example_model_a.compute_resistance(70, np.nan) == approx(0.0458 / 1e3, rel=1e-3)
 
 
-def test_example_a_ampacity_70(example_model_a):
+def test_example_a_ampacity_70(example_model_a: linerate.ThermalModel):
     assert example_model_a.compute_steady_state_ampacity(
         70, min_ampacity=0, max_ampacity=10000, tolerance=1e-8
     ) == approx(1178, abs=1.5)
 
 
 @pytest.fixture
-def example_model_b(example_span_a, example_weather_a):
+def example_model_b(
+    example_span_a: linerate.Span, example_weather_a: linerate.Weather
+) -> linerate.IEEE738:
     return linerate.IEEE738(example_span_a, example_weather_a, np.datetime64("2016-06-21 12:00"))
 
 
-def test_example_b_solar_heating(example_model_b):
-    assert example_model_b.compute_solar_heating(50, None) == approx(33.03, abs=0.5)
+def test_example_b_solar_heating(example_model_b: linerate.ThermalModel):
+    assert example_model_b.compute_solar_heating() == approx(33.03, abs=0.5)

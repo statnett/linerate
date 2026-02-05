@@ -8,7 +8,7 @@ import linerate
 @hypothesis.given(
     vectorization_indices=st.sets(st.integers(min_value=1, max_value=24), max_size=10)
 )
-def test_vectorization(vectorization_indices):
+def test_vectorization(vectorization_indices: set[int]):
     def get_zeros(index, length):
         out = np.ones(length, dtype=int)
         if index in vectorization_indices:

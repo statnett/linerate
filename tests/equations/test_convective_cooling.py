@@ -4,6 +4,7 @@ import numpy as np
 from pytest import approx
 
 from linerate.equations import convective_cooling
+from linerate.units import Celsius, Unitless, WattPerMeterPerKelvin
 
 
 @hypothesis.given(
@@ -13,7 +14,7 @@ from linerate.equations import convective_cooling
         allow_nan=False,
     )
 )
-def test_convective_cooling_scales_linearly_with_nusselt_number(nusselt_number):
+def test_convective_cooling_scales_linearly_with_nusselt_number(nusselt_number: Unitless):
     Nu = nusselt_number
     T_s = 1
     T_a = 0
@@ -30,7 +31,7 @@ def test_convective_cooling_scales_linearly_with_nusselt_number(nusselt_number):
     )
 )
 def test_convective_cooling_scales_linearly_with_thermal_conductivity_of_air(
-    thermal_conductivity_of_air,
+    thermal_conductivity_of_air: WattPerMeterPerKelvin,
 ):
     Nu = 1 / np.pi
     T_s = 1
@@ -53,7 +54,7 @@ def test_convective_cooling_scales_linearly_with_thermal_conductivity_of_air(
     ),
 )
 def test_convective_cooling_scales_linearly_with_temperature_difference(
-    surface_temperature, air_temperature
+    surface_temperature: Celsius, air_temperature: Celsius
 ):
     Nu = 1
     T_s = surface_temperature
@@ -72,7 +73,7 @@ def test_convective_cooling_scales_linearly_with_temperature_difference(
         allow_nan=False,
     )
 )
-def test_convective_cooling_scales_affinely_with_air_temperature(air_temperature):
+def test_convective_cooling_scales_affinely_with_air_temperature(air_temperature: Celsius):
     Nu = 1
     T_s = 1
     T_a = air_temperature
@@ -88,7 +89,7 @@ def test_convective_cooling_scales_affinely_with_air_temperature(air_temperature
         allow_nan=False,
     ),
 )
-def test_convective_cooling_scales_affinely_with_surface_temperature(surface_temperature):
+def test_convective_cooling_scales_affinely_with_surface_temperature(surface_temperature: Celsius):
     Nu = 1
     T_s = surface_temperature
     T_a = 1

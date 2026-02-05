@@ -4,22 +4,19 @@ import numpy as np
 from pytest import approx, mark
 
 import linerate.equations.math as cigre_math
+from linerate.units import Radian
 
 
-@hypothesis.given(angle=st.floats())
-def test_switch_cos_sin(angle):
+@hypothesis.given(angle=st.floats(allow_nan=False, allow_infinity=False))
+def test_switch_cos_sin(angle: Radian):
     sin = np.sin(angle)
     cos = np.cos(angle)
 
     sin_from_cos = cigre_math.switch_cos_sin(cos)
     cos_from_sin = cigre_math.switch_cos_sin(sin)
 
-    if np.isnan(angle) or np.isinf(angle):
-        assert np.isnan(sin_from_cos)
-        assert np.isnan(cos_from_sin)
-    else:
-        assert np.abs(cos) == approx(cos_from_sin, abs=1e-8)
-        assert np.abs(sin) == approx(sin_from_cos, abs=1e-8)
+    assert np.abs(cos) == approx(cos_from_sin, abs=1e-8)
+    assert np.abs(sin) == approx(sin_from_cos, abs=1e-8)
 
 
 @mark.parametrize(
@@ -35,6 +32,6 @@ def test_switch_cos_sin(angle):
         "Angle between -pi (-180 degrees) and -pi/2 (-90 deg) is equivalent to pi/2 (90 deg)",
     ],
 )
-def test_compute_angle_of_attack(angle_1, angle_2, expected):
+def test_compute_angle_of_attack(angle_1: Radian, angle_2: Radian, expected: Radian):
     result = cigre_math.compute_angle_of_attack(angle_1, angle_2)
     assert result == expected

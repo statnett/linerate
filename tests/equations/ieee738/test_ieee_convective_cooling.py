@@ -5,13 +5,14 @@ from pytest import approx
 from scipy.interpolate import lagrange
 
 import linerate.equations.ieee738.convective_cooling as convective_cooling
+from linerate.units import Celsius, KilogramPerCubeMeter, KilogramPerMeterPerSecond, Meter
 
 
 @hypothesis.given(
     temperature_of_conductor_surface=st.floats(min_value=-273, max_value=1000, allow_nan=False)
 )
 def test_air_temperature_at_boundary_level_scales_with_temperature_of_conductor_surface(
-    temperature_of_conductor_surface,
+    temperature_of_conductor_surface: Celsius,
 ):
     T_s = temperature_of_conductor_surface
     T_a = 0
@@ -23,7 +24,7 @@ def test_air_temperature_at_boundary_level_scales_with_temperature_of_conductor_
     temperature_of_ambient_air=st.floats(min_value=-273, max_value=1000, allow_nan=False)
 )
 def test_air_temperature_at_boundary_level_scales_with_temperature_of_ambient_air(
-    temperature_of_ambient_air,
+    temperature_of_ambient_air: Celsius,
 ):
     T_s = 0
     T_a = temperature_of_ambient_air
@@ -36,7 +37,7 @@ def test_air_temperature_at_boundary_level_scales_with_temperature_of_ambient_ai
     temperature_of_ambient_air=st.floats(min_value=-273, max_value=1000, allow_nan=False),
 )
 def test_air_temperature_at_boundary_level_scales_with_ranges_of_temperature(
-    temperature_of_conductor_surface, temperature_of_ambient_air
+    temperature_of_conductor_surface: Celsius, temperature_of_ambient_air: Celsius
 ):
     T_s = temperature_of_conductor_surface
     T_a = temperature_of_ambient_air
@@ -57,7 +58,7 @@ def test_air_temperature_at_boundary_level_with_example():
     air_temperature_at_boundary_layer=st.floats(min_value=-273, max_value=1000, allow_nan=False)
 )
 def test_dynamic_viscosity_of_air_scales_with_air_temperature_at_boundary_layer(
-    air_temperature_at_boundary_layer,
+    air_temperature_at_boundary_layer: Celsius,
 ):
     T_film = air_temperature_at_boundary_layer
 
@@ -78,7 +79,7 @@ def test_dynamic_viscosity_of_air_with_example():
 
 @hypothesis.given(dynamic_viscosity_of_air=st.floats(allow_nan=False, allow_infinity=False))
 def test_kinematic_viscosity_of_air_scales_linearly_with_dynamic_viscosity(
-    dynamic_viscosity_of_air,
+    dynamic_viscosity_of_air: KilogramPerMeterPerSecond,
 ):
     mu_f = dynamic_viscosity_of_air
     rho_f = 1
@@ -87,7 +88,9 @@ def test_kinematic_viscosity_of_air_scales_linearly_with_dynamic_viscosity(
 
 
 @hypothesis.given(air_density=st.floats(min_value=1e-8, allow_nan=False, allow_infinity=False))
-def test_kinematic_viscosity_of_air_scales_inversely_with_density(air_density):
+def test_kinematic_viscosity_of_air_scales_inversely_with_density(
+    air_density: KilogramPerCubeMeter,
+):
     mu_f = 1
     rho_f = air_density
 
@@ -110,7 +113,7 @@ def test_wind_direction_factor_with_example():
     air_temperature_at_boundary_layer=st.floats(min_value=0, max_value=1000, allow_nan=False)
 )
 def test_thermal_conductivity_of_air_scales_with_air_temperature_at_boundary_layer(
-    air_temperature_at_boundary_layer,
+    air_temperature_at_boundary_layer: Celsius,
 ):
     T_film = air_temperature_at_boundary_layer
 
@@ -121,7 +124,9 @@ def test_thermal_conductivity_of_air_scales_with_air_temperature_at_boundary_lay
 @hypothesis.given(
     air_temperature_at_boundary_layer=st.floats(min_value=0, max_value=1000, allow_nan=False)
 )
-def test_thermal_conductivity_of_air_has_correct_interpolant(air_temperature_at_boundary_layer):
+def test_thermal_conductivity_of_air_has_correct_interpolant(
+    air_temperature_at_boundary_layer: Celsius,
+):
     T_film = np.arange(3) + air_temperature_at_boundary_layer
     _k_f = convective_cooling.compute_thermal_conductivity_of_air(T_film)
     lagrange_poly = lagrange(T_film, _k_f)
@@ -160,7 +165,7 @@ def test_forced_convection_chooses_largest_value():
     air_temperature_at_boundary_layer=st.floats(min_value=0, max_value=1000, allow_nan=False)
 )
 def test_air_density_scales_with_air_temperature_at_boundary_layer(
-    air_temperature_at_boundary_layer,
+    air_temperature_at_boundary_layer: Celsius,
 ):
     H_e = 0
     T_film = air_temperature_at_boundary_layer
@@ -171,7 +176,7 @@ def test_air_density_scales_with_air_temperature_at_boundary_layer(
 
 
 @hypothesis.given(elevation=st.floats(min_value=0, max_value=10000, allow_nan=False))
-def test_air_density_scales_with_elevation(elevation):
+def test_air_density_scales_with_elevation(elevation: Meter):
     H_e = elevation
     T_film = 0
 
@@ -183,7 +188,7 @@ def test_air_density_scales_with_elevation(elevation):
 
 
 @hypothesis.given(elevation=st.floats(min_value=0, max_value=10000, allow_nan=False))
-def test_air_density_has_correct_interpolant(elevation):
+def test_air_density_has_correct_interpolant(elevation: Meter):
     H_e = np.arange(3) + elevation
     T_film = 0
     _rho_f = convective_cooling.compute_air_density(T_film, H_e)
@@ -204,7 +209,7 @@ def test_air_density_with_example():
 
 
 @hypothesis.given(air_density=st.floats(min_value=1e-10, max_value=1000, allow_nan=False))
-def test_natural_convection_scales_with_air_density(air_density):
+def test_natural_convection_scales_with_air_density(air_density: KilogramPerCubeMeter):
     rho_f = air_density
     D_0 = 1 / (3.645 ** (4 / 3))
     T_s = 10
@@ -214,7 +219,7 @@ def test_natural_convection_scales_with_air_density(air_density):
 
 
 @hypothesis.given(diameter_of_conductor=st.floats(min_value=1e-5, max_value=1e5, allow_nan=False))
-def test_natural_convection_scales_with_diameter_of_conductor(diameter_of_conductor):
+def test_natural_convection_scales_with_diameter_of_conductor(diameter_of_conductor: Meter):
     rho_f = 1 / (3.645**2)
     D_0 = diameter_of_conductor
     T_s = 10
@@ -227,7 +232,7 @@ def test_natural_convection_scales_with_diameter_of_conductor(diameter_of_conduc
     temperature_of_conductor_surface=st.floats(min_value=-273, max_value=1000, allow_nan=False)
 )
 def test_natural_convection_scales_with_temperature_of_conductor_surface(
-    temperature_of_conductor_surface,
+    temperature_of_conductor_surface: Celsius,
 ):
     rho_f = 1 / (3.645**2)
     D_0 = 1
@@ -242,7 +247,9 @@ def test_natural_convection_scales_with_temperature_of_conductor_surface(
 @hypothesis.given(
     temperature_of_ambient_air=st.floats(min_value=-273, max_value=1000, allow_nan=False)
 )
-def test_natural_convection_scales_with_temperature_of_ambient_air(temperature_of_ambient_air):
+def test_natural_convection_scales_with_temperature_of_ambient_air(
+    temperature_of_ambient_air: Celsius,
+):
     rho_f = 1 / (3.645**2)
     D_0 = 1
     T_a = temperature_of_ambient_air
@@ -259,7 +266,7 @@ def test_natural_convection_scales_with_temperature_of_ambient_air(temperature_o
     temperature_of_ambient_air=st.floats(min_value=-273, max_value=1000, allow_nan=False),
 )
 def test_natural_convection_with_ranges_of_temperature(
-    temperature_of_conductor_surface, temperature_of_ambient_air
+    temperature_of_conductor_surface: Celsius, temperature_of_ambient_air: Celsius
 ):
     rho_f = 1 / (3.645**2)
     D_0 = 1

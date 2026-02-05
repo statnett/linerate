@@ -35,9 +35,7 @@ class Cigre207(ThermalModel):
         )
 
     @_copy_method_docstring(ThermalModel)
-    def compute_solar_heating(
-        self, conductor_temperature: Celsius, current: Ampere
-    ) -> WattPerMeter:
+    def compute_solar_heating(self) -> WattPerMeter:
         alpha_s = self.span.conductor.solar_absorptivity
         phi = self.span.latitude
         gamma_c = self.span.conductor_azimuth
@@ -74,9 +72,7 @@ class Cigre207(ThermalModel):
         )
 
     @_copy_method_docstring(ThermalModel)
-    def compute_convective_cooling(
-        self, conductor_temperature: Celsius, current: Ampere
-    ) -> WattPerMeter:
+    def compute_convective_cooling(self, conductor_temperature: Celsius) -> WattPerMeter:
         D = self.span.conductor.conductor_diameter
         d = self.span.conductor.outer_layer_strand_diameter
         V = self.weather.wind_speed
@@ -126,10 +122,11 @@ class Cigre207(ThermalModel):
 
     @_copy_method_docstring(ThermalModel)
     def compute_radiative_cooling(
-        self, conductor_temperature: Celsius, current: Ampere
+        self,
+        conductor_temperature: Celsius,
     ) -> WattPerMeter:
         return super().compute_radiative_cooling(
-            conductor_temperature=conductor_temperature, current=current
+            conductor_temperature=conductor_temperature,
         )
 
     @_copy_method_docstring(ThermalModel)

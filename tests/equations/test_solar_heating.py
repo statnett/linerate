@@ -3,6 +3,7 @@ import hypothesis.strategies as st
 from pytest import approx
 
 from linerate.equations import solar_heating
+from linerate.units import Meter, Unitless, WattPerSquareMeter
 
 
 def test_matches_solar_heating_example_from_cigre207():
@@ -15,7 +16,7 @@ def test_matches_solar_heating_example_from_cigre207():
 
 
 @hypothesis.given(conductor_diameter=st.floats(allow_nan=False))
-def test_solar_heating_scales_linearly_with_conductor_diameter(conductor_diameter):
+def test_solar_heating_scales_linearly_with_conductor_diameter(conductor_diameter: Meter):
     D = conductor_diameter
     alpha_s = 1
     I_T = 1
@@ -24,7 +25,7 @@ def test_solar_heating_scales_linearly_with_conductor_diameter(conductor_diamete
 
 
 @hypothesis.given(solar_absorptivity=st.floats(allow_nan=False))
-def test_solar_heating_scales_linearly_with_solar_absorptivity(solar_absorptivity):
+def test_solar_heating_scales_linearly_with_solar_absorptivity(solar_absorptivity: Unitless):
     D = 1
     alpha_s = solar_absorptivity
     I_T = 1
@@ -33,7 +34,9 @@ def test_solar_heating_scales_linearly_with_solar_absorptivity(solar_absorptivit
 
 
 @hypothesis.given(global_radiation_intensity=st.floats(allow_nan=False))
-def test_solar_heating_scales_linearly_with_global_radiation_intensity(global_radiation_intensity):
+def test_solar_heating_scales_linearly_with_global_radiation_intensity(
+    global_radiation_intensity: WattPerSquareMeter,
+):
     D = 1
     alpha_s = 1
     I_T = global_radiation_intensity

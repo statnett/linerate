@@ -7,7 +7,7 @@ import linerate
 
 
 @pytest.fixture
-def drake_conductor_a():
+def drake_conductor_a() -> linerate.Conductor:
     return linerate.Conductor(
         core_diameter=10.4e-3,
         conductor_diameter=28.1e-3,
@@ -26,7 +26,7 @@ def drake_conductor_a():
 
 
 @pytest.fixture
-def example_weather_a():
+def example_weather_a() -> linerate.Weather:
     return linerate.Weather(
         air_temperature=40,
         wind_direction=np.radians(30),  # Conductor azimuth is 90, so 90 - 30 is 30
@@ -37,7 +37,7 @@ def example_weather_a():
 
 
 @pytest.fixture
-def example_span_a(drake_conductor_a):
+def example_span_a(drake_conductor_a: linerate.Conductor) -> linerate.Span:
     start_tower = linerate.Tower(latitude=30, longitude=0.0001, altitude=0)
     end_tower = linerate.Tower(latitude=30, longitude=-0.0001, altitude=0)
     return linerate.Span(
@@ -49,5 +49,7 @@ def example_span_a(drake_conductor_a):
 
 
 @pytest.fixture
-def example_model_a(example_span_a, example_weather_a):
+def example_model_a(
+    example_span_a: linerate.Span, example_weather_a: linerate.Weather
+) -> linerate.Cigre601:
     return linerate.Cigre601(example_span_a, example_weather_a, np.datetime64("2016-06-10 11:00"))

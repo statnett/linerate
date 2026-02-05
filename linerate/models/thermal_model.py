@@ -84,16 +84,9 @@ class ThermalModel(ABC):
 
     @abstractmethod
     def compute_solar_heating(
-        self, conductor_temperature: Celsius, current: Ampere
+        self,
     ) -> WattPerMeter:
         r"""Compute the solar heating, :math:`P_S~\left[\text{W}~\text{m}^{-1}\right]`.
-
-        Parameters
-        ----------
-        conductor_temperature:
-            :math:`T_\text{av}~\left[^\circ\text{C}\right]`. The average conductor temperature.
-        current:
-            :math:`I~\left[\text{A}\right]`. The current.
 
         Returns
         -------
@@ -104,7 +97,8 @@ class ThermalModel(ABC):
 
     @abstractmethod
     def compute_convective_cooling(
-        self, conductor_temperature: Celsius, current: Ampere
+        self,
+        conductor_temperature: Celsius,
     ) -> WattPerMeter:
         r"""Compute the convective cooling, :math:`P_c~\left[\text{W}~\text{m}^{-1}\right]`.
 
@@ -112,8 +106,6 @@ class ThermalModel(ABC):
         ----------
         conductor_temperature:
             :math:`T_\text{av}~\left[^\circ\text{C}\right]`. The average conductor temperature.
-        current:
-            :math:`I~\left[\text{A}\right]`. The current.
 
         Returns
         -------
@@ -124,7 +116,8 @@ class ThermalModel(ABC):
 
     @abstractmethod
     def compute_radiative_cooling(
-        self, conductor_temperature: Celsius, current: Ampere
+        self,
+        conductor_temperature: Celsius,
     ) -> WattPerMeter:
         r"""Compute the radiative cooling, :math:`P_r~\left[\text{W}~\text{m}^{-1}\right]`.
 
@@ -132,8 +125,6 @@ class ThermalModel(ABC):
         ----------
         conductor_temperature:
             :math:`T_\text{av}~\left[^\circ\text{C}\right]`. The average conductor temperature.
-        current:
-            :math:`I~\left[\text{A}\right]`. The current.
 
         Returns
         -------
@@ -163,9 +154,9 @@ class ThermalModel(ABC):
             :math:`P_J + P_s - P_c - P_r~\left[\text{W}~\text{m}^{-1}\right]`. The heat balance.
         """
         P_j = self.compute_joule_heating(conductor_temperature, current)
-        P_s = self.compute_solar_heating(conductor_temperature, current)
-        P_c = self.compute_convective_cooling(conductor_temperature, current)
-        P_r = self.compute_radiative_cooling(conductor_temperature, current)
+        P_s = self.compute_solar_heating()
+        P_c = self.compute_convective_cooling(conductor_temperature)
+        P_r = self.compute_radiative_cooling(conductor_temperature)
         return P_j + P_s - P_c - P_r
 
     def compute_info(
@@ -186,10 +177,10 @@ class ThermalModel(ABC):
             A dictionary with the magnitude of the different heating and cooling effects.
         """
         return {
-            "convective_cooling": self.compute_convective_cooling(conductor_temperature, current),
-            "radiative_cooling": self.compute_radiative_cooling(conductor_temperature, current),
+            "convective_cooling": self.compute_convective_cooling(conductor_temperature),
+            "radiative_cooling": self.compute_radiative_cooling(conductor_temperature),
             "joule_heating": self.compute_joule_heating(conductor_temperature, current),
-            "solar_heating": self.compute_solar_heating(conductor_temperature, current),
+            "solar_heating": self.compute_solar_heating(),
         }
 
     def compute_steady_state_ampacity(

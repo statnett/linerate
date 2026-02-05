@@ -6,6 +6,8 @@ import numpy as np
 from pytest import approx
 
 import linerate.equations.solar_angles as solar_angles
+from linerate.types import Span
+from linerate.units import Degrees, Radian
 
 
 def test_get_day_of_year_with_example():
@@ -82,7 +84,7 @@ def test_solar_azimuth_with_example2():
 
 
 @hypothesis.given(degrees_of_latitude=st.floats(min_value=-180, max_value=180, allow_nan=False))
-def test_sin_solar_altitude_scales_correctly_with_degrees_of_latitude(degrees_of_latitude):
+def test_sin_solar_altitude_scales_correctly_with_degrees_of_latitude(degrees_of_latitude: Degrees):
     Lat = degrees_of_latitude
     delta = np.pi / 2
     omega = np.pi / 2
@@ -91,7 +93,7 @@ def test_sin_solar_altitude_scales_correctly_with_degrees_of_latitude(degrees_of
 
 
 @hypothesis.given(solar_declination=st.floats(min_value=-23.46, max_value=23.46, allow_nan=False))
-def test_sin_solar_altitude_scales_correctly_with_solar_declination(solar_declination):
+def test_sin_solar_altitude_scales_correctly_with_solar_declination(solar_declination: Radian):
     Lat = 90
     delta = solar_declination
     omega = np.pi / 2
@@ -103,7 +105,7 @@ def test_sin_solar_altitude_scales_correctly_with_solar_declination(solar_declin
     hour_angle_relative_to_noon=st.floats(min_value=-np.pi, max_value=np.pi, allow_nan=False)
 )
 def test_sin_solar_altitude_scales_correctly_with_hour_angle_relative_to_noon(
-    hour_angle_relative_to_noon,
+    hour_angle_relative_to_noon: Radian,
 ):
     Lat = 0
     delta = 0
@@ -115,7 +117,7 @@ def test_sin_solar_altitude_scales_correctly_with_hour_angle_relative_to_noon(
 @hypothesis.given(
     day=st.dates(min_value=datetime.date(2022, 1, 1), max_value=datetime.date(2022, 12, 31))
 )
-def test_solar_declination_scales_correctly_with_day_of_year(day):
+def test_solar_declination_scales_correctly_with_day_of_year(day: datetime.date):
     day_of_year = day.timetuple().tm_yday
     N = day_of_year
     delta = np.radians((23.3) * np.sin((284 + N) * 2 * np.pi / 365))
@@ -129,11 +131,11 @@ def test_solar_declination_scales_correctly_with_day_of_year(day):
     ),
     longitude=st.floats(min_value=-180, max_value=180),
 )
-def test_solar_declination_scales_with_dates_and_times(when, longitude):
+def test_solar_declination_scales_with_dates_and_times(when: datetime.datetime, longitude: Degrees):
     omega = ((-12 + when.hour + when.minute / 60 + longitude / 15) % 24) * np.pi / 12
     omega = np.where(omega >= np.pi, omega - 2 * np.pi, omega)
-    when = np.datetime64(when)
-    assert omega == approx(solar_angles.compute_hour_angle_relative_to_noon(when, longitude))
+    when64 = np.datetime64(when)
+    assert omega == approx(solar_angles.compute_hour_angle_relative_to_noon(when64, longitude))
 
 
 def test_solar_declination_with_examples():
@@ -184,7 +186,7 @@ def test_solar_azimuth_example_a():
     assert (np.pi - solar_angles.compute_solar_azimuth(C, chi)) == approx(1.147975923)
 
 
-def test_compute_sin_solar_altitude_for_span(example_span_1_conductor):
+def test_compute_sin_solar_altitude_for_span(example_span_1_conductor: Span):
     time = np.arange(
         np.datetime64("2023-06-10T00:00"), np.datetime64("2023-06-11T00:00"), np.timedelta64(1, "h")
     )
@@ -223,7 +225,7 @@ def test_compute_sin_solar_altitude_for_span(example_span_1_conductor):
     )
 
 
-def test_compute_sin_solar_effective_incidence_angle_for_span(example_span_1_conductor):
+def test_compute_sin_solar_effective_incidence_angle_for_span(example_span_1_conductor: Span):
     time = np.arange(
         np.datetime64("2023-06-10T00:00"), np.datetime64("2023-06-11T00:00"), np.timedelta64(1, "h")
     )

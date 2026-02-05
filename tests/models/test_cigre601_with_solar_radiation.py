@@ -33,8 +33,8 @@ def test_solar_heating_with_solar_radiation_equals_with_cigre601_radiation(
     model_with_radiation = get_equivalent_model_with_solar_radiation(example_model_1_conductors)
 
     np.testing.assert_allclose(
-        model_with_radiation.compute_solar_heating(np.nan, np.nan),
-        example_model_1_conductors.compute_solar_heating(np.nan, np.nan),
+        model_with_radiation.compute_solar_heating(),
+        example_model_1_conductors.compute_solar_heating(),
     )
 
 

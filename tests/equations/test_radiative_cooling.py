@@ -6,10 +6,11 @@ from pytest import approx
 from scipy.constants import Stefan_Boltzmann as stefan_boltzmann_constant
 
 import linerate.equations.radiative_cooling as radiative_cooling
+from linerate.units import Celsius, Meter, Unitless, WattPerMeter
 
 
 @hypothesis.given(conductor_emissivity=st.floats(allow_nan=False))
-def test_radiative_cooling_scales_affinely_with_emissivity(conductor_emissivity):
+def test_radiative_cooling_scales_affinely_with_emissivity(conductor_emissivity: Unitless):
     # Set parameters so 2piR (T_s^4 - T_a^4) = 1
     D = 1 / np.pi
     epsilon = conductor_emissivity
@@ -23,7 +24,7 @@ def test_radiative_cooling_scales_affinely_with_emissivity(conductor_emissivity)
 
 
 @hypothesis.given(conductor_diameter=st.floats(allow_nan=False, min_value=0, max_value=1e10))
-def test_radiative_cooling_scales_affinely_with_diameter(conductor_diameter):
+def test_radiative_cooling_scales_affinely_with_diameter(conductor_diameter: Meter):
     # Set parameters so pisigma (T_s^4 - T_a^4) = 1
     D = conductor_diameter
     epsilon = 1 / np.pi
@@ -35,7 +36,7 @@ def test_radiative_cooling_scales_affinely_with_diameter(conductor_diameter):
 
 
 @hypothesis.given(surface_temperature=st.floats(allow_nan=False, min_value=-273.15, max_value=1e10))
-def test_radiative_cooling_scales_power_four_with_surface_temperature(surface_temperature):
+def test_radiative_cooling_scales_power_four_with_surface_temperature(surface_temperature: Celsius):
     # Set parameters so 2 pi sigma epsilon = 1
     D = 1 / np.pi
     sigma = stefan_boltzmann_constant
@@ -49,7 +50,7 @@ def test_radiative_cooling_scales_power_four_with_surface_temperature(surface_te
 
 
 @hypothesis.given(air_temperature=st.floats(allow_nan=False, min_value=-273.15, max_value=1e10))
-def test_radiative_cooling_scales_power_four_with_air_temperature(air_temperature):
+def test_radiative_cooling_scales_power_four_with_air_temperature(air_temperature: Celsius):
     # Set parameters so 2 pi sigma epsilon = 1
     D = 1 / np.pi
     sigma = stefan_boltzmann_constant
@@ -75,7 +76,11 @@ def test_radiative_cooling_scales_power_four_with_air_temperature(air_temperatur
     ],
 )
 def test_radiative_cooling_with_example(
-    conductor_diameter, conductor_emissivity, surface_temperature, air_temperature, cooling
+    conductor_diameter: Meter,
+    conductor_emissivity: Unitless,
+    surface_temperature: Celsius,
+    air_temperature: Celsius,
+    cooling,
 ):
     D = conductor_diameter
     epsilon = conductor_emissivity
@@ -89,7 +94,9 @@ def test_radiative_cooling_with_example(
     "surface_temperature, expected_cooling",
     [(57, 5.76), (93, 21.27), (75, 12.92)],
 )
-def test_cooling_matches_cigre207_examples(surface_temperature, expected_cooling):
+def test_cooling_matches_cigre207_examples(
+    surface_temperature: Celsius, expected_cooling: WattPerMeter
+):
     # See Appendix 1, Example 1 in Cigre 207
     T_a = 40
     D = 0.0286

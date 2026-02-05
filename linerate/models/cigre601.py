@@ -51,7 +51,8 @@ class BaseCigre601(ThermalModel):
 
     @_copy_method_docstring(ThermalModel)
     def compute_convective_cooling(
-        self, conductor_temperature: Celsius, current: Ampere
+        self,
+        conductor_temperature: Celsius,
     ) -> WattPerMeter:
         D = self.span.conductor.conductor_diameter
         d = self.span.conductor.outer_layer_strand_diameter
@@ -107,10 +108,11 @@ class BaseCigre601(ThermalModel):
 
     @_copy_method_docstring(ThermalModel)
     def compute_radiative_cooling(
-        self, conductor_temperature: Celsius, current: Ampere
+        self,
+        conductor_temperature: Celsius,
     ) -> WattPerMeter:
         return super().compute_radiative_cooling(
-            conductor_temperature=conductor_temperature, current=current
+            conductor_temperature=conductor_temperature,
         )
 
     def compute_temperature_gradient(
@@ -159,9 +161,7 @@ class Cigre601(BaseCigre601):
         self.max_reynolds_number = max_reynolds_number
 
     @_copy_method_docstring(ThermalModel)
-    def compute_solar_heating(
-        self, conductor_temperature: Celsius, current: Ampere
-    ) -> WattPerMeter:
+    def compute_solar_heating(self) -> WattPerMeter:
         alpha_s = self.span.conductor.solar_absorptivity
         F = self.weather.ground_albedo
         y = self.span.conductor_altitude
@@ -202,9 +202,7 @@ class Cigre601WithSolarRadiation(BaseCigre601):
         self.time = time
         self.max_reynolds_number = max_reynolds_number
 
-    def compute_solar_heating(
-        self, conductor_temperature: Celsius, current: Ampere
-    ) -> WattPerMeter:
+    def compute_solar_heating(self) -> WattPerMeter:
         alpha_s = self.span.conductor.solar_absorptivity
         F = self.weather.ground_albedo
         D = self.span.conductor.conductor_diameter

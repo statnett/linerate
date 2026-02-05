@@ -7,25 +7,25 @@ from pytest import approx
 import linerate
 
 
-def test_example_a_convective_cooling(example_model_1_conductors):
-    assert example_model_1_conductors.compute_convective_cooling(100, None) == approx(77.6, abs=0.5)
+def test_example_a_convective_cooling(example_model_1_conductors: linerate.ThermalModel):
+    assert example_model_1_conductors.compute_convective_cooling(100) == approx(77.6, abs=0.5)
 
 
-def test_example_a_radiative_cooling(example_model_1_conductors):
-    assert example_model_1_conductors.compute_radiative_cooling(100, None) == approx(39.1, abs=0.5)
+def test_example_a_radiative_cooling(example_model_1_conductors: linerate.ThermalModel):
+    assert example_model_1_conductors.compute_radiative_cooling(100) == approx(39.1, abs=0.5)
 
 
-def test_example_a_solar_heating(example_model_1_conductors):
-    assert example_model_1_conductors.compute_solar_heating(100, None) == approx(27.2, abs=0.5)
+def test_example_a_solar_heating(example_model_1_conductors: linerate.ThermalModel):
+    assert example_model_1_conductors.compute_solar_heating() == approx(27.2, abs=0.5)
 
 
-def test_example_a_resistance(example_model_1_conductors):
-    assert example_model_1_conductors.compute_resistance(100, None) == approx(
+def test_example_a_resistance(example_model_1_conductors: linerate.ThermalModel):
+    assert example_model_1_conductors.compute_resistance(100, np.nan) == approx(
         9.3905e-5, abs=0.0001e-5
     )
 
 
-def test_example_a_ampacity(example_model_1_conductors):
+def test_example_a_ampacity(example_model_1_conductors: linerate.ThermalModel):
     # There are noticable roundoff errors in the report
     assert example_model_1_conductors.compute_steady_state_ampacity(100, tolerance=1e-8) == approx(
         976, abs=1.5
@@ -33,7 +33,7 @@ def test_example_a_ampacity(example_model_1_conductors):
 
 
 @pytest.fixture
-def drake_conductor_b():
+def drake_conductor_b() -> linerate.Conductor:
     return linerate.Conductor(
         core_diameter=10.4e-3,
         conductor_diameter=28.1e-3,
@@ -52,7 +52,7 @@ def drake_conductor_b():
 
 
 @pytest.fixture
-def example_weather_b():
+def example_weather_b() -> linerate.Weather:
     return linerate.Weather(
         air_temperature=20,
         wind_direction=np.radians(80),  # Conductor azimuth is 0, so angle of attack is 80
@@ -63,7 +63,7 @@ def example_weather_b():
 
 
 @pytest.fixture()
-def example_span_b(drake_conductor_b):
+def example_span_b(drake_conductor_b: linerate.Conductor) -> linerate.Span:
     start_tower = linerate.Tower(latitude=50 - 0.0045, longitude=0, altitude=500 - 88)
     end_tower = linerate.Tower(latitude=50 + 0.0045, longitude=0, altitude=500 + 88)
     return linerate.Span(
@@ -74,40 +74,42 @@ def example_span_b(drake_conductor_b):
     )
 
 
-def test_example_span_b_has_correct_altitude(example_span_b):
+def test_example_span_b_has_correct_altitude(example_span_b: linerate.Span):
     assert example_span_b.conductor_altitude == approx(500, abs=0.5)
 
 
-def test_example_span_b_has_correct_inclination(example_span_b):
+def test_example_span_b_has_correct_inclination(example_span_b: linerate.Span):
     assert np.degrees(example_span_b.inclination) == approx(10, abs=0.5)
 
 
-def test_example_span_b_has_correct_latitude(example_span_b):
+def test_example_span_b_has_correct_latitude(example_span_b: linerate.Span):
     assert example_span_b.latitude == approx(50)
 
 
 @pytest.fixture()
-def example_model_b(example_span_b, example_weather_b):
+def example_model_b(
+    example_span_b: linerate.Span, example_weather_b: linerate.Weather
+) -> linerate.Cigre601:
     return linerate.Cigre601(example_span_b, example_weather_b, np.datetime64("2016-10-03 14:00"))
 
 
-def test_example_b_convective_cooling(example_model_b):
-    assert example_model_b.compute_convective_cooling(100, None) == approx(172.1, abs=0.5)
+def test_example_b_convective_cooling(example_model_b: linerate.ThermalModel):
+    assert example_model_b.compute_convective_cooling(100) == approx(172.1, abs=0.5)
 
 
-def test_example_b_radiative_cooling(example_model_b):
-    assert example_model_b.compute_radiative_cooling(100, None) == approx(54, abs=0.5)
+def test_example_b_radiative_cooling(example_model_b: linerate.ThermalModel):
+    assert example_model_b.compute_radiative_cooling(100) == approx(54, abs=0.5)
 
 
-def test_example_b_solar_heating(example_model_b):
-    assert example_model_b.compute_solar_heating(100, None) == approx(13.7, abs=0.5)
+def test_example_b_solar_heating(example_model_b: linerate.ThermalModel):
+    assert example_model_b.compute_solar_heating() == approx(13.7, abs=0.5)
 
 
-def test_example_b_resistance(example_model_b):
-    assert example_model_b.compute_resistance(100, None) == approx(9.3905e-5, abs=0.0001e-5)
+def test_example_b_resistance(example_model_b: linerate.ThermalModel):
+    assert example_model_b.compute_resistance(100, np.nan) == approx(9.3905e-5, abs=0.0001e-5)
 
 
-def test_example_b_ampacity(example_model_b):
+def test_example_b_ampacity(example_model_b: linerate.ThermalModel):
     # There are noticable roundoff errors in the report
     # There is a typo in the report, where it says that the ampacity is 1054, but it is 1504.
     assert example_model_b.compute_steady_state_ampacity(100, tolerance=1e-8) == approx(
