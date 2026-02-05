@@ -80,7 +80,7 @@ def test_radiative_cooling_with_example(
     conductor_emissivity: Unitless,
     surface_temperature: Celsius,
     air_temperature: Celsius,
-    cooling,
+    cooling: WattPerMeter,
 ):
     D = conductor_diameter
     epsilon = conductor_emissivity
