@@ -209,16 +209,16 @@ def compute_perpendicular_flow_nusseltnumber(
     _check_perpendicular_flow_nusseltnumber_out_of_bounds(reynolds_number, conductor_roughness)
     Re = reynolds_number
     Rs = conductor_roughness
-    turbulence = [Re >= v for v in [35, 100, 2650, 5000, 50_000]]
     smooth = (Rs == 0) | np.isnan(Rs)
     rough = Rs <= 0.05
+    very_rough = Rs > 0.05
     conditions = [
-        smooth & turbulence[4],
-        smooth & turbulence[3],
-        smooth & turbulence[0],
-        rough & turbulence[2],
-        ~(rough | smooth) & turbulence[2],
-        ~smooth & turbulence[1],
+        smooth & (Re >= 50_000),
+        smooth & (Re >= 5000),
+        smooth & (Re >= 35),
+        rough & (Re >= 2650),
+        very_rough & (Re >= 2650),
+        (rough | very_rough) & (Re >= 100),
     ]
     B_choices = [0.0208, 0.148, 0.583, 0.178, 0.048, 0.641]
     n_choices = [0.814, 0.633, 0.471, 0.633, 0.8, 0.471]
