@@ -1,5 +1,4 @@
 import numpy as np
-from numba import vectorize
 
 from linerate.equations import math
 
@@ -116,29 +115,6 @@ def compute_solar_azimuth_variable(
     return np.sin(omega) / (np.sin(Lat) * np.cos(omega) - np.cos(Lat) * np.tan(delta))
 
 
-@vectorize
-def _compute_solar_azimuth_constant(
-    solar_azimuth_variable: Radian, hour_angle_relative_to_noon: Radian
-) -> Radian:
-    chi = solar_azimuth_variable
-    omega = hour_angle_relative_to_noon
-    pi = np.pi
-    if -pi <= omega < 0:
-        if chi >= 0:
-            C = 0
-        else:
-            C = pi
-    elif 0 <= omega < pi:
-        if chi >= 0:
-            C = pi
-        else:
-            C = 2 * pi
-    else:
-        raise ValueError(f"Hour angle {omega} out of range [-π, π)")
-
-    return C
-
-
 def compute_solar_azimuth_constant(
     solar_azimuth_variable: Radian, hour_angle_relative_to_noon: Radian
 ) -> Radian:
@@ -159,7 +135,14 @@ def compute_solar_azimuth_constant(
         :math:`C~\left[\text{radian}\right]`. The solar azimuth constant.
 
     """
-    return _compute_solar_azimuth_constant(solar_azimuth_variable, hour_angle_relative_to_noon)
+    chi = solar_azimuth_variable
+    omega = hour_angle_relative_to_noon
+    pi = np.pi
+    if np.any((omega < -pi) | (omega >= pi)):
+        raise ValueError(f"Hour angle {omega} out of range [-π, π)")
+    conditions = [(omega < 0) & (chi >= 0), (omega >= 0) & (chi < 0)]
+    choices = [0, 2 * pi]
+    return np.select(conditions, choices, default=pi)
 
 
 def compute_solar_azimuth(

@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.constants import Stefan_Boltzmann as stefan_boltzmann_constant
 
 from ..units import Celsius, Meter, Unitless, WattPerMeter
 
@@ -30,7 +29,7 @@ def compute_radiative_cooling(
     Union[float, float64, ndarray[Any, dtype[float64]]]
         :math:`P_r~\left[\text{W}~\text{m}^{-1}\right]`. The radiative cooling of the conductor.
     """
-    sigma_B = stefan_boltzmann_constant
+    sigma_B = 5.6703744191844314e-08  # Stefan-Boltzmann constant
     pi = np.pi
     D = conductor_diameter
     T_s = surface_temperature
