@@ -11,9 +11,6 @@ dynamic = ["version"]
 
 dependencies = [
   "numpy",
-  "scipy",
-  "numba>=0.56.4",
-  "pygeodesy",
 ]
 
 [dependency-groups]
@@ -26,6 +23,7 @@ dev = [
   "pytest-randomly==4.0.1",
   "pyright[nodejs]",
   "matplotlib>=3.9.4",
+  "scipy",
 ]
 docs = [
   "sphinx",
