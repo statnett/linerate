@@ -14,7 +14,7 @@
           with:
             fetch-depth: 0
         - name: Install the latest version of uv and set the python version
-          uses: astral-sh/setup-uv@b75a909f75acd358c2196fb9a5f1299a9a8868a4 # v6
+          uses: astral-sh/setup-uv@5a095e7a2014a4212f075830d4f7277575a9d098 # v7
           with:
             python-version: ${{ matrix.python-version }}
         - name: Run linting and type checking
@@ -31,7 +31,7 @@
           with:
             fetch-depth: 0
         - name: Install the latest version of uv and set the python version
-          uses: astral-sh/setup-uv@b75a909f75acd358c2196fb9a5f1299a9a8868a4 # v6
+          uses: astral-sh/setup-uv@5a095e7a2014a4212f075830d4f7277575a9d098 # v7
           with:
             python-version: ${{ matrix.python-version }}
         - name: Test with python ${{ matrix.python-version }}
