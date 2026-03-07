@@ -138,7 +138,7 @@ class BaseCigre601(ThermalModel):
         I = current / n  # noqa
         R = self.compute_resistance(conductor_temperature=T_c, current=I)
         return cigre601.convective_cooling.compute_temperature_gradient(
-            total_heat_gain=I * R,
+            total_heat_gain=I * I * R,
             conductor_thermal_conductivity=self.span.conductor.thermal_conductivity,  # type: ignore  # noqa
             core_diameter=self.span.conductor.core_diameter,
             conductor_diameter=self.span.conductor.conductor_diameter,
