@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
 from typing import Dict
 
+import numpy as np
+from functools import partial
 from linerate import solver
-from linerate.equations import joule_heating, radiative_cooling
-from linerate.types import BaseWeather, Span
-from linerate.units import Ampere, Celsius, OhmPerMeter, WattPerMeter
+from linerate.equations import joule_heating, radiative_cooling, heat_capacity
+from linerate.types import BaseWeather, Span, conductor_heat_capacity_defined
+from linerate.units import Ampere, Celsius, Duration, OhmPerMeter, WattPerMeter
 
 
 def _copy_method_docstring(parent_class):
@@ -269,3 +271,73 @@ class ThermalModel(ABC):
             tolerance=tolerance,
         )
         return T
+
+    def compute_heat_capacity_per_unit_length(self, conductor_temperature: Celsius):
+        conductor = self.span.conductor
+        if conductor_heat_capacity_defined(conductor):
+            mc_s = heat_capacity.calculate_heat_capacity_per_unit_length(
+                mass_per_unit_length=conductor.steel_mass_per_unit_length,
+                specific_heat_capacity_at_20_celsius=conductor.steel_specific_heat_capacity_at_20_celsius,
+                specific_heat_capacity_coefficient=conductor.steel_specific_heat_capacity_temperature_coefficient,
+                conductor_temperature=conductor_temperature,
+            )
+            mc_a = heat_capacity.calculate_heat_capacity_per_unit_length(
+                mass_per_unit_length=conductor.aluminum_mass_per_unit_length,
+                specific_heat_capacity_at_20_celsius=conductor.aluminum_specific_heat_capacity_at_20_celsius,
+                specific_heat_capacity_coefficient=conductor.aluminum_specific_heat_capacity_temperature_coefficient,
+                conductor_temperature=conductor_temperature,
+            )
+            return mc_s + mc_a
+        else:
+            raise RuntimeError("Heat capacity data must be defined to calculate heat capacity.")
+
+    def compute_final_temperature(
+        self,
+        initial_conductor_temperature: Celsius,
+        heating_time: Duration,
+        current: Ampere,
+        time_step: Duration = np.timedelta64(60, "s"),
+    ) -> Ampere:
+        time_step = np.broadcast_to(time_step, heating_time.shape)
+        step_count = heating_time // time_step
+        remainder = heating_time % time_step
+        dt = time_step / np.timedelta64(1, "s")
+        modification_mask = step_count > 0
+        temperature = initial_conductor_temperature
+        while np.any(modification_mask):
+            heat_capacity_ = self.compute_heat_capacity_per_unit_length(temperature)
+            heat_balance = self.compute_heat_balance(temperature, current=current)
+            dT = (heat_balance / heat_capacity_) * dt
+            temperature = temperature + modification_mask * dT
+            step_count -= 1
+            modification_mask = step_count > 0
+        if np.any(remainder > 0):
+            heat_capacity_ = self.compute_heat_capacity_per_unit_length(temperature)
+            heat_balance = self.compute_heat_balance(temperature, current=current)
+            dT = (heat_balance / heat_capacity_) * remainder
+            temperature = temperature + dT
+        return temperature
+
+    def compute_temporary_ampacity(
+        self,
+        max_conductor_temperature: Celsius,
+        heating_time: Duration,
+        initial_conductor_temperature: Celsius,
+        time_step: Duration = np.timedelta64(60, "s"),
+        min_ampacity: Ampere = 0,
+        max_ampacity: Ampere = 5000,
+        tolerance: float = 1.0,
+        accept_invalid_values: bool = False,
+    ):
+        n = self.span.num_conductors
+        I = solver.compute_conductor_transient_ampacity(  # noqa
+            partial(self.compute_final_temperature, time_step=time_step),
+            max_conductor_temperature,
+            initial_conductor_temperature,
+            heating_time,
+            min_ampacity,
+            max_ampacity,
+            tolerance,
+            accept_invalid_values,
+        )
+        return I * n

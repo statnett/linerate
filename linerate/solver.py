@@ -3,7 +3,7 @@ from typing import Callable
 
 import numpy as np
 
-from .units import Ampere, Celsius, FloatOrFloatArray, WattPerMeter
+from .units import Ampere, Celsius, Duration, FloatOrFloatArray, WattPerMeter
 
 __all__ = ["bisect", "compute_conductor_temperature", "compute_conductor_ampacity"]
 
@@ -163,4 +163,62 @@ def compute_conductor_ampacity(
 
     return bisect(
         f, min_ampacity, max_ampacity, tolerance, accept_invalid_values=accept_invalid_values
+    )
+
+
+def compute_conductor_transient_ampacity(
+    final_temperature: Callable[[Celsius, Duration, Ampere], WattPerMeter],
+    max_conductor_temperature: Celsius,
+    initial_conductor_temperature: Celsius,
+    heating_time: Duration,
+    min_ampacity: Ampere = 0,
+    max_ampacity: Ampere = 5_000,
+    tolerance: float = 1,  # Ampere
+    accept_invalid_values: bool = False,
+) -> Ampere:
+    r"""Use the bisection method to compute the temporary thermal rating (ampacity).
+
+    Parameters
+    ----------
+    final_temperature:
+        :math:`f(T, A) = P_J + P_s - P_c - P_r~\left[\text{W}~\text{m}^{-1}\right]`. A function of
+        temperature, heating time and current that returns the conductor temperature at the end of heating time.
+    initial_conductor_temperature:
+        :math:`T_\text{inital}~\left[^\circ\text{C}\right]`. Initial conductor temperature
+    heating_time:
+        :math:`t_\text{heating}~\left[\text{s}\right]`. Time the conductor is heated.
+    max_conductor_temperature:
+        :math:`T_\text{max}~\left[^\circ\text{C}\right]`. Maximum allowed conductor temperature
+    min_ampacity:
+        :math:`I_\text{min}~\left[\text{A}\right]`. Lower bound for the numerical scheme for
+        computing the ampacity
+    max_ampacity:
+        :math:`I_\text{min}~\left[\text{A}\right]`. Upper bound for the numerical scheme for
+        computing the ampacity
+    tolerance:
+        :math:`\Delta I~\left[\text{A}\right]`. The numerical accuracy of the ampacity. The
+        bisection iterations will stop once the numerical ampacity uncertainty is below
+        :math:`\Delta I`. The bisection method will run for
+        :math:`\left\lceil\frac{I_\text{max} - I_\text{min}}{\Delta I}\right\rceil` iterations.
+    accept_invalid_values:
+        If True, np.nan is returned whenever the current cannot be found within the provided
+        search interval. If False, a ValueError will be raised instead.
+
+    Returns
+    -------
+    Union[float, float64, ndarray[Any, dtype[float64]]]
+        :math:`I~\left[\text{A}\right]`. The thermal rating.
+    """
+
+    def temperature_difference(current: Ampere):
+        return max_conductor_temperature - final_temperature(
+            initial_conductor_temperature, heating_time, current
+        )
+
+    return bisect(
+        temperature_difference,
+        min_ampacity,
+        max_ampacity,
+        tolerance,
+        accept_invalid_values=accept_invalid_values,
     )
