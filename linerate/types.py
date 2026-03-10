@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Optional
+from typing import Optional, TypeGuard
 
 import numpy as np
 import pygeodesy
@@ -8,18 +8,29 @@ import pygeodesy
 from .units import (
     Celsius,
     Degrees,
+    JoulePerKilogramPerKelvin,
+    KilogramPerMeter,
     Meter,
     MeterPerSecond,
     OhmPerMeter,
+    PerKelvin,
     Radian,
     SquareMeter,
     SquareMeterPerAmpere,
     Unitless,
-    WattPerMeterPerKelvin,
     WattPerSquareMeter,
+    WattPerMeterPerKelvin,
 )
 
-__all__ = ["Conductor", "Weather", "Tower", "Span", "WeatherWithSolarRadiation"]
+__all__ = [
+    "Conductor",
+    "BaseWeather",
+    "Weather",
+    "Tower",
+    "Span",
+    "WeatherWithSolarRadiation",
+    "conductor_heat_capacity_defined",
+]
 
 
 @dataclass(frozen=True)
@@ -73,6 +84,45 @@ class Conductor:
     #: aluminium strands and :math:`1.5~\text{W}~\text{m}^{-1}~\text{K}^{-1}` for conductors
     #: with aluminium strands under a tension of at least 40 N :cite:p:`cigre601`.
     thermal_conductivity: Optional[WattPerMeterPerKelvin] = None
+
+    steel_mass_per_unit_length: Optional[KilogramPerMeter] = None
+
+    steel_specific_heat_capacity_at_20_celsius: Optional[JoulePerKilogramPerKelvin] = None
+
+    steel_specific_heat_capacity_temperature_coefficient: Optional[PerKelvin] = None
+
+    aluminum_mass_per_unit_length: Optional[KilogramPerMeter] = None
+
+    aluminum_specific_heat_capacity_at_20_celsius: Optional[JoulePerKilogramPerKelvin] = None
+
+    aluminum_specific_heat_capacity_temperature_coefficient: Optional[PerKelvin] = None
+
+
+class ConductorWithTransientData(Conductor):
+    steel_mass_per_unit_length: KilogramPerMeter
+
+    steel_specific_heat_capacity_at_20_celsius: JoulePerKilogramPerKelvin
+
+    steel_specific_heat_capacity_temperature_coefficient: PerKelvin
+
+    aluminum_mass_per_unit_length: KilogramPerMeter
+
+    aluminum_specific_heat_capacity_at_20_celsius: JoulePerKilogramPerKelvin
+
+    aluminum_specific_heat_capacity_temperature_coefficient: PerKelvin
+
+
+def conductor_heat_capacity_defined(conductor: Conductor) -> TypeGuard[ConductorWithTransientData]:
+    return all(
+        [
+            conductor.steel_mass_per_unit_length is not None,
+            conductor.steel_specific_heat_capacity_at_20_celsius is not None,
+            conductor.steel_specific_heat_capacity_temperature_coefficient is not None,
+            conductor.aluminum_mass_per_unit_length is not None,
+            conductor.aluminum_specific_heat_capacity_at_20_celsius is not None,
+            conductor.aluminum_specific_heat_capacity_temperature_coefficient is not None,
+        ]
+    )
 
 
 @dataclass(frozen=True)
