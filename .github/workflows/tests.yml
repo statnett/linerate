@@ -6,6 +6,9 @@
   jobs:
     lint-and-type-check:
       runs-on: ubuntu-latest
+      strategy:
+        matrix:
+          python-version: ["3.10", "3.11", "3.12", "3.13"]
       steps:
         - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
           with:
@@ -13,7 +16,7 @@
         - name: Install the latest version of uv and set the python version
           uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
           with:
-            python-version: "3.13"
+            python-version: ${{ matrix.python-version }}
         - name: Run linting and type checking
           run: |
             uv run --frozen pre-commit run --all-files
@@ -22,7 +25,7 @@
       runs-on: ubuntu-latest
       strategy:
         matrix:
-          python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+          python-version: ["3.10", "3.11", "3.12", "3.13"]
       steps:
         - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
           with:
