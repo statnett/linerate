@@ -6,7 +6,7 @@ authors = [
   {name="Yngve Mardal Moe", email="yngve.m.moe@gmail.com"},
 ]
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dynamic = ["version"]
 
 dependencies = [
