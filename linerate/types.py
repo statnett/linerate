@@ -4,6 +4,8 @@ from typing import Optional
 
 import numpy as np
 
+from .equations.geodesic import azimuth, haversine_distance
+
 from .units import (
     Celsius,
     Degrees,
@@ -129,13 +131,12 @@ class Span:
     @cached_property
     def conductor_azimuth(self) -> Radian:
         r""":math:`\gamma_c~\left[\text{radian}\right]`. Angle (east of north) the span is facing"""
-        # From https://www.movable-type.co.uk/scripts/latlong.html
-        phi_1 = np.radians(self.start_tower.latitude)
-        phi_2 = np.radians(self.end_tower.latitude)
-        delta_lambda = np.radians(self.end_tower.longitude - self.start_tower.longitude)
-        y = np.sin(delta_lambda) * np.cos(phi_2)
-        x = np.cos(phi_1) * np.sin(phi_2) - np.sin(phi_1) * np.cos(phi_2) * np.cos(delta_lambda)
-        return np.atan2(y, x)
+        return azimuth(
+            self.start_tower.latitude,
+            self.start_tower.longitude,
+            self.end_tower.latitude,
+            self.end_tower.longitude,
+        )
 
     @cached_property
     def span_length(self) -> Meter:
@@ -143,19 +144,12 @@ class Span:
 
         The span length is computed with the haversine formula (assuming spherical earth).
         """
-        R = 6371e3
-        phi_1 = np.radians(self.start_tower.latitude)
-        phi_2 = np.radians(self.end_tower.latitude)
-        lambda_1 = np.radians(self.start_tower.longitude)
-        lambda_2 = np.radians(self.end_tower.longitude)
-        delta_phi = phi_2 - phi_1
-        delta_lambda = lambda_2 - lambda_1
-        hav_theta = (
-            np.sin(delta_phi / 2) ** 2
-            + np.cos(phi_1) * np.cos(phi_2) * np.sin(delta_lambda / 2) ** 2
+        return haversine_distance(
+            self.start_tower.latitude,
+            self.start_tower.longitude,
+            self.end_tower.latitude,
+            self.end_tower.longitude,
         )
-        theta = 2 * np.atan2(np.sqrt(hav_theta), np.sqrt(1 - hav_theta))
-        return theta * R
 
     @cached_property
     def conductor_altitude(self) -> Meter:
