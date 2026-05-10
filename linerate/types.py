@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Optional, TypeGuard
+from typing import Optional
 
 import numpy as np
 
@@ -30,7 +30,7 @@ __all__ = [
     "Tower",
     "Span",
     "WeatherWithSolarRadiation",
-    "conductor_heat_capacity_defined",
+    "ConductorWithTransientData",
 ]
 
 
@@ -86,44 +86,26 @@ class Conductor:
     #: with aluminium strands under a tension of at least 40 N :cite:p:`cigre601`.
     thermal_conductivity: Optional[WattPerMeterPerKelvin] = None
 
-    steel_mass_per_unit_length: Optional[KilogramPerMeter] = None
 
-    steel_specific_heat_capacity_at_20_celsius: Optional[JoulePerKilogramPerKelvin] = None
-
-    steel_specific_heat_capacity_temperature_coefficient: Optional[PerKelvin] = None
-
-    aluminum_mass_per_unit_length: Optional[KilogramPerMeter] = None
-
-    aluminum_specific_heat_capacity_at_20_celsius: Optional[JoulePerKilogramPerKelvin] = None
-
-    aluminum_specific_heat_capacity_temperature_coefficient: Optional[PerKelvin] = None
-
-
+@dataclass(frozen=True, kw_only=True)
 class ConductorWithTransientData(Conductor):
+    #: :math:`m_s`. Mass of steel (core material) per unit length of conductor :math:`\left[\text{kg}\text{m}^{-1}\right]`
     steel_mass_per_unit_length: KilogramPerMeter
 
+    #: :math:`c_s^20`. Heat capacity of steel (core material) at 20 ^\circ C :math:`\left[\text{J}\text{kg}^{-1}\text{K}^{-1}\right]`
     steel_specific_heat_capacity_at_20_celsius: JoulePerKilogramPerKelvin
 
+    #: :math:`\beta_20^s`. Heat capacity temperature coefficient of the steel (core material) at 20 ^\circ C :math:`\left[text{K}^{-1}\right]`
     steel_specific_heat_capacity_temperature_coefficient: PerKelvin
 
+    #: :math:`m_a`. Mass of aluminium (outer material) per unit length of conductor :math:`\left[\text{kg}\text{m}^{-1}\right]`
     aluminum_mass_per_unit_length: KilogramPerMeter
 
+    #: :math:`c_a^20`. Heat capacity of aluminium (outer material) at 20 ^\circ C :math:`\left[\text{J}\text{kg}^{-1}\text{K}^{-1}\right]`
     aluminum_specific_heat_capacity_at_20_celsius: JoulePerKilogramPerKelvin
 
+    #: :math:`\beta_a^20`. Heat capacity temperature coefficient of the aluminium (outer material) at 20 ^\circ C :math:`\left[text{K}^{-1}\right]`
     aluminum_specific_heat_capacity_temperature_coefficient: PerKelvin
-
-
-def conductor_heat_capacity_defined(conductor: Conductor) -> TypeGuard[ConductorWithTransientData]:
-    return all(
-        [
-            conductor.steel_mass_per_unit_length is not None,
-            conductor.steel_specific_heat_capacity_at_20_celsius is not None,
-            conductor.steel_specific_heat_capacity_temperature_coefficient is not None,
-            conductor.aluminum_mass_per_unit_length is not None,
-            conductor.aluminum_specific_heat_capacity_at_20_celsius is not None,
-            conductor.aluminum_specific_heat_capacity_temperature_coefficient is not None,
-        ]
-    )
 
 
 @dataclass(frozen=True)

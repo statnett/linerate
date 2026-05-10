@@ -170,7 +170,7 @@ def compute_conductor_transient_ampacity(
     final_temperature: Callable[[Celsius, Duration, Ampere], WattPerMeter],
     max_conductor_temperature: Celsius,
     initial_conductor_temperature: Celsius,
-    heating_time: Duration,
+    heating_duration: Duration,
     min_ampacity: Ampere = 0,
     max_ampacity: Ampere = 5_000,
     tolerance: float = 1,  # Ampere
@@ -185,8 +185,8 @@ def compute_conductor_transient_ampacity(
         temperature, heating time and current that returns the conductor temperature at the end of heating time.
     initial_conductor_temperature:
         :math:`T_\text{inital}~\left[^\circ\text{C}\right]`. Initial conductor temperature
-    heating_time:
-        :math:`t_\text{heating}~\left[\text{s}\right]`. Time the conductor is heated.
+    heating_duration:
+        :math:`\delta t_\text{heating}~\left[\text{s}\right]`. Duration the conductor is heated.
     max_conductor_temperature:
         :math:`T_\text{max}~\left[^\circ\text{C}\right]`. Maximum allowed conductor temperature
     min_ampacity:
@@ -210,9 +210,9 @@ def compute_conductor_transient_ampacity(
         :math:`I~\left[\text{A}\right]`. The thermal rating.
     """
 
-    def temperature_difference(current: Ampere):
+    def temperature_difference(current: Ampere) -> Celsius:
         return max_conductor_temperature - final_temperature(
-            initial_conductor_temperature, heating_time, current
+            initial_conductor_temperature, heating_duration, current
         )
 
     return bisect(

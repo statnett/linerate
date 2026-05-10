@@ -5,7 +5,7 @@ import numpy as np
 from functools import partial
 from linerate import solver
 from linerate.equations import joule_heating, radiative_cooling, heat_capacity
-from linerate.types import BaseWeather, Span, conductor_heat_capacity_defined
+from linerate.types import BaseWeather, ConductorWithTransientData, Span
 from linerate.units import Ampere, Celsius, Duration, OhmPerMeter, WattPerMeter
 
 
@@ -274,30 +274,47 @@ class ThermalModel(ABC):
 
     def compute_heat_capacity_per_unit_length(self, conductor_temperature: Celsius):
         conductor = self.span.conductor
-        if conductor_heat_capacity_defined(conductor):
-            mc_s = heat_capacity.calculate_heat_capacity_per_unit_length(
-                mass_per_unit_length=conductor.steel_mass_per_unit_length,
-                specific_heat_capacity_at_20_celsius=conductor.steel_specific_heat_capacity_at_20_celsius,
-                specific_heat_capacity_coefficient=conductor.steel_specific_heat_capacity_temperature_coefficient,
-                conductor_temperature=conductor_temperature,
-            )
-            mc_a = heat_capacity.calculate_heat_capacity_per_unit_length(
-                mass_per_unit_length=conductor.aluminum_mass_per_unit_length,
-                specific_heat_capacity_at_20_celsius=conductor.aluminum_specific_heat_capacity_at_20_celsius,
-                specific_heat_capacity_coefficient=conductor.aluminum_specific_heat_capacity_temperature_coefficient,
-                conductor_temperature=conductor_temperature,
-            )
-            return mc_s + mc_a
-        else:
-            raise RuntimeError("Heat capacity data must be defined to calculate heat capacity.")
+        if not isinstance(conductor, ConductorWithTransientData):
+            raise ValueError("Heat capacity data must be defined to calculate heat capacity.")
+        mc_s = heat_capacity.calculate_heat_capacity_per_unit_length(
+            mass_per_unit_length=conductor.steel_mass_per_unit_length,
+            specific_heat_capacity_at_20_celsius=conductor.steel_specific_heat_capacity_at_20_celsius,
+            specific_heat_capacity_coefficient=conductor.steel_specific_heat_capacity_temperature_coefficient,
+            conductor_temperature=conductor_temperature,
+        )
+        mc_a = heat_capacity.calculate_heat_capacity_per_unit_length(
+            mass_per_unit_length=conductor.aluminum_mass_per_unit_length,
+            specific_heat_capacity_at_20_celsius=conductor.aluminum_specific_heat_capacity_at_20_celsius,
+            specific_heat_capacity_coefficient=conductor.aluminum_specific_heat_capacity_temperature_coefficient,
+            conductor_temperature=conductor_temperature,
+        )
+        return mc_s + mc_a
 
-    def compute_final_temperature(
+    def compute_temperature_after_heating_time(
         self,
         initial_conductor_temperature: Celsius,
         heating_time: Duration,
         current: Ampere,
         time_step: Duration = np.timedelta64(60, "s"),
-    ) -> Ampere:
+    ) -> Celsius:
+        r"""Compute conductor temperature after it is heated for a time using an iterative method.
+
+        Parameters
+        ----------
+        initial_conductor_temperature:
+            :math:`T_\text{init}~\left[^\circ\text{C}\right]`. Temperature of the conductor at the start of heating.
+        heating_time:
+            :math:`t`. Duration of heating. Unit is changed to seconds in the function.
+        current:
+            :math:`I~\left[\text{A}\right]`. Current heating the conductor
+        time_step:
+            :math:`\Delta t`. Time step of heating. Unit is changed to seconds in the function.
+
+        Returns
+        -------
+        Union[float, float64, ndarray[Any, dtype[float64]]]
+            :math:`T~\left[^\circ\text{C}\right]`. Conductor temperature.
+        """
         time_step = np.broadcast_to(time_step, heating_time.shape)
         step_count = heating_time // time_step
         remainder = heating_time % time_step
@@ -318,7 +335,7 @@ class ThermalModel(ABC):
             temperature = temperature + dT
         return temperature
 
-    def compute_temporary_ampacity(
+    def compute_transient_ampacity(
         self,
         max_conductor_temperature: Celsius,
         heating_time: Duration,
@@ -329,9 +346,42 @@ class ThermalModel(ABC):
         tolerance: float = 1.0,
         accept_invalid_values: bool = False,
     ):
+        r"""Use the bisection method to compute the transient thermal rating (ampacity).
+
+        Parameters
+        ----------
+        max_conductor_temperature:
+            :math:`T_\text{max}~\left[^\circ\text{C}\right]`. Maximum allowed conductor temperature
+        heating_time:
+            :math:`t`. Duration of heating. Unit is changed to seconds in the function.
+        initial_conductor_temperature:
+            :math:`T_\text{init}~\left[^\circ\text{C}\right]`. Temperature of the conductor at the start of heating.
+        time_step:
+            :math:`\Delta t`. Time step of heating. Unit is changed to seconds in the function.
+        min_ampacity:
+            :math:`I_\text{min}~\left[\text{A}\right]`. Lower bound for the numerical scheme for
+            computing the ampacity
+        max_ampacity:
+            :math:`I_\text{min}~\left[\text{A}\right]`. Upper bound for the numerical scheme for
+            computing the ampacity
+        tolerance:
+            :math:`\Delta I~\left[\text{A}\right]`. The numerical accuracy of the ampacity. The
+            bisection iterations will stop once the numerical ampacity uncertainty is below
+            :math:`\Delta I`. The bisection method will run for
+            :math:`\left\lceil\frac{I_\text{min} - I_\text{min}}{\Delta I}\right\rceil` iterations.
+        accept_invalid_values:
+            If True, np.nan is returned whenever the current cannot be found within the provided
+            search interval. If False, a ValueError will be raised instead.
+
+
+        Returns
+        -------
+        Union[float, float64, ndarray[Any, dtype[float64]]]
+            :math:`I~\left[\text{A}\right]`. The transient thermal rating.
+        """
         n = self.span.num_conductors
         I = solver.compute_conductor_transient_ampacity(  # noqa
-            partial(self.compute_final_temperature, time_step=time_step),
+            partial(self.compute_temperature_after_heating_time, time_step=time_step),
             max_conductor_temperature,
             initial_conductor_temperature,
             heating_time,

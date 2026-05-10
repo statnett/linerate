@@ -1,12 +1,12 @@
 import numpy as np
 import pytest
 from pytest import approx
-from linerate import Conductor, Weather, Tower, Span, Cigre601
+from linerate import ConductorWithTransientData, Weather, Tower, Span, Cigre601
 
 
 @pytest.fixture
-def drake_conductor_transient() -> Conductor:
-    return Conductor(
+def drake_conductor_transient() -> ConductorWithTransientData:
+    return ConductorWithTransientData(
         conductor_diameter=28.143e-3,
         core_diameter=10.4e-3,
         outer_layer_strand_diameter=4.4e-3,
@@ -60,7 +60,7 @@ def weather_2() -> Weather:
 
 
 @pytest.fixture
-def example_span_transient(drake_conductor_transient: Conductor) -> Span:
+def example_span_transient(drake_conductor_transient: ConductorWithTransientData) -> Span:
     start_tower = Tower(latitude=50, longitude=0.0001, altitude=0)
     end_tower = Tower(latitude=50, longitude=-0.0001, altitude=0)
     return Span(
@@ -101,11 +101,15 @@ def test_initial_condition(transient_initial_model):
 def test_tracking(transient_initial_model, transient_model_1, transient_model_2):
     start_temperature = transient_initial_model.compute_conductor_temperature(802, tolerance=0.01)
     results_1 = [
-        transient_model_1.compute_final_temperature(start_temperature, np.timedelta64(t, "m"), 819)
+        transient_model_1.compute_temperature_after_heating_time(
+            start_temperature, np.timedelta64(t, "m"), 819
+        )
         for t in range(1, 11)
     ]
     results_2 = [
-        transient_model_2.compute_final_temperature(results_1[-1], np.timedelta64(t, "m"), 856)
+        transient_model_2.compute_temperature_after_heating_time(
+            results_1[-1], np.timedelta64(t, "m"), 856
+        )
         for t in range(1, 11)
     ]
     correct_1 = [42.175, 42.321, 42.449, 42.562, 42.662, 42.750, 42.828, 42.897, 42.958, 43.011]
