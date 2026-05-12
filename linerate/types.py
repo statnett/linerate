@@ -4,7 +4,7 @@ from typing import Optional
 
 import numpy as np
 
-from .equations.geodesic import azimuth, haversine_distance
+from .equations.geodesy import bearing, haversine_distance
 
 from .units import (
     Celsius,
@@ -131,7 +131,7 @@ class Span:
     @cached_property
     def conductor_azimuth(self) -> Radian:
         r""":math:`\gamma_c~\left[\text{radian}\right]`. Angle (east of north) the span is facing"""
-        return azimuth(
+        return bearing(
             self.start_tower.latitude,
             self.start_tower.longitude,
             self.end_tower.latitude,

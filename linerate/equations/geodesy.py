@@ -3,7 +3,7 @@ import numpy as np
 from linerate.units import Degrees, Meter, Radian
 
 
-def azimuth(
+def bearing(
     latitude_1: Degrees, longitude_1: Degrees, latitude_2: Degrees, longitude_2: Degrees
 ) -> Radian:
     r""":math:`\gamma_c~\left[\text{radian}\right]`. Angle (east of north) from a pair of lat-lon coordinates.
@@ -30,7 +30,7 @@ def azimuth(
     delta_lambda = np.radians(longitude_2 - longitude_1)
     y = np.sin(delta_lambda) * np.cos(phi_2)
     x = np.cos(phi_1) * np.sin(phi_2) - np.sin(phi_1) * np.cos(phi_2) * np.cos(delta_lambda)
-    return np.atan2(y, x)
+    return np.atan2(y, x) + 2 * np.pi  # Change from (-pi, pi) to (0, 2*pi)
 
 
 def haversine_distance(
