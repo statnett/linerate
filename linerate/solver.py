@@ -222,3 +222,37 @@ def compute_conductor_transient_ampacity(
         tolerance,
         accept_invalid_values=accept_invalid_values,
     )
+
+
+def solve_ivp_forward_euler(
+    f: Callable[[FloatOrFloatArray], FloatOrFloatArray],
+    y0: FloatOrFloatArray,
+    duration: FloatOrFloatArray,
+    step: FloatOrFloatArray,
+    ) -> FloatOrFloatArray:
+    """
+    A very basic vectorized forward Euler solver time-invariant systems.
+    Parameters
+    ----------
+    f: Time derivative of the system, assumed to only depend on state. dy / dt = f(y)
+    y0: Initial state of the system
+    duration: Time for which to apply the function
+    step: Time step
+
+    Returns
+    -------
+    Union[float, float64, ndarray[Any, dtype[float64]]]
+    Approximation of function f at the end of the given duration.
+    """
+    y = y0
+    step = np.broadcast_to(step, np.shape(duration))
+    step_count = duration // step
+    remainder = duration % step
+    modification_mask = step_count > 0
+    while np.any(modification_mask):
+        y = y + f(y) * step
+        step_count -= 1
+        modification_mask = step_count > 0
+    if np.any(remainder > 0):
+        y = y + f(y) * remainder
+    return y

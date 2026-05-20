@@ -5,8 +5,9 @@ import numpy as np
 from functools import partial
 from linerate import solver
 from linerate.equations import joule_heating, radiative_cooling, heat_capacity
+from linerate.solver import solve_ivp_forward_euler
 from linerate.types import BaseWeather, ConductorWithTransientData, Span
-from linerate.units import Ampere, Celsius, Duration, OhmPerMeter, WattPerMeter
+from linerate.units import Ampere, Celsius, Duration, OhmPerMeter, WattPerMeter, JoulePerKilogramPerKelvin
 
 
 def _copy_method_docstring(parent_class):
@@ -272,7 +273,20 @@ class ThermalModel(ABC):
         )
         return T
 
-    def compute_heat_capacity_per_unit_length(self, conductor_temperature: Celsius):
+    def compute_heat_capacity_per_unit_length(self, conductor_temperature: Celsius) -> JoulePerKilogramPerKelvin:
+        r"""
+        Compute the heat capacity of the conductor per unit length.
+        Parameters
+        ----------
+        conductor_temperature:
+            :math:`T~\left[^\circ\text{C}\right]` Conductor temperature.
+
+        Returns
+        -------
+        Union[float, float64, ndarray[Any, dtype[float64]]]
+            :math:`c~\left[\text{J}\text{kg}^{-1}\text{K}^{-1}\text{m}^{-1}\right]`. Conductor heat capacity per unit length.
+
+        """
         conductor = self.span.conductor
         if not isinstance(conductor, ConductorWithTransientData):
             raise ValueError("Heat capacity data must be defined to calculate heat capacity.")
@@ -295,7 +309,7 @@ class ThermalModel(ABC):
         initial_conductor_temperature: Celsius,
         heating_duration: Duration,
         current: Ampere,
-        time_step: Duration = np.timedelta64(60, "s"),
+        time_step: Duration = np.timedelta64(1, "s"),
     ) -> Celsius:
         r"""Compute conductor temperature after it is heated for a time using an iterative method.
 
@@ -315,25 +329,15 @@ class ThermalModel(ABC):
         Union[float, float64, ndarray[Any, dtype[float64]]]
             :math:`T~\left[^\circ\text{C}\right]`. Conductor temperature.
         """
-        time_step = np.broadcast_to(time_step, heating_duration.shape)
-        step_count = heating_duration // time_step
-        remainder = heating_duration % time_step
+        def conductor_heating(temperature):
+            heat_capacity_ = self.compute_heat_capacity_per_unit_length(temperature)
+            heat_balance = self.compute_heat_balance(temperature, current=current)
+            return heat_balance / heat_capacity_
+        # Convert durations to floating point numbers
         dt = time_step / np.timedelta64(1, "s")
-        modification_mask = step_count > 0
-        temperature = initial_conductor_temperature
-        while np.any(modification_mask):
-            heat_capacity_ = self.compute_heat_capacity_per_unit_length(temperature)
-            heat_balance = self.compute_heat_balance(temperature, current=current)
-            dT = (heat_balance / heat_capacity_) * dt
-            temperature = temperature + modification_mask * dT
-            step_count -= 1
-            modification_mask = step_count > 0
-        if np.any(remainder > 0):
-            heat_capacity_ = self.compute_heat_capacity_per_unit_length(temperature)
-            heat_balance = self.compute_heat_balance(temperature, current=current)
-            dT = (heat_balance / heat_capacity_) * remainder
-            temperature = temperature + dT
-        return temperature
+        tf = heating_duration / np.timedelta64(1, "s")
+        final_temperature = solve_ivp_forward_euler(conductor_heating, initial_conductor_temperature, tf, dt)
+        return final_temperature
 
     def compute_transient_ampacity(
         self,

@@ -100,15 +100,16 @@ def test_initial_condition(transient_initial_model):
 
 def test_tracking(transient_initial_model, transient_model_1, transient_model_2):
     start_temperature = transient_initial_model.compute_conductor_temperature(802, tolerance=0.01)
+    # 60s time step is used since the calculations in the brochure use the same step size.
     results_1 = [
         transient_model_1.compute_temperature_after_heating(
-            start_temperature, np.timedelta64(t, "m"), 819
+            start_temperature, np.timedelta64(t, "m"), 819, time_step=np.timedelta64(60, "s")
         )
         for t in range(1, 11)
     ]
     results_2 = [
         transient_model_2.compute_temperature_after_heating(
-            results_1[-1], np.timedelta64(t, "m"), 856
+            results_1[-1], np.timedelta64(t, "m"), 856, time_step=np.timedelta64(60, "s")
         )
         for t in range(1, 11)
     ]
