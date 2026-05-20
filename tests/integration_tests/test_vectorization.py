@@ -130,7 +130,7 @@ def test_transient_vectorization(array_shapes: BroadcastableShapes):
     )
     time = shapes.get_zeros(dtype=np.dtype("datetime64[D]"))
     model = Cigre601(span=span, weather=weather, time=time)
-    final_temperature = model.compute_temperature_after_heating_time(
+    final_temperature = model.compute_temperature_after_heating(
         shapes.get_zeros() + 20,
         shapes.get_zeros(dtype=np.dtype("<m8[m]")) + np.timedelta64(15, "m"),
         shapes.get_zeros() + 200,

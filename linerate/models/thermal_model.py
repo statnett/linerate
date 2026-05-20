@@ -290,10 +290,10 @@ class ThermalModel(ABC):
         )
         return mc_s + mc_a
 
-    def compute_temperature_after_heating_time(
+    def compute_temperature_after_heating(
         self,
         initial_conductor_temperature: Celsius,
-        heating_time: Duration,
+        heating_duration: Duration,
         current: Ampere,
         time_step: Duration = np.timedelta64(60, "s"),
     ) -> Celsius:
@@ -303,7 +303,7 @@ class ThermalModel(ABC):
         ----------
         initial_conductor_temperature:
             :math:`T_\text{init}~\left[^\circ\text{C}\right]`. Temperature of the conductor at the start of heating.
-        heating_time:
+        heating_duration:
             :math:`t`. Duration of heating. Unit is changed to seconds in the function.
         current:
             :math:`I~\left[\text{A}\right]`. Current heating the conductor
@@ -315,9 +315,9 @@ class ThermalModel(ABC):
         Union[float, float64, ndarray[Any, dtype[float64]]]
             :math:`T~\left[^\circ\text{C}\right]`. Conductor temperature.
         """
-        time_step = np.broadcast_to(time_step, heating_time.shape)
-        step_count = heating_time // time_step
-        remainder = heating_time % time_step
+        time_step = np.broadcast_to(time_step, heating_duration.shape)
+        step_count = heating_duration // time_step
+        remainder = heating_duration % time_step
         dt = time_step / np.timedelta64(1, "s")
         modification_mask = step_count > 0
         temperature = initial_conductor_temperature
@@ -338,7 +338,7 @@ class ThermalModel(ABC):
     def compute_transient_ampacity(
         self,
         max_conductor_temperature: Celsius,
-        heating_time: Duration,
+        heating_duration: Duration,
         initial_conductor_temperature: Celsius,
         time_step: Duration = np.timedelta64(60, "s"),
         min_ampacity: Ampere = 0,
@@ -352,7 +352,7 @@ class ThermalModel(ABC):
         ----------
         max_conductor_temperature:
             :math:`T_\text{max}~\left[^\circ\text{C}\right]`. Maximum allowed conductor temperature
-        heating_time:
+        heating_duration:
             :math:`t`. Duration of heating. Unit is changed to seconds in the function.
         initial_conductor_temperature:
             :math:`T_\text{init}~\left[^\circ\text{C}\right]`. Temperature of the conductor at the start of heating.
@@ -381,10 +381,10 @@ class ThermalModel(ABC):
         """
         n = self.span.num_conductors
         I = solver.compute_conductor_transient_ampacity(  # noqa
-            partial(self.compute_temperature_after_heating_time, time_step=time_step),
+            partial(self.compute_temperature_after_heating, time_step=time_step),
             max_conductor_temperature,
             initial_conductor_temperature,
-            heating_time,
+            heating_duration,
             min_ampacity,
             max_ampacity,
             tolerance,
