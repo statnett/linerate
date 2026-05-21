@@ -3,7 +3,8 @@ from functools import cached_property
 from typing import Optional
 
 import numpy as np
-import pygeodesy
+
+from .equations.geodesy import bearing, haversine_distance
 
 from .units import (
     Celsius,
@@ -130,14 +131,11 @@ class Span:
     @cached_property
     def conductor_azimuth(self) -> Radian:
         r""":math:`\gamma_c~\left[\text{radian}\right]`. Angle (east of north) the span is facing"""
-        bearing = np.vectorize(pygeodesy.formy.bearing)
-        return np.radians(  # type: ignore
-            bearing(
-                lat1=self.start_tower.latitude,
-                lon1=self.start_tower.longitude,
-                lat2=self.end_tower.latitude,
-                lon2=self.end_tower.longitude,
-            )
+        return bearing(
+            self.start_tower.latitude,
+            self.start_tower.longitude,
+            self.end_tower.latitude,
+            self.end_tower.longitude,
         )
 
     @cached_property
@@ -146,12 +144,11 @@ class Span:
 
         The span length is computed with the haversine formula (assuming spherical earth).
         """
-        haversine = np.vectorize(pygeodesy.formy.haversine)
-        return haversine(  # type: ignore
-            lat1=self.start_tower.latitude,
-            lon1=self.start_tower.longitude,
-            lat2=self.end_tower.latitude,
-            lon2=self.end_tower.longitude,
+        return haversine_distance(
+            self.start_tower.latitude,
+            self.start_tower.longitude,
+            self.end_tower.latitude,
+            self.end_tower.longitude,
         )
 
     @cached_property
