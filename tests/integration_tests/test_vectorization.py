@@ -6,7 +6,7 @@ import numpy.typing as npt
 from linerate.models.cigre601 import Cigre601
 from linerate.types import Conductor, ConductorWithTransientData, Span, Tower, Weather
 
-NUMBER_OF_VARIABLES_TRANSIENT = 33
+NUMBER_OF_VARIABLES_TRANSIENT = 32
 NUMBER_OF_VARIABLES_STEADY_STATE = 24
 
 
