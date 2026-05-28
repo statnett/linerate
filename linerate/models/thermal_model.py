@@ -7,7 +7,14 @@ from linerate import solver
 from linerate.equations import joule_heating, radiative_cooling, heat_capacity
 from linerate.solver import solve_ivp_forward_euler
 from linerate.types import BaseWeather, ConductorWithTransientData, Span
-from linerate.units import Ampere, Celsius, Duration, OhmPerMeter, WattPerMeter, JoulePerKilogramPerKelvin
+from linerate.units import (
+    Ampere,
+    Celsius,
+    Duration,
+    OhmPerMeter,
+    WattPerMeter,
+    JoulePerKilogramPerKelvin,
+)
 
 
 def _copy_method_docstring(parent_class):
@@ -273,7 +280,9 @@ class ThermalModel(ABC):
         )
         return T
 
-    def compute_heat_capacity_per_unit_length(self, conductor_temperature: Celsius) -> JoulePerKilogramPerKelvin:
+    def compute_heat_capacity_per_unit_length(
+        self, conductor_temperature: Celsius
+    ) -> JoulePerKilogramPerKelvin:
         r"""
         Compute the heat capacity of the conductor per unit length.
         Parameters
@@ -318,7 +327,7 @@ class ThermalModel(ABC):
         initial_conductor_temperature:
             :math:`T_\text{init}~\left[^\circ\text{C}\right]`. Temperature of the conductor at the start of heating.
         heating_duration:
-            :math:`t`. Duration of heating. Unit is changed to seconds in the function.
+            :math:`t`. Duration of heating.
         current:
             :math:`I~\left[\text{A}\right]`. Current heating the conductor
         time_step:
@@ -329,14 +338,17 @@ class ThermalModel(ABC):
         Union[float, float64, ndarray[Any, dtype[float64]]]
             :math:`T~\left[^\circ\text{C}\right]`. Conductor temperature.
         """
+
         def conductor_heating(temperature):
             heat_capacity_ = self.compute_heat_capacity_per_unit_length(temperature)
             heat_balance = self.compute_heat_balance(temperature, current=current)
             return heat_balance / heat_capacity_
-        # Convert durations to floating point numbers
+
         dt = time_step / np.timedelta64(1, "s")
         tf = heating_duration / np.timedelta64(1, "s")
-        final_temperature = solve_ivp_forward_euler(conductor_heating, initial_conductor_temperature, tf, dt)
+        final_temperature = solve_ivp_forward_euler(
+            conductor_heating, initial_conductor_temperature, tf, dt
+        )
         return final_temperature
 
     def compute_transient_ampacity(
@@ -357,7 +369,7 @@ class ThermalModel(ABC):
         max_conductor_temperature:
             :math:`T_\text{max}~\left[^\circ\text{C}\right]`. Maximum allowed conductor temperature
         heating_duration:
-            :math:`t`. Duration of heating. Unit is changed to seconds in the function.
+            :math:`t`. Duration of heating.
         initial_conductor_temperature:
             :math:`T_\text{init}~\left[^\circ\text{C}\right]`. Temperature of the conductor at the start of heating.
         time_step:
@@ -384,7 +396,7 @@ class ThermalModel(ABC):
             :math:`I~\left[\text{A}\right]`. The transient thermal rating.
         """
         n = self.span.num_conductors
-        I = solver.compute_conductor_transient_ampacity(  # noqa
+        I = solver.compute_conductor_transient_ampacity(  # noqa: E741
             partial(self.compute_temperature_after_heating, time_step=time_step),
             max_conductor_temperature,
             initial_conductor_temperature,

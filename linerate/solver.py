@@ -227,25 +227,29 @@ def compute_conductor_transient_ampacity(
 def solve_ivp_forward_euler(
     f: Callable[[FloatOrFloatArray], FloatOrFloatArray],
     y0: FloatOrFloatArray,
-    duration: FloatOrFloatArray,
-    step: FloatOrFloatArray,
-    ) -> FloatOrFloatArray:
-    """
-    A very basic vectorized forward Euler solver time-invariant systems.
+    duration: float,
+    step: float,
+) -> FloatOrFloatArray:
+    r"""A very basic vectorized forward Euler solver time-invariant systems.
+
     Parameters
     ----------
-    f: Time derivative of the system, assumed to only depend on state. dy / dt = f(y)
-    y0: Initial state of the system
-    duration: Time for which to apply the function
-    step: Time step
+    f:
+        :math:`f(y)=\dot{y}`, where :math:`f: \mathbb{R}^n \to \mathbb{R}^n`. Time derivative of the system, assumed to only depend on state.
+    y0:
+        Initial state of the system.
+    duration:
+        :math:`t_f`. Time for which to apply the function.
+    step:
+        :math:`\Delta t` Time step in the same units as duration. Number of full steps taken is :math:`\frac{t_f}{\Delta t}`.
+        An additional remainder step of size :math:`t_f` modulo :math:`\Delta t` is taken if step does not split duration evenly.
 
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
-    Approximation of function f at the end of the given duration.
+        Approximation of function f at the end of the given duration.
     """
     y = y0
-    step = np.broadcast_to(step, np.shape(duration))
     step_count = duration // step
     remainder = duration % step
     modification_mask = step_count > 0

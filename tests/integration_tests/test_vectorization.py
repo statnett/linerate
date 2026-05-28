@@ -22,7 +22,9 @@ class Shapes:
 
 
 @hypothesis.given(
-    array_shapes=mutually_broadcastable_shapes(num_shapes=NUMBER_OF_VARIABLES_STEADY_STATE, max_dims=5)
+    array_shapes=mutually_broadcastable_shapes(
+        num_shapes=NUMBER_OF_VARIABLES_STEADY_STATE, max_dims=5
+    )
 )
 def test_vectorization(array_shapes: BroadcastableShapes):
     shapes = Shapes(array_shapes.input_shapes)
@@ -71,7 +73,9 @@ def test_vectorization(array_shapes: BroadcastableShapes):
     assert temperature.shape == array_shapes.result_shape
 
 
-@hypothesis.given(array_shapes=mutually_broadcastable_shapes(num_shapes=NUMBER_OF_VARIABLES_TRANSIENT, max_dims=5))
+@hypothesis.given(
+    array_shapes=mutually_broadcastable_shapes(num_shapes=NUMBER_OF_VARIABLES_TRANSIENT, max_dims=5)
+)
 def test_transient_vectorization(array_shapes: BroadcastableShapes):
     shapes = Shapes(array_shapes.input_shapes)
 
@@ -121,7 +125,7 @@ def test_transient_vectorization(array_shapes: BroadcastableShapes):
     model = Cigre601(span=span, weather=weather, time=time)
     final_temperature = model.compute_temperature_after_heating(
         shapes.get_zeros() + 20,
-        shapes.get_zeros(dtype=np.dtype("<m8[m]")) + np.timedelta64(15, "m"),
+        np.timedelta64(15, "m"),
         shapes.get_zeros() + 200,
     )
     assert np.shape(final_temperature) == array_shapes.result_shape

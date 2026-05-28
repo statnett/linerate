@@ -37,4 +37,4 @@ PerKelvin = Annotated[FloatOrFloatArray, "1/K"]
 JoulePerMeter = Annotated[FloatOrFloatArray, "J/m"]
 
 Date = Union[np.datetime64, npt.NDArray[np.datetime64]]
-Duration = Union[np.timedelta64, npt.NDArray[np.timedelta64]]
+Duration = np.timedelta64
