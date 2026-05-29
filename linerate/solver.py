@@ -252,11 +252,9 @@ def solve_ivp_forward_euler(
     y = y0
     step_count = duration // step
     remainder = duration % step
-    modification_mask = step_count > 0
-    while np.any(modification_mask):
+    while step_count > 0:
         y = y + f(y) * step
         step_count -= 1
-        modification_mask = step_count > 0
     if np.any(remainder > 0):
         y = y + f(y) * remainder
     return y
