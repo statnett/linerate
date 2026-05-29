@@ -96,9 +96,9 @@ def test_transient_vectorization(array_shapes: BroadcastableShapes):
         steel_mass_per_unit_length=shapes.get_zeros() + 0.5,
         steel_specific_heat_capacity_at_20_celsius=shapes.get_zeros() + 500,
         steel_specific_heat_capacity_temperature_coefficient=shapes.get_zeros(),
-        aluminum_mass_per_unit_length=shapes.get_zeros() + 1,
-        aluminum_specific_heat_capacity_at_20_celsius=shapes.get_zeros() + 1000,
-        aluminum_specific_heat_capacity_temperature_coefficient=shapes.get_zeros(),
+        aluminium_mass_per_unit_length=shapes.get_zeros() + 1,
+        aluminium_specific_heat_capacity_at_20_celsius=shapes.get_zeros() + 1000,
+        aluminium_specific_heat_capacity_temperature_coefficient=shapes.get_zeros(),
     )
     weather = Weather(
         air_temperature=shapes.get_zeros(),

@@ -23,9 +23,9 @@ def drake_conductor_transient() -> ConductorWithTransientData:
         steel_mass_per_unit_length=0.5119,
         steel_specific_heat_capacity_at_20_celsius=481,
         steel_specific_heat_capacity_temperature_coefficient=1e-4,
-        aluminum_mass_per_unit_length=1.116,
-        aluminum_specific_heat_capacity_at_20_celsius=897,
-        aluminum_specific_heat_capacity_temperature_coefficient=3.8e-4,
+        aluminium_mass_per_unit_length=1.116,
+        aluminium_specific_heat_capacity_at_20_celsius=897,
+        aluminium_specific_heat_capacity_temperature_coefficient=3.8e-4,
     )
 
 

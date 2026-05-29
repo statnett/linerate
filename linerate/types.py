@@ -99,13 +99,13 @@ class ConductorWithTransientData(Conductor):
     steel_specific_heat_capacity_temperature_coefficient: PerKelvin
 
     #: :math:`m_a`. Mass of aluminium (outer material) per unit length of conductor :math:`\left[\text{kg}\text{m}^{-1}\right]`
-    aluminum_mass_per_unit_length: KilogramPerMeter
+    aluminium_mass_per_unit_length: KilogramPerMeter
 
     #: :math:`c_a^20`. Heat capacity of aluminium (outer material) at 20 ^\circ C :math:`\left[\text{J}\text{kg}^{-1}\text{K}^{-1}\right]`
-    aluminum_specific_heat_capacity_at_20_celsius: JoulePerKilogramPerKelvin
+    aluminium_specific_heat_capacity_at_20_celsius: JoulePerKilogramPerKelvin
 
     #: :math:`\beta_a^20`. Heat capacity temperature coefficient of the aluminium (outer material) at 20 ^\circ C :math:`\left[text{K}^{-1}\right]`
-    aluminum_specific_heat_capacity_temperature_coefficient: PerKelvin
+    aluminium_specific_heat_capacity_temperature_coefficient: PerKelvin
 
 
 @dataclass(frozen=True)

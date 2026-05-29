@@ -306,9 +306,9 @@ class ThermalModel(ABC):
             conductor_temperature=conductor_temperature,
         )
         mc_a = heat_capacity.calculate_heat_capacity_per_unit_length(
-            mass_per_unit_length=conductor.aluminum_mass_per_unit_length,
-            specific_heat_capacity_at_20_celsius=conductor.aluminum_specific_heat_capacity_at_20_celsius,
-            specific_heat_capacity_coefficient=conductor.aluminum_specific_heat_capacity_temperature_coefficient,
+            mass_per_unit_length=conductor.aluminium_mass_per_unit_length,
+            specific_heat_capacity_at_20_celsius=conductor.aluminium_specific_heat_capacity_at_20_celsius,
+            specific_heat_capacity_coefficient=conductor.aluminium_specific_heat_capacity_temperature_coefficient,
             conductor_temperature=conductor_temperature,
         )
         return mc_s + mc_a
