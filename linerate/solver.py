@@ -255,6 +255,6 @@ def solve_ivp_forward_euler(
     while step_count > 0:
         y = y + f(y) * step
         step_count -= 1
-    if np.any(remainder > 0):
+    if remainder > 0:
         y = y + f(y) * remainder
     return y
