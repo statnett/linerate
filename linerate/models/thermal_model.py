@@ -6,7 +6,7 @@ from functools import partial
 from linerate import solver
 from linerate.equations import joule_heating, radiative_cooling, heat_capacity
 from linerate.solver import solve_ivp_forward_euler
-from linerate.types import BaseWeather, ConductorWithTransientData, Span
+from linerate.types import BaseWeather, ConductorWithHeatCapacity, Span
 from linerate.units import (
     Ampere,
     Celsius,
@@ -297,7 +297,7 @@ class ThermalModel(ABC):
 
         """
         conductor = self.span.conductor
-        if not isinstance(conductor, ConductorWithTransientData):
+        if not isinstance(conductor, ConductorWithHeatCapacity):
             raise ValueError("Heat capacity data must be defined to calculate heat capacity.")
         mc_s = heat_capacity.calculate_heat_capacity_per_unit_length(
             mass_per_unit_length=conductor.steel_mass_per_unit_length,

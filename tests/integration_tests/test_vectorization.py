@@ -4,7 +4,7 @@ import numpy as np
 import numpy.typing as npt
 
 from linerate.models.cigre601 import Cigre601
-from linerate.types import Conductor, ConductorWithTransientData, Span, Tower, Weather
+from linerate.types import Conductor, ConductorWithHeatCapacity, Span, Tower, Weather
 
 NUMBER_OF_VARIABLES_TRANSIENT = 32
 NUMBER_OF_VARIABLES_STEADY_STATE = 24
@@ -79,7 +79,7 @@ def test_vectorization(array_shapes: BroadcastableShapes):
 def test_transient_vectorization(array_shapes: BroadcastableShapes):
     shapes = Shapes(array_shapes.input_shapes)
 
-    conductor = ConductorWithTransientData(
+    conductor = ConductorWithHeatCapacity(
         core_diameter=1,  # Core diameter is not used in any calculations so its shape will not be broadcast
         conductor_diameter=shapes.get_zeros() + 2,
         outer_layer_strand_diameter=shapes.get_zeros(),

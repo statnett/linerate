@@ -30,7 +30,7 @@ __all__ = [
     "Tower",
     "Span",
     "WeatherWithSolarRadiation",
-    "ConductorWithTransientData",
+    "ConductorWithHeatCapacity",
 ]
 
 
@@ -88,7 +88,7 @@ class Conductor:
 
 
 @dataclass(frozen=True, kw_only=True)
-class ConductorWithTransientData(Conductor):
+class ConductorWithHeatCapacity(Conductor):
     #: :math:`m_s`. Mass of steel (core material) per unit length of conductor :math:`\left[\text{kg}\text{m}^{-1}\right]`
     steel_mass_per_unit_length: KilogramPerMeter
 

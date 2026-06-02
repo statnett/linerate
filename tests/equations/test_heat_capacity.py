@@ -52,4 +52,4 @@ def test_heat_capacity_is_linear_in_temperature(temperature: Celsius):
     beta = 1
     T = temperature
     mc = heat_capacity.calculate_heat_capacity_per_unit_length(m, c, beta, T)
-    assert mc == approx(T - 19)
+    assert mc == approx(T - 20 + beta)

@@ -1,12 +1,12 @@
 import numpy as np
 import pytest
 from pytest import approx
-from linerate import ConductorWithTransientData, Weather, Tower, Span, Cigre601
+from linerate import ConductorWithHeatCapacity, Weather, Tower, Span, Cigre601
 
 
 @pytest.fixture
-def drake_conductor_transient() -> ConductorWithTransientData:
-    return ConductorWithTransientData(
+def drake_conductor_transient() -> ConductorWithHeatCapacity:
+    return ConductorWithHeatCapacity(
         conductor_diameter=28.143e-3,
         core_diameter=10.4e-3,
         outer_layer_strand_diameter=4.4e-3,
@@ -60,7 +60,7 @@ def weather_2() -> Weather:
 
 
 @pytest.fixture
-def example_span_transient(drake_conductor_transient: ConductorWithTransientData) -> Span:
+def example_span_transient(drake_conductor_transient: ConductorWithHeatCapacity) -> Span:
     start_tower = Tower(latitude=50, longitude=0.0001, altitude=0)
     end_tower = Tower(latitude=50, longitude=-0.0001, altitude=0)
     return Span(

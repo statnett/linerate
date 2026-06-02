@@ -5,7 +5,12 @@ import numpy as np
 
 from .units import Ampere, Celsius, Duration, FloatOrFloatArray, WattPerMeter
 
-__all__ = ["bisect", "compute_conductor_temperature", "compute_conductor_ampacity"]
+__all__ = [
+    "bisect",
+    "compute_conductor_temperature",
+    "compute_conductor_ampacity",
+    "solve_ivp_forward_euler",
+]
 
 
 def bisect(
@@ -167,7 +172,7 @@ def compute_conductor_ampacity(
 
 
 def compute_conductor_transient_ampacity(
-    final_temperature: Callable[[Celsius, Duration, Ampere], WattPerMeter],
+    final_temperature: Callable[[Celsius, Duration, Ampere], Celsius],
     max_conductor_temperature: Celsius,
     initial_conductor_temperature: Celsius,
     heating_duration: Duration,
@@ -181,10 +186,10 @@ def compute_conductor_transient_ampacity(
     Parameters
     ----------
     final_temperature:
-        :math:`f(T, A) = P_J + P_s - P_c - P_r~\left[\text{W}~\text{m}^{-1}\right]`. A function of
-        temperature, heating time and current that returns the conductor temperature at the end of heating time.
+        :math:`f(T, A, t)~\left[^\circ\text{C}\right]`. A function of
+        temperature, current and heating time that returns the conductor temperature at the end of heating time.
     initial_conductor_temperature:
-        :math:`T_\text{inital}~\left[^\circ\text{C}\right]`. Initial conductor temperature
+        :math:`T_\text{initial}~\left[^\circ\text{C}\right]`. Initial conductor temperature
     heating_duration:
         :math:`\delta t_\text{heating}~\left[\text{s}\right]`. Duration the conductor is heated.
     max_conductor_temperature:
