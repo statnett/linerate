@@ -9,18 +9,29 @@ from .equations.geodesy import bearing, haversine_distance
 from .units import (
     Celsius,
     Degrees,
+    JoulePerKilogramPerKelvin,
+    KilogramPerMeter,
     Meter,
     MeterPerSecond,
     OhmPerMeter,
+    PerKelvin,
     Radian,
     SquareMeter,
     SquareMeterPerAmpere,
     Unitless,
-    WattPerMeterPerKelvin,
     WattPerSquareMeter,
+    WattPerMeterPerKelvin,
 )
 
-__all__ = ["Conductor", "Weather", "Tower", "Span", "WeatherWithSolarRadiation"]
+__all__ = [
+    "Conductor",
+    "BaseWeather",
+    "Weather",
+    "Tower",
+    "Span",
+    "WeatherWithSolarRadiation",
+    "ConductorWithHeatCapacity",
+]
 
 
 @dataclass(frozen=True)
@@ -74,6 +85,27 @@ class Conductor:
     #: aluminium strands and :math:`1.5~\text{W}~\text{m}^{-1}~\text{K}^{-1}` for conductors
     #: with aluminium strands under a tension of at least 40 N :cite:p:`cigre601`.
     thermal_conductivity: Optional[WattPerMeterPerKelvin] = None
+
+
+@dataclass(frozen=True, kw_only=True)
+class ConductorWithHeatCapacity(Conductor):
+    #: :math:`m_s`. Mass of steel (core material) per unit length of conductor :math:`\left[\text{kg}\text{m}^{-1}\right]`
+    steel_mass_per_unit_length: KilogramPerMeter
+
+    #: :math:`c_s^20`. Heat capacity of steel (core material) at 20 ^\circ C :math:`\left[\text{J}\text{kg}^{-1}\text{K}^{-1}\right]`
+    steel_specific_heat_capacity_at_20_celsius: JoulePerKilogramPerKelvin
+
+    #: :math:`\beta_20^s`. Heat capacity temperature coefficient of the steel (core material) at 20 ^\circ C :math:`\left[text{K}^{-1}\right]`
+    steel_specific_heat_capacity_temperature_coefficient: PerKelvin
+
+    #: :math:`m_a`. Mass of aluminium (outer material) per unit length of conductor :math:`\left[\text{kg}\text{m}^{-1}\right]`
+    aluminium_mass_per_unit_length: KilogramPerMeter
+
+    #: :math:`c_a^20`. Heat capacity of aluminium (outer material) at 20 ^\circ C :math:`\left[\text{J}\text{kg}^{-1}\text{K}^{-1}\right]`
+    aluminium_specific_heat_capacity_at_20_celsius: JoulePerKilogramPerKelvin
+
+    #: :math:`\beta_a^20`. Heat capacity temperature coefficient of the aluminium (outer material) at 20 ^\circ C :math:`\left[text{K}^{-1}\right]`
+    aluminium_specific_heat_capacity_temperature_coefficient: PerKelvin
 
 
 @dataclass(frozen=True)

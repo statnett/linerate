@@ -3,9 +3,14 @@ from typing import Callable
 
 import numpy as np
 
-from .units import Ampere, Celsius, FloatOrFloatArray, WattPerMeter
+from .units import Ampere, Celsius, Duration, FloatOrFloatArray, WattPerMeter
 
-__all__ = ["bisect", "compute_conductor_temperature", "compute_conductor_ampacity"]
+__all__ = [
+    "bisect",
+    "compute_conductor_temperature",
+    "compute_conductor_ampacity",
+    "solve_ivp_forward_euler",
+]
 
 
 def bisect(
@@ -164,3 +169,97 @@ def compute_conductor_ampacity(
     return bisect(
         f, min_ampacity, max_ampacity, tolerance, accept_invalid_values=accept_invalid_values
     )
+
+
+def compute_conductor_transient_ampacity(
+    final_temperature: Callable[[Celsius, Duration, Ampere], Celsius],
+    max_conductor_temperature: Celsius,
+    initial_conductor_temperature: Celsius,
+    heating_duration: Duration,
+    min_ampacity: Ampere = 0,
+    max_ampacity: Ampere = 5_000,
+    tolerance: float = 1,  # Ampere
+    accept_invalid_values: bool = False,
+) -> Ampere:
+    r"""Use the bisection method to compute the temporary thermal rating (ampacity).
+
+    Parameters
+    ----------
+    final_temperature:
+        :math:`f(T, A, t)~\left[^\circ\text{C}\right]`. A function of
+        temperature, current and heating time that returns the conductor temperature at the end of heating time.
+    initial_conductor_temperature:
+        :math:`T_\text{initial}~\left[^\circ\text{C}\right]`. Initial conductor temperature
+    heating_duration:
+        :math:`\delta t_\text{heating}~\left[\text{s}\right]`. Duration the conductor is heated.
+    max_conductor_temperature:
+        :math:`T_\text{max}~\left[^\circ\text{C}\right]`. Maximum allowed conductor temperature
+    min_ampacity:
+        :math:`I_\text{min}~\left[\text{A}\right]`. Lower bound for the numerical scheme for
+        computing the ampacity
+    max_ampacity:
+        :math:`I_\text{min}~\left[\text{A}\right]`. Upper bound for the numerical scheme for
+        computing the ampacity
+    tolerance:
+        :math:`\Delta I~\left[\text{A}\right]`. The numerical accuracy of the ampacity. The
+        bisection iterations will stop once the numerical ampacity uncertainty is below
+        :math:`\Delta I`. The bisection method will run for
+        :math:`\left\lceil\frac{I_\text{max} - I_\text{min}}{\Delta I}\right\rceil` iterations.
+    accept_invalid_values:
+        If True, np.nan is returned whenever the current cannot be found within the provided
+        search interval. If False, a ValueError will be raised instead.
+
+    Returns
+    -------
+    Union[float, float64, ndarray[Any, dtype[float64]]]
+        :math:`I~\left[\text{A}\right]`. The thermal rating.
+    """
+
+    def temperature_difference(current: Ampere) -> Celsius:
+        return max_conductor_temperature - final_temperature(
+            initial_conductor_temperature, heating_duration, current
+        )
+
+    return bisect(
+        temperature_difference,
+        min_ampacity,
+        max_ampacity,
+        tolerance,
+        accept_invalid_values=accept_invalid_values,
+    )
+
+
+def solve_ivp_forward_euler(
+    f: Callable[[FloatOrFloatArray], FloatOrFloatArray],
+    y0: FloatOrFloatArray,
+    duration: float,
+    step: float,
+) -> FloatOrFloatArray:
+    r"""A very basic vectorized forward Euler solver time-invariant systems.
+
+    Parameters
+    ----------
+    f:
+        :math:`f(y)=\dot{y}`, where :math:`f: \mathbb{R}^n \to \mathbb{R}^n`. Time derivative of the system, assumed to only depend on state.
+    y0:
+        Initial state of the system.
+    duration:
+        :math:`t_f`. Time for which to apply the function.
+    step:
+        :math:`\Delta t` Time step in the same units as duration. Number of full steps taken is :math:`\frac{t_f}{\Delta t}`.
+        An additional remainder step of size :math:`t_f` modulo :math:`\Delta t` is taken if step does not split duration evenly.
+
+    Returns
+    -------
+    Union[float, float64, ndarray[Any, dtype[float64]]]
+        Approximation of function f at the end of the given duration.
+    """
+    y = y0
+    step_count = duration // step
+    remainder = duration % step
+    while step_count > 0:
+        y = y + f(y) * step
+        step_count -= 1
+    if remainder > 0:
+        y = y + f(y) * remainder
+    return y
