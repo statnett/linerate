@@ -78,7 +78,7 @@ print(f"The conductor has a temperature of {conductor_temperature:.0f} °C when 
 
 ## Transient state solver
 
-There is currently no transient solver or short time thermal rating solver, but that is on the roadmap.
+A basic solver for calculating short time thermal ratings is available through the method `linerate.ThermalRatings.compute_transient_ampacity`, which uses the extended conductor class `linerate.ConductorWithHeatCapacity`.
 
 ## Development
 
@@ -90,11 +90,14 @@ uv sync
 ```
 
 ### Generate docs
+
 To generate docs locally:
+
 - Install required dependencies with `uv sync --group docs`.
 - Generate docs with `uv run make html` in the `docs` folder.
 
 ### Release new version
+
 Press the "Draft new release" button on the [Releases](https://github.com/statnett/linerate/releases) page.
 Choose or create an appropriate tag, e.g. `1.2.3`.
 Press "Generate release notes" to generate release notes.
