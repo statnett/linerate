@@ -33,14 +33,12 @@ class IEEE738(ThermalModel):
         )
 
     @_copy_method_docstring(ThermalModel)
-    def compute_solar_heating(
+    def compute_global_radiation_intensity(
         self,
     ) -> WattPerMeter:
-        alpha_s = self.span.conductor.solar_absorptivity  # alpha in IEEE
         phi = self.span.latitude  # Lat in IEEE
         gamma_c = self.span.conductor_azimuth  # Z_l i IEEE
         y = self.span.conductor_altitude  # H_e in IEEE
-        D = self.span.conductor.conductor_diameter  # D_0 in IEEE
 
         omega = solar_angles.compute_hour_angle_relative_to_noon(self.time, self.span.longitude)
         delta = solar_angles.compute_solar_declination(self.time)
@@ -53,7 +51,7 @@ class IEEE738(ThermalModel):
         Z_c = solar_angles.compute_solar_azimuth(C, chi)
         cos_theta = solar_angles.compute_cos_solar_effective_incidence_angle(sin_H_c, Z_c, gamma_c)
 
-        return ieee738.solar_heating.compute_solar_heating(alpha_s, Q_se, cos_theta, D)
+        return ieee738.solar_heating.compute_global_radiation_intensity(Q_se, cos_theta)
 
     @_copy_method_docstring(ThermalModel)
     def compute_convective_cooling(self, conductor_temperature: Celsius) -> WattPerMeter:

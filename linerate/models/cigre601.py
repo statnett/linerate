@@ -6,7 +6,6 @@ from linerate.equations import (
     dimensionless,
     math,
     solar_angles,
-    solar_heating,
 )
 from linerate.models.thermal_model import ThermalModel, _copy_method_docstring
 from linerate.types import BaseWeather, Span, Weather, WeatherWithSolarRadiation
@@ -18,6 +17,7 @@ from linerate.units import (
     OhmPerMeter,
     Unitless,
     WattPerMeter,
+    WattPerSquareMeter,
 )
 
 
@@ -154,18 +154,14 @@ class Cigre601(BaseCigre601):
         time: Date,
         max_reynolds_number: Unitless = BaseCigre601.DEFAULT_MAX_REYNOLDS_NUMBER,
     ):
-        self.span = span
+        super().__init__(span, weather, time, max_reynolds_number)
         self.weather = weather
-        self.time = time
-        self.max_reynolds_number = max_reynolds_number
 
     @_copy_method_docstring(ThermalModel)
-    def compute_solar_heating(self) -> WattPerMeter:
-        alpha_s = self.span.conductor.solar_absorptivity
+    def compute_global_radiation_intensity(self) -> WattPerSquareMeter:
         F = self.weather.ground_albedo
         y = self.span.conductor_altitude
         N_s = self.weather.clearness_ratio
-        D = self.span.conductor.conductor_diameter
 
         sin_H_s = solar_angles.compute_sin_solar_altitude_for_span(self.span, self.time)
 
@@ -175,13 +171,8 @@ class Cigre601(BaseCigre601):
 
         I_B = cigre601.solar_heating.compute_direct_solar_radiation(sin_H_s, N_s, y)
         I_d = cigre601.solar_heating.compute_diffuse_sky_radiation(I_B, sin_H_s)
-        I_T = cigre601.solar_heating.compute_global_radiation_intensity(
+        return cigre601.solar_heating.compute_global_radiation_intensity(
             I_B, I_d, F, sin_eta, sin_H_s
-        )
-        return solar_heating.compute_solar_heating(
-            alpha_s,
-            I_T,
-            D,
         )
 
 
@@ -196,15 +187,12 @@ class Cigre601WithSolarRadiation(BaseCigre601):
         time: Date,
         max_reynolds_number: Unitless = BaseCigre601.DEFAULT_MAX_REYNOLDS_NUMBER,
     ):
-        self.span = span
+        super().__init__(span, weather, time, max_reynolds_number)
         self.weather = weather
-        self.time = time
-        self.max_reynolds_number = max_reynolds_number
 
-    def compute_solar_heating(self) -> WattPerMeter:
-        alpha_s = self.span.conductor.solar_absorptivity
+    @_copy_method_docstring(ThermalModel)
+    def compute_global_radiation_intensity(self) -> WattPerSquareMeter:
         F = self.weather.ground_albedo
-        D = self.span.conductor.conductor_diameter
 
         I_B = self.weather.direct_radiation_intensity
         I_d = self.weather.diffuse_radiation_intensity
@@ -215,11 +203,6 @@ class Cigre601WithSolarRadiation(BaseCigre601):
             self.span, self.time, sin_H_s
         )
 
-        I_T = cigre601.solar_heating.compute_global_radiation_intensity(
+        return cigre601.solar_heating.compute_global_radiation_intensity(
             I_B, I_d, F, sin_eta, sin_H_s
-        )
-        return solar_heating.compute_solar_heating(
-            alpha_s,
-            I_T,
-            D,
         )

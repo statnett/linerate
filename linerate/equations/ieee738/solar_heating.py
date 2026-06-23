@@ -106,38 +106,27 @@ def compute_elevation_correction_factor(
     return K_solar * Q_s
 
 
-def compute_solar_heating(
-    absorptivity: Unitless,
+def compute_global_radiation_intensity(
     elevation_correction_factor: WattPerSquareMeter,
     cos_solar_effective_incidence_angle: Radian,
-    projected_area_of_conductor: Meter,  # Meter squared per linear meter
 ) -> WattPerMeter:
-    r"""Compute the solar heating experienced by the ocnductor.
+    r"""Compute the global radiation intensity experienced by the conductor.
 
-    Equation (8) on page 9 of :cite:p:`ieee738`.
+    Equation (8) on page 9 of :cite:p:`ieee738`, but without absorptivity and area of conductor.
 
     Parameters
     ----------
-    absorptivity:
-        :math:`\alpha`. Material constant. According to :cite:p:`ieee738`, it has a range from
-        0.23 to 0.91, with new conductors having a value between 0.2 and 0.4, and over time
-        increasing to between 0.5 and 0.9.
     elevation_correction_factor:
         :math:`Q_{se}~\left[\text{W}~\text{m}^{-2}\right]`.The elevation correction factor.
     cos_solar_effective_incidence_angle:
         :math:`cos(\theta)~\left[\text{radian}\right]`. The cosine of the effective angle of
         incidence of the sun’s rays.
-    projected_area_of_conductor:
-        :math:`A~\left[\text{m}\right]`. :math:`\text{m}^2` per linear m. Equal to the outer
-        diameter of the conductor.
 
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`P_S~\left[\text{W}~\text{m}^{-1}\right]`. The solar heating of the conductor.
+        :math:`I_T~\left[\text{W}~\text{m}^{-2}\right]`. The solar heating of the conductor.
     """
-    alpha = absorptivity
     Q_se = elevation_correction_factor
     sin_theta = switch_cos_sin(cos_solar_effective_incidence_angle)
-    A = projected_area_of_conductor
-    return alpha * Q_se * sin_theta * A
+    return Q_se * sin_theta

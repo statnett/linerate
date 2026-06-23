@@ -4,7 +4,6 @@ from linerate.equations import (
     dimensionless,
     math,
     solar_angles,
-    solar_heating,
 )
 from linerate.equations.math import switch_cos_sin
 from linerate.models.thermal_model import ThermalModel, _copy_method_docstring
@@ -35,12 +34,10 @@ class Cigre207(ThermalModel):
         )
 
     @_copy_method_docstring(ThermalModel)
-    def compute_solar_heating(self) -> WattPerMeter:
-        alpha_s = self.span.conductor.solar_absorptivity
+    def compute_global_radiation_intensity(self):
         phi = self.span.latitude
         gamma_c = self.span.conductor_azimuth
         y = self.span.conductor_altitude
-        D = self.span.conductor.conductor_diameter
 
         omega = solar_angles.compute_hour_angle_relative_to_noon(self.time, self.span.longitude)
         delta = solar_angles.compute_solar_declination(self.time)
@@ -62,13 +59,8 @@ class Cigre207(ThermalModel):
         else:
             I_d = 0
             F = 0
-        I_T = cigre207.solar_heating.compute_global_radiation_intensity(
+        return cigre207.solar_heating.compute_global_radiation_intensity(
             I_B, I_d, F, sin_eta, sin_H_s
-        )
-        return solar_heating.compute_solar_heating(
-            alpha_s,
-            I_T,
-            D,
         )
 
     @_copy_method_docstring(ThermalModel)

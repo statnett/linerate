@@ -4,7 +4,7 @@ from typing import Dict
 import numpy as np
 from functools import partial
 from linerate import solver
-from linerate.equations import joule_heating, radiative_cooling, heat_capacity
+from linerate.equations import joule_heating, radiative_cooling, heat_capacity, solar_heating
 from linerate.solver import solve_ivp_forward_euler
 from linerate.types import BaseWeather, ConductorWithHeatCapacity, Span
 from linerate.units import (
@@ -14,6 +14,7 @@ from linerate.units import (
     OhmPerMeter,
     WattPerMeter,
     JoulePerKilogramPerKelvin,
+    WattPerSquareMeter,
 )
 
 
@@ -92,7 +93,6 @@ class ThermalModel(ABC):
         resistance = self.compute_resistance(conductor_temperature, current)
         return joule_heating.compute_joule_heating(current, resistance)
 
-    @abstractmethod
     def compute_solar_heating(
         self,
     ) -> WattPerMeter:
@@ -102,6 +102,22 @@ class ThermalModel(ABC):
         -------
         Union[float, float64, ndarray[Any, dtype[float64]]]
             :math:`P_s~\left[\text{W}~\text{m}^{-1}\right]`. The solar heating.
+        """
+        absorptivity = self.span.conductor.solar_absorptivity
+        diameter = self.span.conductor.conductor_diameter
+        global_radiation_intensity = self.compute_global_radiation_intensity()
+        return solar_heating.compute_solar_heating(
+            absorptivity, global_radiation_intensity, diameter
+        )
+
+    @abstractmethod
+    def compute_global_radiation_intensity(self) -> WattPerSquareMeter:
+        r"""Compute the global radiation intensity, :math:`I_T~\left[\text{W}~\text{m}^{-2}\right]`.
+
+        Returns
+        -------
+        Union[float, float64, ndarray[Any, dtype[float64]]]
+            :math:`I_T~\left[\text{W}~\text{m}^{-1}\right]`. The solar heating.
         """
         raise NotImplementedError
 

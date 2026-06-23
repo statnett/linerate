@@ -67,6 +67,7 @@ for k, v in vals_with_range.items():
     C = solar_angles.compute_solar_azimuth_constant(chi, omega)
     Z_c = solar_angles.compute_solar_azimuth(C, chi)
     cos_theta = solar_angles.compute_cos_solar_effective_incidence_angle(sin_H_s, Z_c, gamma_c)
+    I_T_ieee = ieee738.solar_heating.compute_global_radiation_intensity(Q_se, cos_theta)
 
     ###############################################################################
     # Calculate P_c with different varying parameters
@@ -75,7 +76,7 @@ for k, v in vals_with_range.items():
     P_s_cigre = solar_heating.compute_solar_heating(alpha_s, I_T, D)
     assert isinstance(P_s_cigre, np.ndarray)
 
-    P_s_ieee = ieee738.solar_heating.compute_solar_heating(alpha_s, Q_se, cos_theta, D)
+    P_s_ieee = solar_heating.compute_solar_heating(alpha_s, I_T_ieee, D)
     assert isinstance(P_s_ieee, np.ndarray)
 
     ###############################################################################
