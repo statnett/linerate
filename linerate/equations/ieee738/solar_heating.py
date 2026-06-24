@@ -6,7 +6,6 @@ from linerate.units import (
     Meter,
     Radian,
     Unitless,
-    WattPerMeter,
     WattPerSquareMeter,
 )
 
@@ -109,7 +108,7 @@ def compute_elevation_correction_factor(
 def compute_global_radiation_intensity(
     elevation_correction_factor: WattPerSquareMeter,
     cos_solar_effective_incidence_angle: Radian,
-) -> WattPerMeter:
+) -> WattPerSquareMeter:
     r"""Compute the global radiation intensity experienced by the conductor.
 
     Equation (8) on page 13 of :cite:p:`ieee738`, but without absorptivity and area of conductor.

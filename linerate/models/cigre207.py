@@ -8,7 +8,7 @@ from linerate.equations import (
 from linerate.equations.math import switch_cos_sin
 from linerate.models.thermal_model import ThermalModel, _copy_method_docstring
 from linerate.types import Span, Weather
-from linerate.units import Ampere, Celsius, Date, OhmPerMeter, WattPerMeter
+from linerate.units import Ampere, Celsius, Date, OhmPerMeter, WattPerMeter, WattPerSquareMeter
 
 
 class Cigre207(ThermalModel):
@@ -34,7 +34,7 @@ class Cigre207(ThermalModel):
         )
 
     @_copy_method_docstring(ThermalModel)
-    def compute_global_radiation_intensity(self):
+    def compute_global_radiation_intensity(self) -> WattPerSquareMeter:
         phi = self.span.latitude
         gamma_c = self.span.conductor_azimuth
         y = self.span.conductor_altitude
