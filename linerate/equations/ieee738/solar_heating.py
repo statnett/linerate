@@ -112,7 +112,7 @@ def compute_global_radiation_intensity(
 ) -> WattPerMeter:
     r"""Compute the global radiation intensity experienced by the conductor.
 
-    Equation (8) on page 9 of :cite:p:`ieee738`, but without absorptivity and area of conductor.
+    Equation (8) on page 13 of :cite:p:`ieee738`, but without absorptivity and area of conductor.
 
     Parameters
     ----------
