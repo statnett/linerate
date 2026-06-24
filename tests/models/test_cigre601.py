@@ -110,7 +110,6 @@ def test_cigre601_with_solar_radiation_compute_global_radiation_intensity_increa
     example_weather_with_rad: WeatherWithSolarRadiation,
     when: Date,
 ):
-    """For Cigre601WithSolarRadiation, varying albedo affects reflected radiation."""
     weather_low_albedo = dataclasses.replace(example_weather_with_rad, ground_albedo=0.0)
     weather_high_albedo = dataclasses.replace(example_weather_with_rad, ground_albedo=0.9)
 
