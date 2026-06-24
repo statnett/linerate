@@ -1,9 +1,12 @@
+from datetime import datetime
 from typing import Callable
 
 import hypothesis
 import numpy as np
 import pytest
+import hypothesis.strategies as st
 
+from linerate import WeatherWithSolarRadiation
 from linerate.models.cigre601 import Cigre601
 from linerate.types import Conductor, Span, Tower, Weather
 from linerate.units import Ampere, Celsius, WattPerMeter
@@ -55,6 +58,18 @@ def example_weather_a() -> Weather:
 
 
 @pytest.fixture
+def example_weather_with_rad() -> WeatherWithSolarRadiation:
+    return WeatherWithSolarRadiation(
+        air_temperature=40,
+        wind_direction=np.radians(30),  # Conductor azimuth is 90, so 90 - 30 is 30
+        wind_speed=0.61,
+        ground_albedo=0.1,
+        diffuse_radiation_intensity=300,
+        direct_radiation_intensity=600,
+    )
+
+
+@pytest.fixture
 def example_span_1_conductor(drake_conductor_a: Conductor) -> Span:
     start_tower = Tower(latitude=30, longitude=0.0001, altitude=0)
     end_tower = Tower(latitude=30, longitude=-0.0001, altitude=0)
@@ -100,3 +115,7 @@ def heat_balance() -> Callable[[Celsius, Ampere], WattPerMeter]:
         return (I - 100 * T) * (I + 100 * T)
 
     return _heat_balance
+
+
+def numpy_datetimes() -> st.SearchStrategy[np.datetime64[datetime]]:
+    return st.datetimes(timezones=st.none()).map(lambda dt: np.datetime64(dt))

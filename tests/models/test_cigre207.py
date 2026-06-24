@@ -1,7 +1,6 @@
 import dataclasses
 
 import hypothesis
-import hypothesis.strategies as st
 import numpy as np
 from hypothesis import HealthCheck
 from pytest import approx
@@ -9,10 +8,11 @@ from pytest import approx
 from linerate.models.cigre207 import Cigre207
 from linerate.types import Span, Weather
 from linerate.units import Date
+from tests.conftest import numpy_datetimes
 
 
 @hypothesis.settings(suppress_health_check=[HealthCheck.function_scoped_fixture])
-@hypothesis.given(when=st.datetimes().map(lambda dt: np.datetime64(dt)))
+@hypothesis.given(when=numpy_datetimes())
 def test_compute_global_radiation_intensity_ignores_albedo_without_diffuse_radiation(
     example_span_1_conductor: Span,
     example_weather_a: Weather,
@@ -41,7 +41,7 @@ def test_compute_global_radiation_intensity_ignores_albedo_without_diffuse_radia
 
 
 @hypothesis.settings(suppress_health_check=[HealthCheck.function_scoped_fixture])
-@hypothesis.given(when=st.datetimes().map(lambda dt: np.datetime64(dt)))
+@hypothesis.given(when=numpy_datetimes())
 def test_compute_global_radiation_intensity_scales_with_direct_factor_without_diffuse(
     example_span_1_conductor: Span, example_weather_a: Weather, when: Date
 ):
@@ -66,7 +66,7 @@ def test_compute_global_radiation_intensity_scales_with_direct_factor_without_di
 
 
 @hypothesis.settings(suppress_health_check=[HealthCheck.function_scoped_fixture])
-@hypothesis.given(when=st.datetimes().map(lambda dt: np.datetime64(dt)))
+@hypothesis.given(when=numpy_datetimes())
 def test_compute_global_radiation_intensity_is_zero_with_zero_direct_factor_and_no_diffuse(
     example_span_1_conductor: Span, example_weather_a: Weather, when: Date
 ):

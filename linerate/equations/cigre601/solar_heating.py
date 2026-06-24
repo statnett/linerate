@@ -180,5 +180,7 @@ def compute_global_radiation_intensity(
     sin_H_s = sin_solar_altitude
     sin_eta = sin_angle_of_sun_on_line
     F_pi_half = 0.5 * pi * F
+    # Cap sin_H_s at 0, to avoid potential negative effect of albedo when sun is below horizon
+    reflected_direct = F_pi_half * np.maximum(sin_H_s, 0.0)
 
-    return I_B * (sin_eta + F_pi_half * sin_H_s) + I_d * (1 + F_pi_half)  # type: ignore
+    return I_B * (sin_eta + reflected_direct) + I_d * (1 + F_pi_half)  # type: ignore
