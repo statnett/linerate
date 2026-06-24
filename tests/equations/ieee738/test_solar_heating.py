@@ -70,17 +70,16 @@ def test_solar_altitude_correction_factor_scales_correctly_with_height_above_sea
 
 @hypothesis.given(
     elevation_correction_factor=st.floats(allow_nan=False, allow_infinity=False),
-    solar_effective_incidence_angle=st.floats(min_value=0, max_value=np.pi, allow_nan=False),
+    cos_theta=st.floats(min_value=0, max_value=1, allow_nan=False),
 )
 def test_global_radiation_intensity_is_product_of_elevation_factor_and_sin_of_incidence_angle(
     elevation_correction_factor: WattPerSquareMeter,
-    solar_effective_incidence_angle: WattPerSquareMeter,
+    cos_theta: WattPerSquareMeter,
 ):
     Q_se = elevation_correction_factor
-    cos_theta = np.cos(solar_effective_incidence_angle)
-    sin_theta = switch_cos_sin(cos_theta)
     q_s = solar_heating.compute_global_radiation_intensity(Q_se, cos_theta)
-    assert q_s == approx(Q_se * sin_theta)
+    sin_theta = q_s / Q_se
+    assert sin_theta == approx(switch_cos_sin(cos_theta))
 
 
 def test_total_heat_flux_density_clear_atmosphere_with_example():
@@ -113,10 +112,6 @@ def test_elevation_correction_factor_with_example():
 
 
 def test_solar_heating_with_example():
-    alpha = 0.8
     Q_se = 1001.8398716244342
     cos_theta = 0
-    A = 0.04
-    assert solar_heating.compute_global_radiation_intensity(Q_se, cos_theta) * alpha * A == approx(
-        32.058875892
-    )
+    assert solar_heating.compute_global_radiation_intensity(Q_se, cos_theta) == Q_se
