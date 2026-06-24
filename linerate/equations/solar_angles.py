@@ -1,7 +1,6 @@
 import numpy as np
 
-from linerate.equations import math
-
+from .math import switch_cos_sin
 from ..types import Span
 from ..units import Date, Degrees, Radian, Unitless
 
@@ -200,15 +199,15 @@ def compute_sin_solar_altitude(
     return np.cos(Lat) * np.cos(delta) * np.cos(omega) + np.sin(Lat) * np.sin(delta)
 
 
-def compute_cos_solar_effective_incidence_angle(
+def compute_sin_solar_effective_incidence_angle(
     sin_solar_altitude: Radian,
     solar_azimuth: Radian,
     conductor_azimuth: Radian,
 ) -> Radian:
-    r"""Compute the cosine of the effective angle of incidence of the sun rays.
+    r"""Compute the sine of the effective angle of incidence of the sun rays.
 
     This is an alteration of equation (9) on page 13 of :cite:p:`ieee738`.
-    :math:`cos(\theta)` is calculated instead of :math:`\theta`.
+    :math:`sin(\theta)` is calculated instead of :math:`\theta`.
 
     Parameters
     ----------
@@ -222,12 +221,13 @@ def compute_cos_solar_effective_incidence_angle(
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`cos(\theta)`. The cosine of the effective angle of incidence of the sun rays.
+        :math:`sin(\theta)`. The sine of the effective angle of incidence of the sun rays.
     """
     H_c = np.arcsin(sin_solar_altitude)
     Z_c = solar_azimuth
     Z_l = conductor_azimuth
-    return np.cos(H_c) * np.cos(Z_c - Z_l)
+    cos_theta = np.cos(H_c) * np.cos(Z_c - Z_l)
+    return switch_cos_sin(cos_theta)
 
 
 def compute_sin_solar_altitude_for_span(span: Span, time: Date) -> Unitless:
@@ -287,6 +287,4 @@ def compute_sin_solar_effective_incidence_angle_for_span(
     C = compute_solar_azimuth_constant(chi, omega)
     gamma_s = compute_solar_azimuth(C, chi)  # Z_c in IEEE
 
-    cos_eta = compute_cos_solar_effective_incidence_angle(sin_H_s, gamma_s, gamma_c)
-
-    return math.switch_cos_sin(cos_eta)
+    return compute_sin_solar_effective_incidence_angle(sin_H_s, gamma_s, gamma_c)

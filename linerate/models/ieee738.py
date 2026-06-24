@@ -49,9 +49,9 @@ class IEEE738(ThermalModel):
         chi = solar_angles.compute_solar_azimuth_variable(phi, delta, omega)
         C = solar_angles.compute_solar_azimuth_constant(chi, omega)
         Z_c = solar_angles.compute_solar_azimuth(C, chi)
-        cos_theta = solar_angles.compute_cos_solar_effective_incidence_angle(sin_H_c, Z_c, gamma_c)
+        sin_theta = solar_angles.compute_sin_solar_effective_incidence_angle(sin_H_c, Z_c, gamma_c)
 
-        return ieee738.solar_heating.compute_global_radiation_intensity(Q_se, cos_theta)
+        return ieee738.solar_heating.compute_global_radiation_intensity(Q_se, sin_theta)
 
     @_copy_method_docstring(ThermalModel)
     def compute_convective_cooling(self, conductor_temperature: Celsius) -> WattPerMeter:

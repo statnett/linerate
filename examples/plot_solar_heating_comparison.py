@@ -14,7 +14,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from linerate.equations import cigre601, ieee738, solar_angles, solar_heating
-from linerate.equations.math import switch_cos_sin
 
 ###############################################################################
 # Simulation parameters
@@ -49,8 +48,7 @@ for k, v in vals_with_range.items():
     chi = solar_angles.compute_solar_azimuth_variable(phi, delta, omega)
     C = solar_angles.compute_solar_azimuth_constant(chi, omega)
     Z_c = solar_angles.compute_solar_azimuth(C, chi)
-    cos_eta = solar_angles.compute_cos_solar_effective_incidence_angle(sin_H_s, Z_c, gamma_c)
-    sin_eta = switch_cos_sin(cos_eta)
+    sin_eta = solar_angles.compute_sin_solar_effective_incidence_angle(sin_H_s, Z_c, gamma_c)
 
     I_B = cigre601.solar_heating.compute_direct_solar_radiation(sin_H_s, N_s, y)
     I_d = cigre601.solar_heating.compute_diffuse_sky_radiation(I_B, sin_H_s)
@@ -66,8 +64,8 @@ for k, v in vals_with_range.items():
     chi = solar_angles.compute_solar_azimuth_variable(phi, delta, omega)
     C = solar_angles.compute_solar_azimuth_constant(chi, omega)
     Z_c = solar_angles.compute_solar_azimuth(C, chi)
-    cos_theta = solar_angles.compute_cos_solar_effective_incidence_angle(sin_H_s, Z_c, gamma_c)
-    I_T_ieee = ieee738.solar_heating.compute_global_radiation_intensity(Q_se, cos_theta)
+    sin_theta = solar_angles.compute_sin_solar_effective_incidence_angle(sin_H_s, Z_c, gamma_c)
+    I_T_ieee = ieee738.solar_heating.compute_global_radiation_intensity(Q_se, sin_theta)
 
     ###############################################################################
     # Calculate P_c with different varying parameters

@@ -5,7 +5,6 @@ import pytest
 from pytest import approx
 
 import linerate.equations.ieee738.solar_heating as solar_heating
-from linerate.equations.math import switch_cos_sin
 from linerate.units import BoolOrBoolArray, Meter, Radian, WattPerSquareMeter
 
 
@@ -68,18 +67,26 @@ def test_solar_altitude_correction_factor_scales_correctly_with_height_above_sea
     assert K_solar == approx(solar_heating.compute_solar_altitude_correction_factor(H_e))
 
 
-@hypothesis.given(
-    elevation_correction_factor=st.floats(allow_nan=False, allow_infinity=False),
-    cos_theta=st.floats(min_value=0, max_value=1, allow_nan=False),
-)
-def test_global_radiation_intensity_is_product_of_elevation_factor_and_sin_of_incidence_angle(
+@hypothesis.given(elevation_correction_factor=st.floats(allow_nan=False))
+def test_global_radiation_intensity_scales_linearly_with_elevation_correction_factor(
     elevation_correction_factor: WattPerSquareMeter,
-    cos_theta: WattPerSquareMeter,
 ):
     Q_se = elevation_correction_factor
-    q_s = solar_heating.compute_global_radiation_intensity(Q_se, cos_theta)
-    sin_theta = q_s / Q_se
-    assert sin_theta == approx(switch_cos_sin(cos_theta))
+    sin_theta = 1
+    q_s = solar_heating.compute_global_radiation_intensity(Q_se, sin_theta)
+    assert q_s == approx(elevation_correction_factor)
+
+
+@hypothesis.given(
+    sin_solar_effective_incidence_angle=st.floats(min_value=0, max_value=1.0, allow_nan=False)
+)
+def test_solar_heating_scales_linearly_with_cos_solar_effective_incidence_angle(
+    sin_solar_effective_incidence_angle: Radian,
+):
+    Q_se = 1
+    sin_theta = sin_solar_effective_incidence_angle
+    q_s = solar_heating.compute_global_radiation_intensity(Q_se, sin_theta)
+    assert q_s == approx(sin_theta)
 
 
 def test_total_heat_flux_density_clear_atmosphere_with_example():
@@ -113,5 +120,5 @@ def test_elevation_correction_factor_with_example():
 
 def test_solar_heating_with_example():
     Q_se = 1001.8398716244342
-    cos_theta = 0
-    assert solar_heating.compute_global_radiation_intensity(Q_se, cos_theta) == Q_se
+    sin_theta = 1.0
+    assert solar_heating.compute_global_radiation_intensity(Q_se, sin_theta) == Q_se

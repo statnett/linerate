@@ -5,7 +5,6 @@ from linerate.equations import (
     math,
     solar_angles,
 )
-from linerate.equations.math import switch_cos_sin
 from linerate.models.thermal_model import ThermalModel, _copy_method_docstring
 from linerate.types import Span, Weather
 from linerate.units import Ampere, Celsius, Date, OhmPerMeter, WattPerMeter, WattPerSquareMeter
@@ -45,10 +44,9 @@ class Cigre207(ThermalModel):
         chi = solar_angles.compute_solar_azimuth_variable(phi, delta, omega)
         C = solar_angles.compute_solar_azimuth_constant(chi, omega)
         gamma_s = solar_angles.compute_solar_azimuth(C, chi)  # Z_c in IEEE
-        cos_eta = solar_angles.compute_cos_solar_effective_incidence_angle(
+        sin_eta = solar_angles.compute_sin_solar_effective_incidence_angle(
             sin_H_s, gamma_s, gamma_c
         )
-        sin_eta = switch_cos_sin(cos_eta)
 
         I_B = self.direct_radiation_factor * cigre207.solar_heating.compute_direct_solar_radiation(
             sin_H_s, y

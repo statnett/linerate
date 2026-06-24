@@ -1,6 +1,5 @@
 import numpy as np
 
-from linerate.equations.math import switch_cos_sin
 from linerate.units import (
     BoolOrBoolArray,
     Meter,
@@ -107,7 +106,7 @@ def compute_elevation_correction_factor(
 
 def compute_global_radiation_intensity(
     elevation_correction_factor: WattPerSquareMeter,
-    cos_solar_effective_incidence_angle: Radian,
+    sin_solar_effective_incidence_angle: Radian,
 ) -> WattPerSquareMeter:
     r"""Compute the global radiation intensity experienced by the conductor.
 
@@ -117,8 +116,8 @@ def compute_global_radiation_intensity(
     ----------
     elevation_correction_factor:
         :math:`Q_{se}~\left[\text{W}~\text{m}^{-2}\right]`.The elevation correction factor.
-    cos_solar_effective_incidence_angle:
-        :math:`cos(\theta)~\left[\text{radian}\right]`. The cosine of the effective angle of
+    sin_solar_effective_incidence_angle:
+        :math:`sin(\theta)~\left[\text{radian}\right]`. The sine of the effective angle of
         incidence of the sun’s rays.
 
     Returns
@@ -127,5 +126,5 @@ def compute_global_radiation_intensity(
         :math:`I_T~\left[\text{W}~\text{m}^{-2}\right]`. The solar heating of the conductor.
     """
     Q_se = elevation_correction_factor
-    sin_theta = switch_cos_sin(cos_solar_effective_incidence_angle)
+    sin_theta = sin_solar_effective_incidence_angle
     return Q_se * sin_theta
