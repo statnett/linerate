@@ -5,8 +5,7 @@ import pytest
 from pytest import approx
 
 import linerate.equations.ieee738.solar_heating as solar_heating
-from linerate.equations.math import switch_cos_sin
-from linerate.units import BoolOrBoolArray, Meter, Radian, Unitless, WattPerSquareMeter
+from linerate.units import BoolOrBoolArray, Meter, Radian, WattPerSquareMeter
 
 
 @hypothesis.given(solar_altitude=st.floats(min_value=-10, max_value=10, allow_nan=False))
@@ -68,55 +67,26 @@ def test_solar_altitude_correction_factor_scales_correctly_with_height_above_sea
     assert K_solar == approx(solar_heating.compute_solar_altitude_correction_factor(H_e))
 
 
-@hypothesis.given(absorptivity=st.floats(min_value=0.23, max_value=0.91, allow_nan=False))
-def test_solar_heating_scales_linearly_with_absorptivity(absorptivity: Unitless):
-    alpha = absorptivity
-    Q_se = 1
-    cos_theta = 0
-    A = 1
-    q_s = solar_heating.compute_solar_heating(alpha, Q_se, cos_theta, A)
-    assert q_s == approx(alpha)
-
-
 @hypothesis.given(elevation_correction_factor=st.floats(allow_nan=False))
-def test_solar_heating_scales_linearly_with_elevation_correction_factor(
+def test_global_radiation_intensity_scales_linearly_with_elevation_correction_factor(
     elevation_correction_factor: WattPerSquareMeter,
 ):
-    alpha = 1
     Q_se = elevation_correction_factor
-    cos_theta = 0
-    A = 1
-    q_s = solar_heating.compute_solar_heating(alpha, Q_se, cos_theta, A)
+    sin_theta = 1
+    q_s = solar_heating.compute_global_radiation_intensity(Q_se, sin_theta)
     assert q_s == approx(elevation_correction_factor)
 
 
 @hypothesis.given(
-    solar_effective_incidence_angle=st.floats(min_value=0, max_value=np.pi, allow_nan=False)
+    sin_solar_effective_incidence_angle=st.floats(min_value=0, max_value=1.0, allow_nan=False)
 )
 def test_solar_heating_scales_linearly_with_cos_solar_effective_incidence_angle(
-    solar_effective_incidence_angle: Radian,
+    sin_solar_effective_incidence_angle: Radian,
 ):
-    alpha = 1
     Q_se = 1
-    cos_theta = np.cos(solar_effective_incidence_angle)
-    sin_theta = switch_cos_sin(cos_theta)
-    A = 1
-    q_s = solar_heating.compute_solar_heating(alpha, Q_se, cos_theta, A)
+    sin_theta = sin_solar_effective_incidence_angle
+    q_s = solar_heating.compute_global_radiation_intensity(Q_se, sin_theta)
     assert q_s == approx(sin_theta)
-
-
-@hypothesis.given(
-    projected_area_of_conductor=st.floats(min_value=0.001, max_value=1, allow_nan=False)
-)
-def test_solar_heating_scales_linearly_with_projected_area_of_conductor(
-    projected_area_of_conductor: Meter,
-):
-    alpha = 1
-    Q_se = 1
-    cos_theta = 0
-    A = projected_area_of_conductor
-    q_s = solar_heating.compute_solar_heating(alpha, Q_se, cos_theta, A)
-    assert q_s == approx(A)
 
 
 def test_total_heat_flux_density_clear_atmosphere_with_example():
@@ -149,8 +119,6 @@ def test_elevation_correction_factor_with_example():
 
 
 def test_solar_heating_with_example():
-    alpha = 0.8
     Q_se = 1001.8398716244342
-    cos_theta = 0
-    A = 0.04
-    assert solar_heating.compute_solar_heating(alpha, Q_se, cos_theta, A) == approx(32.058875892)
+    sin_theta = 1.0
+    assert solar_heating.compute_global_radiation_intensity(Q_se, sin_theta) == Q_se

@@ -186,7 +186,7 @@ def test_global_radiation_intensity_scales_affinely_with_albedo(albedo: Unitless
     assert I_T == approx(np.pi * F + 2)
 
 
-@hypothesis.given(sin_solar_altitude=st.floats(allow_nan=False))
+@hypothesis.given(sin_solar_altitude=st.floats(allow_nan=False, min_value=0, max_value=1))
 def test_global_radiation_intensity_scales_affinely_sin_solar_altitude(
     sin_solar_altitude: Unitless,
 ):
@@ -198,6 +198,20 @@ def test_global_radiation_intensity_scales_affinely_sin_solar_altitude(
 
     I_T = solar_heating.compute_global_radiation_intensity(I_B, I_d, F, sin_eta, sin_H_s)
     assert I_T == approx(sin_H_s + 3)
+
+
+@hypothesis.given(sin_solar_altitude=st.floats(allow_nan=False, min_value=-1, max_value=0))
+def test_global_radiation_intensity_does_not_increase_with_negative_solar_altitude(
+    sin_solar_altitude: Unitless,
+):
+    I_B = 1
+    sin_eta = 1
+    F = 2 / np.pi
+    I_d = 1
+    sin_H_s = sin_solar_altitude
+
+    I_T = solar_heating.compute_global_radiation_intensity(I_B, I_d, F, sin_eta, sin_H_s)
+    assert I_T == approx(3)
 
 
 @hypothesis.given(sin_angle_of_sun_on_line=st.floats(allow_nan=False))

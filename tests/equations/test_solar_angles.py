@@ -47,7 +47,8 @@ def test_hour_angle_relative_to_noon_with_example():
 
 
 def test_hour_angle_relative_to_noon_norway():
-    when = np.datetime64("2022-12-01T12:00+01:00")
+    # 12:00 in Norway time is 11:00 UTC. numpy datetime64 is timezone-naive, so store UTC.
+    when = np.datetime64("2022-12-01T11:00")
     omega = 0
     longitude = 15  # Longitude at timezone +01:00
     assert solar_angles.compute_hour_angle_relative_to_noon(when, longitude) == approx(omega)
@@ -158,9 +159,9 @@ def test_sin_solar_effective_incidence_angle_with_example():
     sin_solar_altitude = np.sin(0)
     Z_c = 1
     Z_l = 1
-    assert solar_angles.compute_cos_solar_effective_incidence_angle(
+    assert solar_angles.compute_sin_solar_effective_incidence_angle(
         sin_solar_altitude, Z_c, Z_l
-    ) == approx(1.0)
+    ) == approx(0.0)
 
 
 # Example testing from calculations on page 79 and 80 in CIGRE
