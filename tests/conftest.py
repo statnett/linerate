@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Callable
 
 import hypothesis
@@ -117,5 +116,5 @@ def heat_balance() -> Callable[[Celsius, Ampere], WattPerMeter]:
     return _heat_balance
 
 
-def numpy_datetimes() -> st.SearchStrategy[np.datetime64[datetime]]:
+def numpy_datetimes() -> st.SearchStrategy:
     return st.datetimes(timezones=st.none()).map(lambda dt: np.datetime64(dt))
