@@ -85,7 +85,7 @@ for ax in axes:
     ax.set_xticks([0, 30, 60, 90])
 
     # Setup y-axes to be shared
-    ax.set_ylim(0, I_T_F.max() * 1.05)
+    ax.set_ylim(0, float(I_T_F.max() * 1.05))
     ax.set_yticks([0, 500, 1000, 1360])  # Include tick for solar constant
     ax.set_yticklabels(["0", "500", "1000", "$G_{SC}$"])
     ax.axhline(1360, color="k", linestyle="--")  # Add dashed line for solar constant
