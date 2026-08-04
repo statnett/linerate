@@ -213,7 +213,7 @@ class ThermalModel(ABC):
         self,
         max_conductor_temperature: Celsius,
         min_ampacity: Ampere = 0,
-        max_ampacity: Ampere = 5000,
+        max_ampacity: Ampere = 8000,
         tolerance: float = 1.0,
         accept_invalid_values: bool = False,
     ) -> Ampere:
