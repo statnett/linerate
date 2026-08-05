@@ -374,7 +374,7 @@ class ThermalModel(ABC):
         initial_conductor_temperature: Celsius,
         time_step: Duration = np.timedelta64(60, "s"),
         min_ampacity: Ampere = 0,
-        max_ampacity: Ampere = 5000,
+        max_ampacity: Ampere = 8000,
         tolerance: float = 1.0,
         accept_invalid_values: bool = False,
     ):

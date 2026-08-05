@@ -130,7 +130,7 @@ def compute_conductor_ampacity(
     heat_balance: Callable[[Celsius, Ampere], WattPerMeter],
     max_conductor_temperature: Celsius,
     min_ampacity: Ampere = 0,
-    max_ampacity: Ampere = 5_000,
+    max_ampacity: Ampere = 8000,
     tolerance: float = 1,  # Ampere
     accept_invalid_values: bool = False,
 ) -> Ampere:
@@ -158,6 +158,7 @@ def compute_conductor_ampacity(
     accept_invalid_values:
         If True, np.nan is returned whenever the current cannot be found within the provided
         search interval. If False, a ValueError will be raised instead.
+        A positive heat balance at 0 A returns an ampacity of 0 A.
 
     Returns
     -------
@@ -165,6 +166,9 @@ def compute_conductor_ampacity(
         :math:`I~\left[\text{A}\right]`. The thermal rating.
     """
     f = partial(heat_balance, max_conductor_temperature)
+
+    if f(0) > 0:
+        return 0
 
     return bisect(
         f, min_ampacity, max_ampacity, tolerance, accept_invalid_values=accept_invalid_values
@@ -177,7 +181,7 @@ def compute_conductor_transient_ampacity(
     initial_conductor_temperature: Celsius,
     heating_duration: Duration,
     min_ampacity: Ampere = 0,
-    max_ampacity: Ampere = 5_000,
+    max_ampacity: Ampere = 8000,
     tolerance: float = 1,  # Ampere
     accept_invalid_values: bool = False,
 ) -> Ampere:
