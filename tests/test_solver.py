@@ -41,8 +41,6 @@ def test_compute_conductor_ampacity_returns_zero_for_elements_with_positive_heat
     np.testing.assert_array_almost_equal(ampacity, [10, 0, 10], decimal=8)
 
 
-
-
 def test_compute_conductor_ampacity_raises_when_solution_exceeds_max_ampacity():
     def heat_balance(conductor_temperature: Celsius, current: Ampere) -> WattPerMeter:
         return current**2 - 100
