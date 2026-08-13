@@ -158,7 +158,7 @@ def compute_conductor_ampacity(
     accept_invalid_values:
         If True, np.nan is returned whenever the current cannot be found within the provided
         search interval. If False, a ValueError will be raised instead.
-        A positive heat balance at 0 A returns an ampacity of 0 A.
+        A positive heat balance at 0 A returns an ampacity of 0 A for the corresponding element.
 
     Returns
     -------
@@ -166,13 +166,18 @@ def compute_conductor_ampacity(
         :math:`I~\left[\text{A}\right]`. The thermal rating.
     """
     f = partial(heat_balance, max_conductor_temperature)
+    ampacity = bisect(f, min_ampacity, max_ampacity, tolerance, accept_invalid_values=True)
+    invalid_mask = np.sign(f(min_ampacity)) == np.sign(f(max_ampacity))
+    zero_ampacity_mask = invalid_mask & (f(0) > 0)
+    ampacity = np.where(zero_ampacity_mask, 0, ampacity)
 
-    if f(0) > 0:
-        return 0
+    if np.any(invalid_mask & ~zero_ampacity_mask) and not accept_invalid_values:
+        raise ValueError(
+            "f(min_ampacity) and f(max_ampacity) have the same sign. "
+            "Consider increasing the search interval."
+        )
 
-    return bisect(
-        f, min_ampacity, max_ampacity, tolerance, accept_invalid_values=accept_invalid_values
-    )
+    return ampacity
 
 
 def compute_conductor_transient_ampacity(

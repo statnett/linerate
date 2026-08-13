@@ -30,13 +30,17 @@ def test_compute_conductor_ampacity_computes_correct_ampacity(
     assert conductor_temperature == pytest.approx(9000, rel=1e-7)
 
 
-def test_compute_conductor_ampacity_returns_zero_when_heat_balance_is_positive_at_zero_current():
+def test_compute_conductor_ampacity_returns_zero_for_elements_with_positive_heat_balance_at_zero_current():
     def heat_balance(conductor_temperature: Celsius, current: Ampere) -> WattPerMeter:
-        return current**2 + 1
+        return current**2 - np.array([100, -1, 100])
 
-    ampacity = solver.compute_conductor_ampacity(heat_balance, max_conductor_temperature=90)
+    ampacity = solver.compute_conductor_ampacity(
+        heat_balance, max_conductor_temperature=90, tolerance=1e-8
+    )
 
-    assert ampacity == 0
+    np.testing.assert_array_almost_equal(ampacity, [10, 0, 10], decimal=8)
+
+
 
 
 def test_compute_conductor_ampacity_raises_when_solution_exceeds_max_ampacity():
