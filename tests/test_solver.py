@@ -51,6 +51,16 @@ def test_compute_conductor_ampacity_raises_when_solution_exceeds_max_ampacity():
         )
 
 
+def test_compute_conductor_temperature_raises_when_solution_is_below_min_ampacity():
+    def heat_balance(conductor_temperature: Celsius, current: Ampere) -> WattPerMeter:
+        return current**2 - 100
+
+    with pytest.raises(ValueError):
+        solver.compute_conductor_ampacity(
+            heat_balance, max_conductor_temperature=90, min_ampacity=15
+        )
+
+
 def test_bisect_raises_value_error():
     def heat_balance(current):
         I = current  # noqa: E741

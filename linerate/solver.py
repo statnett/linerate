@@ -162,19 +162,7 @@ def compute_conductor_ampacity(
     """
     f = partial(heat_balance, max_conductor_temperature)
     ampacity = bisect(f, min_ampacity, max_ampacity, tolerance, accept_invalid_values=True)
-    if min_ampacity == 0:
-        zero_ampacity_mask = f(0) > 0
-        ampacity = np.where(zero_ampacity_mask, 0, ampacity)
-        invalid_mask = f(max_ampacity) < 0
-    else:
-        invalid_mask = np.sign(f(min_ampacity)) == np.sign(f(max_ampacity))
-
-    if np.any(invalid_mask):
-        raise ValueError(
-            "Ampacity could not be found, consider increasing increasing search interval."
-        )
-
-    return ampacity
+    return _validate_ampacity(f, ampacity, min_ampacity, max_ampacity)
 
 
 def compute_conductor_transient_ampacity(
@@ -185,7 +173,6 @@ def compute_conductor_transient_ampacity(
     min_ampacity: Ampere = 0,
     max_ampacity: Ampere = 8000,
     tolerance: float = 1,  # Ampere
-    accept_invalid_values: bool = False,
 ) -> Ampere:
     r"""Use the bisection method to compute the temporary thermal rating (ampacity).
 
@@ -204,16 +191,13 @@ def compute_conductor_transient_ampacity(
         :math:`I_\text{min}~\left[\text{A}\right]`. Lower bound for the numerical scheme for
         computing the ampacity
     max_ampacity:
-        :math:`I_\text{min}~\left[\text{A}\right]`. Upper bound for the numerical scheme for
+        :math:`I_\text{max}~\left[\text{A}\right]`. Upper bound for the numerical scheme for
         computing the ampacity
     tolerance:
         :math:`\Delta I~\left[\text{A}\right]`. The numerical accuracy of the ampacity. The
         bisection iterations will stop once the numerical ampacity uncertainty is below
         :math:`\Delta I`. The bisection method will run for
         :math:`\left\lceil\frac{I_\text{max} - I_\text{min}}{\Delta I}\right\rceil` iterations.
-    accept_invalid_values:
-        If True, np.nan is returned whenever the current cannot be found within the provided
-        search interval. If False, a ValueError will be raised instead.
 
     Returns
     -------
@@ -222,16 +206,23 @@ def compute_conductor_transient_ampacity(
     """
 
     def temperature_difference(current: Ampere) -> Celsius:
-        return max_conductor_temperature - final_temperature(
-            initial_conductor_temperature, heating_duration, current
+        return (
+            final_temperature(initial_conductor_temperature, heating_duration, current)
+            - max_conductor_temperature
         )
 
-    return bisect(
+    ampacity = bisect(
         temperature_difference,
         min_ampacity,
         max_ampacity,
         tolerance,
-        accept_invalid_values=accept_invalid_values,
+        accept_invalid_values=True,
+    )
+    return _validate_ampacity(
+        temperature_difference,
+        ampacity,
+        min_ampacity,
+        max_ampacity,
     )
 
 
@@ -269,3 +260,41 @@ def solve_ivp_forward_euler(
     if remainder > 0:
         y = y + f(y) * remainder
     return y
+
+
+def _validate_ampacity(
+    f: Callable[[FloatOrFloatArray], FloatOrFloatArray],
+    ampacity: Ampere,
+    min_ampacity: Ampere,
+    max_ampacity: Ampere,
+) -> Ampere:
+    r"""If min_ampacity is 0, the ampacity is set to zero if the heat balance is positive at zero current.
+    Any ampacity that is outside the search interval is considered invalid and will raise a ValueError.
+
+    Parameters
+    ----------
+    f:
+        :math:`f: \mathbb{R}^n \to \mathbb{R}^n`. Heat/temperature balance function whose roots give the ampacity.
+    ampacity:
+        :math:`I~\left[\text{A}\right]`. The thermal rating.
+    min_ampacity:
+        :math:`I_\text{min}~\left[\text{A}\right]`. Lower bound for the numerical scheme for computing the ampacity
+    max_ampacity:
+        :math:`I_\text{max}~\left[\text{A}\right]`. Upper bound for the numerical scheme for computing the ampacity
+
+    Returns
+    -------
+    Union[float, float64, ndarray[Any, dtype[float64]]]
+        :math:`I~\left[\text{A}\right]`. The validated rating.
+    """
+    if min_ampacity == 0:
+        zero_ampacity_mask = f(0) > 0
+        ampacity = np.where(zero_ampacity_mask, 0, ampacity)
+        invalid_mask = f(max_ampacity) < 0
+    else:
+        invalid_mask = np.sign(f(min_ampacity)) == np.sign(f(max_ampacity))
+
+    if np.any(invalid_mask):
+        raise ValueError("Ampacity could not be found, consider increasing the search interval.")
+
+    return ampacity
