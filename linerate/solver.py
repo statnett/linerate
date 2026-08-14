@@ -147,7 +147,7 @@ def compute_conductor_ampacity(
         :math:`I_\text{min}~\left[\text{A}\right]`. Lower bound for the numerical scheme for
         computing the ampacity
     max_ampacity:
-        :math:`I_\text{min}~\left[\text{A}\right]`. Upper bound for the numerical scheme for
+        :math:`I_\text{max}~\left[\text{A}\right]`. Upper bound for the numerical scheme for
         computing the ampacity
     tolerance:
         :math:`\Delta I~\left[\text{A}\right]`. The numerical accuracy of the ampacity. The
