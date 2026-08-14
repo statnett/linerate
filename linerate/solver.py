@@ -132,7 +132,6 @@ def compute_conductor_ampacity(
     min_ampacity: Ampere = 0,
     max_ampacity: Ampere = 8000,
     tolerance: float = 1,  # Ampere
-    accept_invalid_values: bool = False,
 ) -> Ampere:
     r"""Use the bisection method to compute the steady-state thermal rating (ampacity).
 
@@ -155,10 +154,6 @@ def compute_conductor_ampacity(
         bisection iterations will stop once the numerical ampacity uncertainty is below
         :math:`\Delta I`. The bisection method will run for
         :math:`\left\lceil\frac{I_\text{max} - I_\text{min}}{\Delta I}\right\rceil` iterations.
-    accept_invalid_values:
-        If True, np.nan is returned whenever the current cannot be found within the provided
-        search interval. If False, a ValueError will be raised instead.
-        A positive heat balance at 0 A returns an ampacity of 0 A for the corresponding element.
 
     Returns
     -------
@@ -167,14 +162,16 @@ def compute_conductor_ampacity(
     """
     f = partial(heat_balance, max_conductor_temperature)
     ampacity = bisect(f, min_ampacity, max_ampacity, tolerance, accept_invalid_values=True)
-    invalid_mask = np.sign(f(min_ampacity)) == np.sign(f(max_ampacity))
-    zero_ampacity_mask = invalid_mask & (f(0) > 0)
-    ampacity = np.where(zero_ampacity_mask, 0, ampacity)
+    if min_ampacity == 0:
+        zero_ampacity_mask = f(0) > 0
+        ampacity = np.where(zero_ampacity_mask, 0, ampacity)
+        invalid_mask = f(max_ampacity) < 0
+    else:
+        invalid_mask = np.sign(f(min_ampacity)) == np.sign(f(max_ampacity))
 
-    if np.any(invalid_mask & ~zero_ampacity_mask) and not accept_invalid_values:
+    if np.any(invalid_mask):
         raise ValueError(
-            "f(min_ampacity) and f(max_ampacity) have the same sign. "
-            "Consider increasing the search interval."
+            "Ampacity could not be found, consider increasing increasing search interval."
         )
 
     return ampacity
