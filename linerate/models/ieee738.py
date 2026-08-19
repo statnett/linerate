@@ -3,7 +3,15 @@ import numpy as np
 from linerate.equations import dimensionless, ieee738, math, solar_angles
 from linerate.models.thermal_model import ThermalModel, _copy_method_docstring
 from linerate.types import Span, Weather
-from linerate.units import Ampere, Celsius, Date, OhmPerMeter, Unitless, WattPerMeter
+from linerate.units import (
+    Ampere,
+    Celsius,
+    Date,
+    OhmPerMeter,
+    Unitless,
+    WattPerMeter,
+    WattPerSquareMeter,
+)
 
 
 class IEEE738(ThermalModel):
@@ -35,7 +43,7 @@ class IEEE738(ThermalModel):
     @_copy_method_docstring(ThermalModel)
     def compute_global_radiation_intensity(
         self,
-    ) -> WattPerMeter:
+    ) -> WattPerSquareMeter:
         phi = self.span.latitude  # Lat in IEEE
         gamma_c = self.span.conductor_azimuth  # Z_l i IEEE
         y = self.span.conductor_altitude  # H_e in IEEE

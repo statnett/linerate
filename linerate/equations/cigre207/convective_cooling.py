@@ -4,7 +4,6 @@ import numpy as np
 
 from ...units import (
     Celsius,
-    KilogramPerCubeMeter,
     Meter,
     MeterPerSecond,
     Radian,
@@ -59,7 +58,7 @@ def compute_relative_air_density(height_above_sea_level: Meter) -> Unitless:
     return np.exp(-1.16e-4 * y)
 
 
-def compute_kinematic_viscosity_of_air(film_temperature: Celsius) -> KilogramPerCubeMeter:
+def compute_kinematic_viscosity_of_air(film_temperature: Celsius) -> SquareMeterPerSecond:
     r"""Approximation of the kinematic viscosity of air at a given temperature.
 
     Equation on page 5 of :cite:p:`cigre207`.

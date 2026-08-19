@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Dict
 
 import numpy as np
 from functools import partial
@@ -13,7 +12,7 @@ from linerate.units import (
     Duration,
     OhmPerMeter,
     WattPerMeter,
-    JoulePerKilogramPerKelvin,
+    JoulePerMeter,
     WattPerSquareMeter,
 )
 
@@ -48,7 +47,7 @@ class ThermalModel(ABC):
         Returns
         -------
         Union[float, float64, ndarray[Any, dtype[float64]]]
-            :math:`R~\left[\Omega\right]`. The resistance at the given temperature and current.
+            :math:`R~\left[\Omega~\text{m}^{-1}\right]`. The resistance at the given temperature and current.
         """
         resistance = joule_heating.compute_resistance(
             conductor_temperature,
@@ -96,7 +95,7 @@ class ThermalModel(ABC):
     def compute_solar_heating(
         self,
     ) -> WattPerMeter:
-        r"""Compute the solar heating, :math:`P_S~\left[\text{W}~\text{m}^{-1}\right]`.
+        r"""Compute the solar heating, :math:`P_s~\left[\text{W}~\text{m}^{-1}\right]`.
 
         Returns
         -------
@@ -117,7 +116,7 @@ class ThermalModel(ABC):
         Returns
         -------
         Union[float, float64, ndarray[Any, dtype[float64]]]
-            :math:`I_T~\left[\text{W}~\text{m}^{-1}\right]`. The solar heating.
+            :math:`I_T~\left[\text{W}~\text{m}^{-2}\right]`. The global radiation intensity.
         """
         raise NotImplementedError
 
@@ -155,7 +154,7 @@ class ThermalModel(ABC):
         Returns
         -------
         Union[float, float64, ndarray[Any, dtype[float64]]]
-            :math:`P_r~\left[\text{W}~\text{m}^{-1}\right]`. The radiative cooling heating.
+            :math:`P_r~\left[\text{W}~\text{m}^{-1}\right]`. The radiative cooling.
         """
         return radiative_cooling.compute_radiative_cooling(
             surface_temperature=conductor_temperature,
@@ -187,7 +186,7 @@ class ThermalModel(ABC):
 
     def compute_info(
         self, conductor_temperature: Celsius, current: Ampere
-    ) -> Dict[str, WattPerMeter]:
+    ) -> dict[str, WattPerMeter]:
         r"""Create a dictionary with the different heating and cooling effects.
 
         Parameters
@@ -216,7 +215,7 @@ class ThermalModel(ABC):
         max_ampacity: Ampere = 8000,
         tolerance: float = 1.0,
     ) -> Ampere:
-        r"""Use the bisection method to compute the steady-state thermal rating (ampacity).
+        r"""Use the bisection method to compute the steady-state ampacity.
 
         Parameters
         ----------
@@ -226,18 +225,18 @@ class ThermalModel(ABC):
             :math:`I_\text{min}~\left[\text{A}\right]`. Lower bound for the numerical scheme for
             computing the ampacity
         max_ampacity:
-            :math:`I_\text{min}~\left[\text{A}\right]`. Upper bound for the numerical scheme for
+            :math:`I_\text{max}~\left[\text{A}\right]`. Upper bound for the numerical scheme for
             computing the ampacity
         tolerance:
             :math:`\Delta I~\left[\text{A}\right]`. The numerical accuracy of the ampacity. The
             bisection iterations will stop once the numerical ampacity uncertainty is below
             :math:`\Delta I`. The bisection method will run for
-            :math:`\left\lceil\frac{I_\text{min} - I_\text{min}}{\Delta I}\right\rceil` iterations.
+            :math:`\left\lceil\frac{I_\text{max} - I_\text{min}}{\Delta I}\right\rceil` iterations.
 
         Returns
         -------
         Union[float, float64, ndarray[Any, dtype[float64]]]
-            :math:`I~\left[\text{A}\right]`. The thermal rating.
+            :math:`I~\left[\text{A}\right]`. The calculated steady-state ampacity.
         """
         I = solver.compute_conductor_ampacity(  # noqa
             self.compute_heat_balance,
@@ -261,7 +260,7 @@ class ThermalModel(ABC):
         Parameters
         ----------
         current:
-            :math:`I_\text{max}~\left[\text{A}\right]`. The current flowing through the conductor.
+            :math:`I~\left[\text{A}\right]`. The current flowing through the conductor.
             NOTE that the current is the total current for all conductors in the span. When
             computing the temperature, the current is divided by the number of conductors.
         min_temperature:
@@ -274,12 +273,12 @@ class ThermalModel(ABC):
             :math:`\Delta T~\left[^\circ\text{C}\right]`. The numerical accuracy of the
             temperature. The bisection iterations will stop once the numerical temperature
             uncertainty is below :math:`\Delta T`. The bisection method will run for
-            :math:`\left\lceil\frac{T_\text{min} - T_\text{min}}{\Delta T}\right\rceil` iterations.
+            :math:`\left\lceil\frac{T_\text{max} - T_\text{min}}{\Delta T}\right\rceil` iterations.
 
         Returns
         -------
         Union[float, float64, ndarray[Any, dtype[float64]]]
-            :math:`I~\left[\text{A}\right]`. The thermal rating.
+            :math:`T~\left[^\circ\text{C}\right]`. The calculated conductor temperature.
         """
         n = self.span.num_conductors
         T = solver.compute_conductor_temperature(
@@ -293,7 +292,7 @@ class ThermalModel(ABC):
 
     def compute_heat_capacity_per_unit_length(
         self, conductor_temperature: Celsius
-    ) -> JoulePerKilogramPerKelvin:
+    ) -> JoulePerMeter:
         r"""
         Compute the heat capacity of the conductor per unit length.
         Parameters
@@ -304,7 +303,7 @@ class ThermalModel(ABC):
         Returns
         -------
         Union[float, float64, ndarray[Any, dtype[float64]]]
-            :math:`c~\left[\text{J}\text{kg}^{-1}\text{K}^{-1}\text{m}^{-1}\right]`. Conductor heat capacity per unit length.
+            :math:`c~\left[\text{J}\text{K}^{-1}\text{m}^{-1}\right]`. Conductor heat capacity per unit length.
 
         """
         conductor = self.span.conductor
@@ -372,7 +371,7 @@ class ThermalModel(ABC):
         max_ampacity: Ampere = 8000,
         tolerance: float = 1.0,
     ):
-        r"""Use the bisection method to compute the transient thermal rating (ampacity).
+        r"""Use the bisection method to compute the transient ampacity.
 
         Parameters
         ----------
@@ -388,18 +387,18 @@ class ThermalModel(ABC):
             :math:`I_\text{min}~\left[\text{A}\right]`. Lower bound for the numerical scheme for
             computing the ampacity
         max_ampacity:
-            :math:`I_\text{min}~\left[\text{A}\right]`. Upper bound for the numerical scheme for
+            :math:`I_\text{max}~\left[\text{A}\right]`. Upper bound for the numerical scheme for
             computing the ampacity
         tolerance:
             :math:`\Delta I~\left[\text{A}\right]`. The numerical accuracy of the ampacity. The
             bisection iterations will stop once the numerical ampacity uncertainty is below
             :math:`\Delta I`. The bisection method will run for
-            :math:`\left\lceil\frac{I_\text{min} - I_\text{min}}{\Delta I}\right\rceil` iterations.
+            :math:`\left\lceil\frac{I_\text{max} - I_\text{min}}{\Delta I}\right\rceil` iterations.
 
         Returns
         -------
         Union[float, float64, ndarray[Any, dtype[float64]]]
-            :math:`I~\left[\text{A}\right]`. The transient thermal rating.
+            :math:`I~\left[\text{A}\right]`. The transient ampacity.
         """
         n = self.span.num_conductors
         I = solver.compute_conductor_transient_ampacity(  # noqa: E741

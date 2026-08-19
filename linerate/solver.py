@@ -112,12 +112,12 @@ def compute_conductor_temperature(
         :math:`\Delta T~\left[^\circ\text{C}\right]`. The numerical accuracy of the
         temperature. The bisection iterations will stop once the numerical temperature
         uncertainty is below :math:`\Delta T`. The bisection method will run for
-        :math:`\left\lceil\frac{T_\text{min} - T_\text{min}}{\Delta T}\right\rceil` iterations.
+        :math:`\left\lceil\frac{T_\text{max} - T_\text{min}}{\Delta T}\right\rceil` iterations.
 
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`I~\left[\text{A}\right]`. The thermal rating.
+        :math:`T~\left[^\circ\text{C}\right]`. The conductor temperature.
     """
 
     def f(conductor_temperature: Celsius) -> WattPerMeter:
@@ -133,7 +133,7 @@ def compute_conductor_ampacity(
     max_ampacity: Ampere = 8000,
     tolerance: float = 1,  # Ampere
 ) -> Ampere:
-    r"""Use the bisection method to compute the steady-state thermal rating (ampacity).
+    r"""Use the bisection method to compute the steady-state ampacity.
 
     Parameters
     ----------
@@ -158,7 +158,7 @@ def compute_conductor_ampacity(
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`I~\left[\text{A}\right]`. The thermal rating.
+        :math:`I~\left[\text{A}\right]`. The ampacity.
     """
     f = partial(heat_balance, max_conductor_temperature)
     ampacity = bisect(f, min_ampacity, max_ampacity, tolerance, accept_invalid_values=True)
@@ -174,7 +174,7 @@ def compute_conductor_transient_ampacity(
     max_ampacity: Ampere = 8000,
     tolerance: float = 1,  # Ampere
 ) -> Ampere:
-    r"""Use the bisection method to compute the temporary thermal rating (ampacity).
+    r"""Use the bisection method to compute the temporary ampacity.
 
     Parameters
     ----------
@@ -202,7 +202,7 @@ def compute_conductor_transient_ampacity(
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`I~\left[\text{A}\right]`. The thermal rating.
+        :math:`I~\left[\text{A}\right]`. The transient ampacity.
     """
 
     def temperature_difference(current: Ampere) -> Celsius:
@@ -276,7 +276,7 @@ def _validate_ampacity(
     f:
         :math:`f: \mathbb{R}^n \to \mathbb{R}^n`. Heat/temperature balance function whose roots give the ampacity.
     ampacity:
-        :math:`I~\left[\text{A}\right]`. The thermal rating.
+        :math:`I~\left[\text{A}\right]`. The ampacity.
     min_ampacity:
         :math:`I_\text{min}~\left[\text{A}\right]`. Lower bound for the numerical scheme for computing the ampacity
     max_ampacity:
@@ -285,7 +285,7 @@ def _validate_ampacity(
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`I~\left[\text{A}\right]`. The validated rating.
+        :math:`I~\left[\text{A}\right]`. The validated ampacity.
     """
     if min_ampacity == 0:
         zero_ampacity_mask = f(0) > 0

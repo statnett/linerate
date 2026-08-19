@@ -3,7 +3,6 @@ import numpy as np
 from linerate.units import (
     BoolOrBoolArray,
     Meter,
-    Radian,
     Unitless,
     WattPerSquareMeter,
 )
@@ -19,7 +18,7 @@ _industrial_atmosphere_polynomial = np.poly1d(
 
 
 def compute_total_heat_flux_density(
-    sin_solar_altitude: Radian,
+    sin_solar_altitude: Unitless,
     clear_atmosphere: BoolOrBoolArray,
 ) -> WattPerSquareMeter:
     r"""Compute the heat flux density received by a surface at sea level.
@@ -106,7 +105,7 @@ def compute_elevation_correction_factor(
 
 def compute_global_radiation_intensity(
     elevation_correction_factor: WattPerSquareMeter,
-    sin_solar_effective_incidence_angle: Radian,
+    sin_solar_effective_incidence_angle: Unitless,
 ) -> WattPerSquareMeter:
     r"""Compute the global radiation intensity experienced by the conductor.
 
