@@ -13,11 +13,11 @@ def bearing(
     latitude_1:
         :math:`\phi_1~\left[^\circ\right]`. First latitude.
     longitude_1:
-        :math:`\phi_1~\left[^\circ\right]`. First longitude (east of the prime meridian).
+        :math:`\lambda_1~\left[^\circ\right]`. First longitude (east of the prime meridian).
     latitude_2:
         :math:`\phi_2~\left[^\circ\right]`. Second latitude.
     longitude_2:
-        :math:`\phi_2~\left[^\circ\right]`. Second longitude (east of the prime meridian).
+        :math:`\lambda_2~\left[^\circ\right]`. Second longitude (east of the prime meridian).
 
     Returns
     -------
@@ -43,11 +43,11 @@ def haversine_distance(
     latitude_1:
         :math:`\phi_1~\left[^\circ\right]`. First latitude.
     longitude_1:
-        :math:`\phi_1~\left[^\circ\right]`. First longitude (east of the prime meridian).
+        :math:`\lambda_1~\left[^\circ\right]`. First longitude (east of the prime meridian).
     latitude_2:
         :math:`\phi_2~\left[^\circ\right]`. Second latitude.
     longitude_2:
-        :math:`\phi_2~\left[^\circ\right]`. Second longitude (east of the prime meridian).
+        :math:`\lambda_2~\left[^\circ\right]`. Second longitude (east of the prime meridian).
 
     Returns
     -------

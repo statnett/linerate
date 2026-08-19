@@ -52,7 +52,7 @@ def compute_dynamic_viscosity_of_air(  # mu_f
 
     Parameters
     ----------
-    film_temperature:
+    air_temperature_at_boundary_layer:
         :math:`(T_s + T_s)/2~\left[^\circ\text{C}\right]`. The temperature at the boundary layer,
         the thin air-film surrounding the conductor. Equal to the average of the ambient air
         temperature and the conductor surface temperature.
@@ -72,7 +72,7 @@ def compute_kinematic_viscosity_of_air(  # nu_f
 ) -> SquareMeterPerSecond:
     r"""Compute the kinematic viscosity of air.
 
-    Definition in text on page 25 of :cite:p:`cigre601`.
+    Definition in text on page 25 of :cite:p:`ieee738`.
 
     Parameters
     ----------
@@ -125,7 +125,7 @@ def compute_thermal_conductivity_of_air(  # k_f
 
     Parameters
     ----------
-    film_temperature:
+    air_temperature_at_boundary_layer:
         :math:`(T_s + T_s)/2~\left[^\circ\text{C}\right]`. The temperature at the boundary layer,
         the thin air-film surrounding the conductor. Equal to the average of the ambient air
         temperature and the conductor surface temperature.
@@ -145,7 +145,7 @@ def compute_thermal_conductivity_of_air(  # k_f
 
 
 def compute_forced_convection(  # q_c1 or q_c2
-    wind_direction_factor: Radian,
+    wind_direction_factor: Unitless,
     reynolds_number: Unitless,
     thermal_conductivity_of_air: WattPerMeterPerKelvin,
     temperature_of_conductor_surface: Celsius,
@@ -216,7 +216,7 @@ def compute_air_density(  # rho_f
 
     Parameters
     ----------
-    film_temperature:
+    air_temperature_at_boundary_layer:
         :math:`(T_s + T_s)/2~\left[^\circ\text{C}\right]`. The temperature at the boundary layer,
         the thin air-film surrounding the conductor. Equal to the average of the ambient air
         temperature and the conductor surface temperature.

@@ -173,7 +173,7 @@ def compute_sin_solar_altitude(
     latitude: Degrees,
     solar_declination: Radian,
     hour_angle_relative_to_noon: Radian,
-) -> Radian:
+) -> Unitless:
     r"""Compute the sine of the solar altitude
 
     This is an alteration of equation  (16a) on page 18 of :cite:p:`ieee738`.
@@ -183,7 +183,7 @@ def compute_sin_solar_altitude(
     ----------
     latitude:
         :math:`Lat~\left[^\circ\right]`. The latitude of the span (center).
-    ssolar_declination:
+    solar_declination:
         :math:`\delta~\left[\text{radian}\right]`. Solar declination (-23.45 to +23.45).
     hour_angle_relative_to_noon:
         :math:'\omega~\left[\text{radian}\right]`. The hour angle relative to noon.
@@ -200,10 +200,10 @@ def compute_sin_solar_altitude(
 
 
 def compute_sin_solar_effective_incidence_angle(
-    sin_solar_altitude: Radian,
+    sin_solar_altitude: Unitless,
     solar_azimuth: Radian,
     conductor_azimuth: Radian,
-) -> Radian:
+) -> Unitless:
     r"""Compute the sine of the effective angle of incidence of the sun rays.
 
     This is an alteration of equation (9) on page 13 of :cite:p:`ieee738`.

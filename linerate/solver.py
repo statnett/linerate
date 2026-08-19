@@ -112,12 +112,12 @@ def compute_conductor_temperature(
         :math:`\Delta T~\left[^\circ\text{C}\right]`. The numerical accuracy of the
         temperature. The bisection iterations will stop once the numerical temperature
         uncertainty is below :math:`\Delta T`. The bisection method will run for
-        :math:`\left\lceil\frac{T_\text{min} - T_\text{min}}{\Delta T}\right\rceil` iterations.
+        :math:`\left\lceil\frac{T_\text{max} - T_\text{min}}{\Delta T}\right\rceil` iterations.
 
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`I~\left[\text{A}\right]`. The thermal rating.
+        :math:`T~\left[^\circ\text{C}\right]`. The conductor temperature.
     """
 
     def f(conductor_temperature: Celsius) -> WattPerMeter:
@@ -130,11 +130,10 @@ def compute_conductor_ampacity(
     heat_balance: Callable[[Celsius, Ampere], WattPerMeter],
     max_conductor_temperature: Celsius,
     min_ampacity: Ampere = 0,
-    max_ampacity: Ampere = 5_000,
+    max_ampacity: Ampere = 8000,
     tolerance: float = 1,  # Ampere
-    accept_invalid_values: bool = False,
 ) -> Ampere:
-    r"""Use the bisection method to compute the steady-state thermal rating (ampacity).
+    r"""Use the bisection method to compute the steady-state ampacity.
 
     Parameters
     ----------
@@ -148,27 +147,22 @@ def compute_conductor_ampacity(
         :math:`I_\text{min}~\left[\text{A}\right]`. Lower bound for the numerical scheme for
         computing the ampacity
     max_ampacity:
-        :math:`I_\text{min}~\left[\text{A}\right]`. Upper bound for the numerical scheme for
+        :math:`I_\text{max}~\left[\text{A}\right]`. Upper bound for the numerical scheme for
         computing the ampacity
     tolerance:
         :math:`\Delta I~\left[\text{A}\right]`. The numerical accuracy of the ampacity. The
         bisection iterations will stop once the numerical ampacity uncertainty is below
         :math:`\Delta I`. The bisection method will run for
         :math:`\left\lceil\frac{I_\text{max} - I_\text{min}}{\Delta I}\right\rceil` iterations.
-    accept_invalid_values:
-        If True, np.nan is returned whenever the current cannot be found within the provided
-        search interval. If False, a ValueError will be raised instead.
 
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`I~\left[\text{A}\right]`. The thermal rating.
+        :math:`I~\left[\text{A}\right]`. The ampacity.
     """
     f = partial(heat_balance, max_conductor_temperature)
-
-    return bisect(
-        f, min_ampacity, max_ampacity, tolerance, accept_invalid_values=accept_invalid_values
-    )
+    ampacity = bisect(f, min_ampacity, max_ampacity, tolerance, accept_invalid_values=True)
+    return _validate_ampacity(f, ampacity, min_ampacity, max_ampacity)
 
 
 def compute_conductor_transient_ampacity(
@@ -177,11 +171,10 @@ def compute_conductor_transient_ampacity(
     initial_conductor_temperature: Celsius,
     heating_duration: Duration,
     min_ampacity: Ampere = 0,
-    max_ampacity: Ampere = 5_000,
+    max_ampacity: Ampere = 8000,
     tolerance: float = 1,  # Ampere
-    accept_invalid_values: bool = False,
 ) -> Ampere:
-    r"""Use the bisection method to compute the temporary thermal rating (ampacity).
+    r"""Use the bisection method to compute the temporary ampacity.
 
     Parameters
     ----------
@@ -198,34 +191,38 @@ def compute_conductor_transient_ampacity(
         :math:`I_\text{min}~\left[\text{A}\right]`. Lower bound for the numerical scheme for
         computing the ampacity
     max_ampacity:
-        :math:`I_\text{min}~\left[\text{A}\right]`. Upper bound for the numerical scheme for
+        :math:`I_\text{max}~\left[\text{A}\right]`. Upper bound for the numerical scheme for
         computing the ampacity
     tolerance:
         :math:`\Delta I~\left[\text{A}\right]`. The numerical accuracy of the ampacity. The
         bisection iterations will stop once the numerical ampacity uncertainty is below
         :math:`\Delta I`. The bisection method will run for
         :math:`\left\lceil\frac{I_\text{max} - I_\text{min}}{\Delta I}\right\rceil` iterations.
-    accept_invalid_values:
-        If True, np.nan is returned whenever the current cannot be found within the provided
-        search interval. If False, a ValueError will be raised instead.
 
     Returns
     -------
     Union[float, float64, ndarray[Any, dtype[float64]]]
-        :math:`I~\left[\text{A}\right]`. The thermal rating.
+        :math:`I~\left[\text{A}\right]`. The transient ampacity.
     """
 
     def temperature_difference(current: Ampere) -> Celsius:
-        return max_conductor_temperature - final_temperature(
-            initial_conductor_temperature, heating_duration, current
+        return (
+            final_temperature(initial_conductor_temperature, heating_duration, current)
+            - max_conductor_temperature
         )
 
-    return bisect(
+    ampacity = bisect(
         temperature_difference,
         min_ampacity,
         max_ampacity,
         tolerance,
-        accept_invalid_values=accept_invalid_values,
+        accept_invalid_values=True,
+    )
+    return _validate_ampacity(
+        temperature_difference,
+        ampacity,
+        min_ampacity,
+        max_ampacity,
     )
 
 
@@ -263,3 +260,41 @@ def solve_ivp_forward_euler(
     if remainder > 0:
         y = y + f(y) * remainder
     return y
+
+
+def _validate_ampacity(
+    f: Callable[[FloatOrFloatArray], FloatOrFloatArray],
+    ampacity: Ampere,
+    min_ampacity: Ampere,
+    max_ampacity: Ampere,
+) -> Ampere:
+    r"""If min_ampacity is 0, the ampacity is set to zero if the heat balance is positive at zero current.
+    Any ampacity that is outside the search interval is considered invalid and will raise a ValueError.
+
+    Parameters
+    ----------
+    f:
+        :math:`f: \mathbb{R}^n \to \mathbb{R}^n`. Heat/temperature balance function whose roots give the ampacity.
+    ampacity:
+        :math:`I~\left[\text{A}\right]`. The ampacity.
+    min_ampacity:
+        :math:`I_\text{min}~\left[\text{A}\right]`. Lower bound for the numerical scheme for computing the ampacity
+    max_ampacity:
+        :math:`I_\text{max}~\left[\text{A}\right]`. Upper bound for the numerical scheme for computing the ampacity
+
+    Returns
+    -------
+    Union[float, float64, ndarray[Any, dtype[float64]]]
+        :math:`I~\left[\text{A}\right]`. The validated ampacity.
+    """
+    if min_ampacity == 0:
+        positive_heat_balance_at_zero_current = f(0) > 0
+        ampacity = np.where(positive_heat_balance_at_zero_current, 0, ampacity)
+        invalid_mask = f(max_ampacity) < 0
+    else:
+        invalid_mask = np.sign(f(min_ampacity)) == np.sign(f(max_ampacity))
+
+    if np.any(invalid_mask):
+        raise ValueError("Ampacity could not be found, consider increasing the search interval.")
+
+    return ampacity

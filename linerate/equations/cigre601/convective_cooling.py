@@ -390,7 +390,7 @@ def compute_nusselt_number(
     forced_convection_nusselt_number:
         :math:`\text{Nu}_\delta`. The Nusselt number for the given wind angle-of-attack.
     natural_nusselt_number:
-        :math:`\text{Nu}_\delta`. The natural convection nusselt number where the conductor
+        :math:`\text{Nu}_\beta`. The natural convection nusselt number where the conductor
         inclination is taken into account.
 
     Returns
