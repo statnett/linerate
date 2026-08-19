@@ -288,8 +288,8 @@ def _validate_ampacity(
         :math:`I~\left[\text{A}\right]`. The validated ampacity.
     """
     if min_ampacity == 0:
-        zero_ampacity_mask = f(0) > 0
-        ampacity = np.where(zero_ampacity_mask, 0, ampacity)
+        positive_heat_balance_at_zero_current = f(0) > 0
+        ampacity = np.where(positive_heat_balance_at_zero_current, 0, ampacity)
         invalid_mask = f(max_ampacity) < 0
     else:
         invalid_mask = np.sign(f(min_ampacity)) == np.sign(f(max_ampacity))

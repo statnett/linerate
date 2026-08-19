@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 import linerate.solver as solver
-from linerate.units import Ampere, Celsius, WattPerMeter
+from linerate.units import Ampere, Celsius, Duration, WattPerMeter
 
 
 def test_compute_conductor_temperature_computes_correct_temperature(
@@ -36,6 +36,23 @@ def test_compute_conductor_ampacity_returns_zero_for_elements_with_positive_heat
 
     ampacity = solver.compute_conductor_ampacity(
         heat_balance, max_conductor_temperature=90, tolerance=1e-8
+    )
+
+    np.testing.assert_array_almost_equal(ampacity, [10, 0, 10], decimal=8)
+
+
+def test_compute_conductor_transient_ampacity_returns_zero_for_elements_with_positive_heat_balance_at_zero_current():
+    def final_temperature(
+        initial_conductor_temperature: Celsius, heating_duration: Duration, current: Ampere
+    ) -> Celsius:
+        return 90 + current**2 - np.array([100, -1, 100])
+
+    ampacity = solver.compute_conductor_transient_ampacity(
+        final_temperature,
+        max_conductor_temperature=90,
+        initial_conductor_temperature=20,
+        heating_duration=np.timedelta64(600, "s"),
+        tolerance=1e-8,
     )
 
     np.testing.assert_array_almost_equal(ampacity, [10, 0, 10], decimal=8)
