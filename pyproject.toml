@@ -15,7 +15,6 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-  "coverage[toml]",
   "hypothesis>=6.56.2",
   "pre-commit",
   "pytest==9.1.1",
@@ -31,7 +30,6 @@ docs = [
   "sphinx-gallery",
   "pydata-sphinx-theme",
   "matplotlib",
-  "setuptools",
 ]
 
 [tool.setuptools_scm]
