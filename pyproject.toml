@@ -15,7 +15,6 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-  "coverage[toml]",
   "hypothesis>=6.56.2",
   "pre-commit",
   "pytest==9.1.1",
@@ -31,7 +30,6 @@ docs = [
   "sphinx-gallery",
   "pydata-sphinx-theme",
   "matplotlib",
-  "setuptools",
 ]
 
 [tool.setuptools_scm]
@@ -100,5 +98,4 @@ venvPath = "."
 venv = ".venv"
 
 [tool.uv]
-exclude-newer = "0001-01-01T00:00:00Z"  # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
-exclude-newer-span = "P3D"
+exclude-newer = "P3D"
